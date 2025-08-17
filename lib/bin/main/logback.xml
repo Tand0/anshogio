@@ -1,0 +1,19 @@
+<configuration>
+
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="MYLOG" class="com.github.tand0.anshogio.log.StackAppender">
+  </appender>
+
+  <root level="DEBUG">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="MYLOG"/>
+  </root>
+
+
+</configuration>

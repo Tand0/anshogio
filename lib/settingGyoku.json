@@ -1,0 +1,20 @@
+{
+	"server.name": "localhost",
+	"server.port": 8081,
+    "downloadDir": "./log",
+    "targetYearStart": 2025,
+    "csa.ostname": "127.0.0.1",
+    "csa.port": 4081,
+    "csa.name": "ANShogiOVs",
+    "csa.password": "pass0",
+    "AriShogiServer.dir": "D:/gitwork/Ari-Shogi-Server/Ari-Shogi-Server",
+    "AriShogiServer.name": "python main_v1.py",
+    "postgres.url": "jdbc:postgresql://127.0.0.1:5432/anshogio",
+    "postgres.user": "postgres",
+    "postgres.passwd": "postgres",
+    "postgres.sum": 0,
+    "fliutter.dir": "D:\\gitwork\\Ari-Shogi-Server\\eclipse-workspace\\com.github.tand0.anshogio\\lib\\ANShogiF\\build\\web",
+    "tensor.url": "http://localhost:8083/b",
+    "tensor.name":"next_fastapi.py",
+    "tensor.dir": "D:/gitwork/Ari-Shogi-Server/eclipse-workspace/com.github.tand0.anshogio/lib/ANShogiPy"
+}

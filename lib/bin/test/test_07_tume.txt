@@ -1,0 +1,15 @@
+V2.2
+N+
+N-
+P1 *  *  *  *  *  *  * -KY * 
+P2 *  *  *  *  *  * +TO *  * 
+P3 *  *  *  * -KI * +GI * -KI
+P4 *  *  *  *  *  * -OU *  * 
+P5 *  *  *  *  * -FU-FU-FU * 
+P6 *  *  *  *  *  *  *  *  * 
+P7 *  *  *  *  *  *  *  *  * 
+P8 *  *  *  *  *  *  *  *  * 
+P9+OU *  *  *  *  *  *  *  * 
+P+00KA00KI00GI00GI
+P-00HI00HI00KA00KI00GI00KE00KE00KE00KE00KY00KY00KY00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU
+-

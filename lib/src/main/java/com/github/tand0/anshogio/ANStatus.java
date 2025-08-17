@@ -1,0 +1,15 @@
+package com.github.tand0.anshogio;
+
+public enum ANStatus {
+	START,
+	BEGIN_CONNECT,
+	BEGIN_LOGIN,
+	BIGIN_GAME_SUMMARY,
+	BIGIN_GAME_NOW,
+	BEGIN_TIME,
+	BEGIN_POSITION,
+	BEIGN_START,
+	FIGHT,
+	END,
+	ERROR
+}
