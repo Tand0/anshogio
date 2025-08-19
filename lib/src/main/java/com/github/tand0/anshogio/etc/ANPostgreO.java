@@ -262,7 +262,7 @@ public class ANPostgreO implements Runnable {
 				//
     			int te = BanmenDefine.changeTeStringToInt(str);
     			BanmenNext next = nextList.getLast().decisionTe(factory, te);
-    			only = next.getBanmen(); // 最終盤面
+    			only = next.getMyKey().createBanmenOnly(); // 最終盤面
     			nextList.addLast(next); //打った手を保存
     		} else if (str.equals("%TIME_UP")) {
     			knownError = true;

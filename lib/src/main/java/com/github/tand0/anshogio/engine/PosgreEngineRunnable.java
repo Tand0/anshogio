@@ -35,7 +35,7 @@ public class PosgreEngineRunnable extends EngineRunnable {
 	@Override
 	public void run() {
 		//
-		int teban = banmenList.getLast().getBanmen().getTeban();
+		int teban = banmenList.getLast().getMyKey().getTeban();
 		float value = (teban == 0) ? Float.MIN_VALUE : Float.MAX_VALUE;
 		//
 		// postgres から評価値を取得する

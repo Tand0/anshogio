@@ -52,7 +52,7 @@ public class BanmenFactory {
 		if (next != null) {
 			return next;
 		}
-		next = new BanmenNextEval(key, bannmen);
+		next = new BanmenNextEval(key);
 		hashSet.put(key, next);
 		return next;
 	}

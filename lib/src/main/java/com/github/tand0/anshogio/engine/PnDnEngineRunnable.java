@@ -30,7 +30,7 @@ public class PnDnEngineRunnable extends EngineRunnable {
     /** MAX_TUMEROで示す階層までPnDnを探索する */
     public void run() {
         BanmenNext next = banmenList.getLast();
-        int teban = banmenList.getLast().getBanmen().getTeban();
+        int teban = banmenList.getLast().getMyKey().getTeban();
         HashSet<BanmenNext> route = new HashSet<>(banmenList);
         for (int level = 0 ; level < MAX_TUMERO ; level++) {
             if (isEnd() || factory.checkMemory()) {
@@ -99,7 +99,7 @@ public class PnDnEngineRunnable extends EngineRunnable {
                 flag = false; // 初期はこうなる。初期フラグを落とす
                 basePnDn.pn = childPndn.pn;
                 basePnDn.dn = childPndn.dn;
-            } else if (seme == child.getBanmen().getTeban()) {
+            } else if (seme == child.getMyKey().getTeban()) {
                 basePnDn.sumPn(childPndn);
                 basePnDn.minDn(childPndn);
             } else {

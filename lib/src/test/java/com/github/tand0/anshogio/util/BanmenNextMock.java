@@ -14,15 +14,17 @@ public class BanmenNextMock extends BanmenNextEval {
     /** 敵を王手しているかチェック (trueなら王手 */
     private final boolean enemyOute;
 
+    
     /** コンストラクタ */
     public BanmenNextMock(BanmenKey key,int teban, boolean kingWin,boolean enemyOute) {
-        super(key, new BanmenOnly(null,0));
-        this.getBanmen().setTeban(teban); // ダミーを作る
+        super(key);
+        this.getMyKey().setTeban(teban); // ダミーを作る
         this.kingWin = kingWin;
         this.enemyOute = enemyOute;
     }
     /** 子づくりする(Mockなのでfactoryは使わない。盤面から合法手を作らない) */
-    public synchronized HashMap<Integer, BanmenNext> getChildGetGouhou(BanmenFactory factory) {
+    @Override
+    public synchronized HashMap<Integer, BanmenNext> getChildGetGouhou(BanmenFactory factory, BanmenOnly only) {
         if (this.childFileld == null) {
             this.childFileld = this.mockChild;
         }
@@ -39,7 +41,7 @@ public class BanmenNextMock extends BanmenNextEval {
      * @return 入玉勝ちの場合 true
      */
     @Override
-    public boolean isKingWin() {
+    public boolean isKingWin(BanmenOnly banmen) {
         return kingWin;
     }
     /** 敵に王手をしているならtrue
@@ -47,5 +49,11 @@ public class BanmenNextMock extends BanmenNextEval {
     @Override
     public boolean isEnemyOute() {
         return this.enemyOute;
+    }
+
+    /** keyから盤面を作る */
+    @Override
+    public BanmenOnly createBanmenOnly() {
+        return null; // ダミーなので盤面を作らせない
     }
 }

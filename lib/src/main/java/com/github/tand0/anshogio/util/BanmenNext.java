@@ -19,10 +19,6 @@ public interface BanmenNext extends Comparable<BanmenNext> {
     /** 手を決定する(ほかの手は消す) */
     public BanmenNext decisionTe(BanmenFactory factory,int te);
 	
-    /** 盤面を取得する
-	 */
-	public BanmenOnly getBanmen();
-	
 	/** 自分のキーを渡す */
 	public BanmenKey getMyKey();
 	

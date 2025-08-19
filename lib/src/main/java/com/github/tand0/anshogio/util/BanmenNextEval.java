@@ -14,10 +14,9 @@ public class BanmenNextEval extends BanmenNextBase {
     
     /** コンストラクタ
      * @param key キー
-     * @param bannmen 盤面
      */
-    protected BanmenNextEval(BanmenKey key, BanmenOnly bannmen) {
-        super(key, bannmen);
+    protected BanmenNextEval(BanmenKey key) {
+        super(key);
     }
     
     /** 入玉勝ちならtrue, 入玉勝ちでなければfalse, 未チェックならnu;; */
@@ -29,28 +28,41 @@ public class BanmenNextEval extends BanmenNextBase {
      */
     @Override
     public boolean isKingWin() {
+        return isKingWin(this.createBanmenOnly());
+    }
+    
+    /**
+     * 入玉勝ちチェック
+     * @return 入玉勝ちの場合 true
+     */
+    public boolean isKingWin(BanmenOnly banmen) {
         if (kingWin == null) {
             // kingWin チェックをしていないのでこれを実行する
             int myOuX;
             int myOuY;
-            if (getBanmen().getTeban()==0) { // 先手
-                myOuX = getBanmen().getSenteOuX();
-                myOuY = getBanmen().getSenteOuY();
+            if (this.getMyKey().getTeban()==0) { // 先手
+                myOuX = banmen.getSenteOuX();
+                myOuY = banmen.getSenteOuY();
             } else {
-                myOuX = getBanmen().getGoteOuX();
-                myOuY = getBanmen().getGoteOuY();
+                myOuX = banmen.getGoteOuX();
+                myOuY = banmen.getGoteOuY();
             }
-            kingWin = isKingWin(myOuX,myOuY);
+            kingWin = isKingWin(myOuX,myOuY, banmen);
         }
         return kingWin;
     }
 
+    /** keyから盤面を作る */
+    public BanmenOnly createBanmenOnly() {
+        return this.getMyKey().createBanmenOnly();
+    }
     /** 子づくりする */
     @Override
     public HashMap<Integer, BanmenNext> getChild(BanmenFactory factory) {
-        HashMap<Integer, BanmenNext> childMap = this.getChildGetGouhou(factory);
-        int teban = this.getBanmen().getTeban();
-        if (this.isKingWin()) { // もしも入玉勝ちなら
+        BanmenOnly banmenOnly = createBanmenOnly();
+        HashMap<Integer, BanmenNext> childMap = this.getChildGetGouhou(factory,banmenOnly);
+        int teban = this.getMyKey().getTeban();
+        if (this.isKingWin(banmenOnly)) { // もしも入玉勝ちなら
             pndn[teban  ].pn = 0;
             pndn[teban  ].dn = Integer.MAX_VALUE;
             pndn[1-teban].pn = Integer.MAX_VALUE;
@@ -72,8 +84,8 @@ public class BanmenNextEval extends BanmenNextBase {
      * 入玉勝ちチェック
      * @return 入玉勝ちの場合 true
      */
-    protected boolean isKingWin(int myOuX,int myOuY) {
-        int teban = this.getBanmen().getTeban(); // 先手-1,後手1に変換
+    protected boolean isKingWin(int myOuX,int myOuY,BanmenOnly banmenOnly) {
+        int teban = this.getMyKey().getTeban(); // 先手-1,後手1に変換
         int range0;
         if ((teban == 0) && (myOuY <= 2)) {
             range0 = 0;
@@ -82,7 +94,7 @@ public class BanmenNextEval extends BanmenNextBase {
         } else {
             return false; // 入玉していない
         }
-        if (this.getBanmen().checkSelfMate(teban,myOuX,myOuY)) {
+        if (banmenOnly.checkSelfMate(teban,myOuX,myOuY)) {
             return false;// 大手を掛けられていない
         }
         
@@ -92,7 +104,7 @@ public class BanmenNextEval extends BanmenNextBase {
         int value = 0;
         for (int x = 0 ; x < BanmenDefine.B_MAX ; x++) {
             for (int y = range0 ; y <= (range0 +2) ; y++) {
-                byte koma = this.getBanmen().getKoma(x, y);
+                byte koma = banmenOnly.getKoma(x, y);
                 if (koma == BanmenDefine.pNull) {
                     continue;
                 }
@@ -115,11 +127,11 @@ public class BanmenNextEval extends BanmenNextBase {
         
         // 手持ちの小駒の数を数える
         for (byte i = 0 ; i < BanmenDefine.pB ; i++) {
-            value = value + this.getBanmen().getTegoma(i, teban);
+            value = value + banmenOnly.getTegoma(i, teban);
         }
         // 手持ちの大駒の数を数える
         for (byte i = pB ; i <= BanmenDefine.pR ; i++) {
-            value = value + this.getBanmen().getTegoma(i, teban) * 5;
+            value = value + banmenOnly.getTegoma(i, teban) * 5;
         }
         // 先手は28枚、後手は27枚以上ある
         return (27 + (1-teban)) <= value;
@@ -156,7 +168,7 @@ public class BanmenNextEval extends BanmenNextBase {
     /** 評価値を返す */
     @Override
     public Float getEvel() {
-        int myTeban = this.getBanmen().getTeban();
+        int myTeban = this.getMyKey().getTeban();
         if ((pndn[myTeban] != null) && (pndn[myTeban].pn == 0)) {
             // 自身のが詰んでいる場合 (1.1 or -1.1にする
             return (float)(1.1f - (myTeban *2.2f));
@@ -174,7 +186,7 @@ public class BanmenNextEval extends BanmenNextBase {
     public int getEvelTe(BanmenFactory factory,LinkedList<BanmenNext> banmenList) {
         int te = -2;
         //
-        int teban = this.getBanmen().getTeban();
+        int teban = this.getMyKey().getTeban();
         float value = (teban == 0) ? Float.MIN_VALUE : Float.MAX_VALUE;
         boolean forceFlagTarget = false;
         for (Map.Entry<Integer, BanmenNext> entry : this.getChild(factory).entrySet()) {
@@ -263,7 +275,7 @@ public class BanmenNextEval extends BanmenNextBase {
             return false; // すでに詰み or 詰まされ状態 or 展開されていなければ次ループへ
         }
         BanmenNext target;
-        if (seme == this.getBanmen().getTeban()) {
+        if (seme == this.getMyKey().getTeban()) {
             target = executePnDnSeme(seme,childSet, route);
         } else {
             target = executePnDnUke(seme,childSet, route);
@@ -277,7 +289,7 @@ public class BanmenNextEval extends BanmenNextBase {
         route.add(target);// ルートに追加
         boolean limit = target.executePnDn(factory,seme, level - 1, route);
         route.remove(target);// ルートから削除
-        if (seme == this.getBanmen().getTeban()) {
+        if (seme == this.getMyKey().getTeban()) {
             updateMyPnDnSeme(seme,target,old);
             updateMyPnDnUke(seme,target,old);       
         } else {

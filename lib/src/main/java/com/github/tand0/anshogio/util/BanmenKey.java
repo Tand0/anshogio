@@ -526,4 +526,13 @@ public class BanmenKey implements Comparable<BanmenKey> {
         // p.pos = nextLen; // peekなので処理しない
         return result;
     }
+    
+    /** 手番を取得する */
+    public int getTeban() {
+        return (int) (key[0] >>> 63);
+    }
+    /** 手番を設定する */
+    protected void setTeban(int teban) {
+        key[0] = (key[0] & ((~ 0L) >>> 1)) | ((teban & 1L) << 63);
+    }
 }

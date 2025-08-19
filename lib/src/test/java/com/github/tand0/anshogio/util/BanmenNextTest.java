@@ -31,93 +31,93 @@ class BanmenNextTest {
 	@Test
 	public void komaSenteTest() {
 		//
-        find(pP, 5 - 1, 5 - 1,"+5554FU");
-        find(pP, 5 - 1, 4 - 1,"+5453TO");
-        find(pP, 5 - 1, 3 - 1,"+5352TO");
-        find(pP, 5 - 1, 2 - 1,"+5251TO");
+        find(pP, 5 - 1, 5 - 1,"+5554FU","+1112OU","+1121OU","+1122OU");
+        find(pP, 5 - 1, 4 - 1,"+5453TO","+1112OU","+1121OU","+1122OU");
+        find(pP, 5 - 1, 3 - 1,"+5352TO","+1112OU","+1121OU","+1122OU");
+        find(pP, 5 - 1, 2 - 1,"+5251TO","+1112OU","+1121OU","+1122OU");
         //
-        find(pL, 5 - 1, 2 - 1,"+5251NY");
-        find(pL, 5 - 1, 3 - 1,"+5351NY","+5352NY");
-        find(pL, 5 - 1, 4 - 1,"+5451NY","+5452NY","+5453KY","+5453NY");
-        find(pL, 5 - 1, 9 - 1,"+5951NY","+5952NY","+5953NY","+5953KY","+5954KY","+5955KY","+5956KY","+5957KY","+5958KY");
+        find(pL, 5 - 1, 2 - 1,"+5251NY","+1112OU","+1121OU","+1122OU");
+        find(pL, 5 - 1, 3 - 1,"+5351NY","+5352NY","+1112OU","+1121OU","+1122OU");
+        find(pL, 5 - 1, 4 - 1,"+5451NY","+5452NY","+5453KY","+5453NY","+1112OU","+1121OU","+1122OU");
+        find(pL, 5 - 1, 9 - 1,"+5951NY","+5952NY","+5953NY","+5953KY","+5954KY","+5955KY","+5956KY","+5957KY","+5958KY","+1112OU","+1121OU","+1122OU");
         //
-        find(pN, 5 - 1, 3 - 1,"+5341NK","+5361NK");
-        find(pN, 5 - 1, 4 - 1,"+5442NK","+5462NK");
-        find(pN, 5 - 1, 5 - 1,"+5543KE","+5543NK","+5563KE","+5563NK");
-        find(pN, 5 - 1, 6 - 1,"+5644KE","+5664KE");
+        find(pN, 5 - 1, 3 - 1,"+5341NK","+5361NK","+1112OU","+1121OU","+1122OU");
+        find(pN, 5 - 1, 4 - 1,"+5442NK","+5462NK","+1112OU","+1121OU","+1122OU");
+        find(pN, 5 - 1, 5 - 1,"+5543KE","+5543NK","+5563KE","+5563NK","+1112OU","+1121OU","+1122OU");
+        find(pN, 5 - 1, 6 - 1,"+5644KE","+5664KE","+1112OU","+1121OU","+1122OU");
         //
-        find(pS, 5 - 1, 2 - 1,"+5241GI","+5241NG","+5243GI","+5243NG","+5251GI","+5251NG","+5261GI","+5261NG","+5263GI","+5263NG");
-        find(pS, 5 - 1, 3 - 1,"+5342GI","+5342NG","+5344GI","+5344NG","+5352GI","+5352NG","+5362GI","+5362NG","+5364GI","+5364NG");
-        find(pS, 5 - 1, 4 - 1,"+5443GI","+5443NG","+5445GI","+5453GI","+5453NG","+5463GI","+5463NG","+5465GI");
-        find(pS, 5 - 1, 5 - 1,"+5544GI","+5546GI","+5554GI","+5564GI","+5566GI");
+        find(pS, 5 - 1, 2 - 1,"+5241GI","+5241NG","+5243GI","+5243NG","+5251GI","+5251NG","+5261GI","+5261NG","+5263GI","+5263NG","+1112OU","+1121OU","+1122OU");
+        find(pS, 5 - 1, 3 - 1,"+5342GI","+5342NG","+5344GI","+5344NG","+5352GI","+5352NG","+5362GI","+5362NG","+5364GI","+5364NG","+1112OU","+1121OU","+1122OU");
+        find(pS, 5 - 1, 4 - 1,"+5443GI","+5443NG","+5445GI","+5453GI","+5453NG","+5463GI","+5463NG","+5465GI","+1112OU","+1121OU","+1122OU");
+        find(pS, 5 - 1, 5 - 1,"+5544GI","+5546GI","+5554GI","+5564GI","+5566GI","+1112OU","+1121OU","+1122OU");
         //
-        find(pG, 5 - 1, 2 - 1,"+5241KI","+5242KI","+5251KI","+5253KI","+5261KI","+5262KI");
-        find(pG, 5 - 1, 3 - 1,"+5342KI","+5343KI","+5352KI","+5354KI","+5362KI","+5363KI");
-        find(pG, 5 - 1, 4 - 1,"+5443KI","+5444KI","+5453KI","+5455KI","+5463KI","+5464KI");
-        find(pG, 5 - 1, 5 - 1,"+5544KI","+5545KI","+5554KI","+5556KI","+5564KI","+5565KI");
+        find(pG, 5 - 1, 2 - 1,"+5241KI","+5242KI","+5251KI","+5253KI","+5261KI","+5262KI","+1112OU","+1121OU","+1122OU");
+        find(pG, 5 - 1, 3 - 1,"+5342KI","+5343KI","+5352KI","+5354KI","+5362KI","+5363KI","+1112OU","+1121OU","+1122OU");
+        find(pG, 5 - 1, 4 - 1,"+5443KI","+5444KI","+5453KI","+5455KI","+5463KI","+5464KI","+1112OU","+1121OU","+1122OU");
+        find(pG, 5 - 1, 5 - 1,"+5544KI","+5545KI","+5554KI","+5556KI","+5564KI","+5565KI","+1112OU","+1121OU","+1122OU");
         //
-        find(pB, 5 - 1, 2 - 1,"+5216UM","+5225UM","+5234UM","+5241UM","+5243UM","+5261UM","+5263UM","+5274UM","+5285UM","+5296UM");
-        find(pB, 5 - 1, 3 - 1,"+5317UM","+5326UM","+5331UM","+5335UM","+5342UM","+5344UM","+5362UM","+5364UM","+5371UM","+5375UM","+5386UM","+5397UM");
-        find(pB, 5 - 1, 4 - 1,"+5418KA","+5421UM","+5427KA","+5432UM","+5436KA","+5443UM","+5445KA","+5463UM","+5465KA","+5472UM","+5476KA","+5481UM","+5487KA","+5498KA");
-        find(pB, 5 - 1, 5 - 1,"+5511UM","+5519KA","+5522UM","+5528KA","+5533UM","+5537KA","+5544KA","+5546KA","+5564KA","+5566KA","+5573UM","+5577KA","+5582UM","+5588KA","+5591UM","+5599KA");
+        find(pB, 5 - 1, 2 - 1,"+5216UM","+5225UM","+5234UM","+5241UM","+5243UM","+5261UM","+5263UM","+5274UM","+5285UM","+5296UM","+1112OU","+1121OU","+1122OU");
+        find(pB, 5 - 1, 3 - 1,"+5317UM","+5326UM","+5331UM","+5335UM","+5342UM","+5344UM","+5362UM","+5364UM","+5371UM","+5375UM","+5386UM","+5397UM","+1112OU","+1121OU","+1122OU");
+        find(pB, 5 - 1, 4 - 1,"+5418KA","+5421UM","+5427KA","+5432UM","+5436KA","+5443UM","+5445KA","+5463UM","+5465KA","+5472UM","+5476KA","+5481UM","+5487KA","+5498KA","+1112OU","+1121OU","+1122OU");
+        find(pB, 5 - 1, 5 - 1,"+5519KA","+5522UM","+5528KA","+5533UM","+5537KA","+5544KA","+5546KA","+5564KA","+5566KA","+5573UM","+5577KA","+5582UM","+5588KA","+5591UM","+5599KA","+1112OU","+1121OU","+1122OU");
         //
-        find(pR, 5 - 1, 2 - 1,"+5212RY","+5222RY","+5232RY","+5242RY","+5251RY","+5253RY","+5254RY","+5255RY","+5256RY","+5257RY","+5258RY","+5259RY","+5262RY","+5272RY","+5282RY","+5292RY");
-        find(pR, 5 - 1, 3 - 1,"+5313RY","+5323RY","+5333RY","+5343RY","+5351RY","+5352RY","+5354RY","+5355RY","+5356RY","+5357RY","+5358RY","+5359RY","+5363RY","+5373RY","+5383RY","+5393RY");
-        find(pR, 5 - 1, 4 - 1,"+5414HI","+5424HI","+5434HI","+5444HI","+5451RY","+5452RY","+5453RY","+5455HI","+5456HI","+5457HI","+5458HI","+5459HI","+5464HI","+5474HI","+5484HI","+5494HI");
-        find(pR, 5 - 1, 5 - 1,"+5515HI","+5525HI","+5535HI","+5545HI","+5551RY","+5552RY","+5553RY","+5554HI","+5556HI","+5557HI","+5558HI","+5559HI","+5565HI","+5575HI","+5585HI","+5595HI");
+        find(pR, 5 - 1, 2 - 1,"+5212RY","+5222RY","+5232RY","+5242RY","+5251RY","+5253RY","+5254RY","+5255RY","+5256RY","+5257RY","+5258RY","+5259RY","+5262RY","+5272RY","+5282RY","+5292RY","+1112OU","+1121OU","+1122OU");
+        find(pR, 5 - 1, 3 - 1,"+5313RY","+5323RY","+5333RY","+5343RY","+5351RY","+5352RY","+5354RY","+5355RY","+5356RY","+5357RY","+5358RY","+5359RY","+5363RY","+5373RY","+5383RY","+5393RY","+1112OU","+1121OU","+1122OU");
+        find(pR, 5 - 1, 4 - 1,"+5414HI","+5424HI","+5434HI","+5444HI","+5451RY","+5452RY","+5453RY","+5455HI","+5456HI","+5457HI","+5458HI","+5459HI","+5464HI","+5474HI","+5484HI","+5494HI","+1112OU","+1121OU","+1122OU");
+        find(pR, 5 - 1, 5 - 1,"+5515HI","+5525HI","+5535HI","+5545HI","+5551RY","+5552RY","+5553RY","+5554HI","+5556HI","+5557HI","+5558HI","+5559HI","+5565HI","+5575HI","+5585HI","+5595HI","+1112OU","+1121OU","+1122OU");
         //
         find(pK, 5 - 1, 3 - 1,"+5342OU","+5343OU","+5344OU","+5352OU","+5354OU","+5362OU","+5363OU","+5364OU");
         //
-        find(ppP, 5 - 1, 3 - 1,"+5342TO","+5343TO","+5352TO","+5354TO","+5362TO","+5363TO");
-        find(ppN, 5 - 1, 3 - 1,"+5342NK","+5343NK","+5352NK","+5354NK","+5362NK","+5363NK");
-        find(ppL, 5 - 1, 3 - 1,"+5342NY","+5343NY","+5352NY","+5354NY","+5362NY","+5363NY");
-        find(ppS, 5 - 1, 3 - 1,"+5342NG","+5343NG","+5352NG","+5354NG","+5362NG","+5363NG");
-        find(ppB, 5 - 1, 3 - 1,"+5317UM","+5326UM","+5331UM","+5335UM","+5342UM","+5343UM","+5344UM","+5352UM","+5354UM","+5362UM","+5363UM","+5364UM","+5371UM","+5375UM","+5386UM","+5397UM");
-        find(ppR, 5 - 1, 3 - 1,"+5313RY","+5323RY","+5333RY","+5342RY","+5343RY","+5344RY","+5351RY","+5352RY","+5354RY","+5355RY","+5356RY","+5357RY","+5358RY","+5359RY","+5362RY","+5363RY","+5364RY","+5373RY","+5383RY","+5393RY");
+        find(ppP, 5 - 1, 3 - 1,"+5342TO","+5343TO","+5352TO","+5354TO","+5362TO","+5363TO","+1112OU","+1121OU","+1122OU");
+        find(ppN, 5 - 1, 3 - 1,"+5342NK","+5343NK","+5352NK","+5354NK","+5362NK","+5363NK","+1112OU","+1121OU","+1122OU");
+        find(ppL, 5 - 1, 3 - 1,"+5342NY","+5343NY","+5352NY","+5354NY","+5362NY","+5363NY","+1112OU","+1121OU","+1122OU");
+        find(ppS, 5 - 1, 3 - 1,"+5342NG","+5343NG","+5352NG","+5354NG","+5362NG","+5363NG","+1112OU","+1121OU","+1122OU");
+        find(ppB, 5 - 1, 3 - 1,"+5317UM","+5326UM","+5331UM","+5335UM","+5342UM","+5343UM","+5344UM","+5352UM","+5354UM","+5362UM","+5363UM","+5364UM","+5371UM","+5375UM","+5386UM","+5397UM","+1112OU","+1121OU","+1122OU");
+        find(ppR, 5 - 1, 3 - 1,"+5313RY","+5323RY","+5333RY","+5342RY","+5343RY","+5344RY","+5351RY","+5352RY","+5354RY","+5355RY","+5356RY","+5357RY","+5358RY","+5359RY","+5362RY","+5363RY","+5364RY","+5373RY","+5383RY","+5393RY","+1112OU","+1121OU","+1122OU");
 	}
 	
 	@Test
 	public void komaGoteTest() {
 		//
-        find(pp, 5 - 1, 5 - 1,"-5556FU");
-        find(pp, 5 - 1, 6 - 1,"-5657TO");
-        find(pp, 5 - 1, 7 - 1,"-5758TO");
-        find(pp, 5 - 1, 8 - 1,"-5859TO");
+        find(pp, 5 - 1, 5 - 1,"-5556FU","-9989OU","-9988OU","-9998OU");
+        find(pp, 5 - 1, 6 - 1,"-5657TO","-9989OU","-9988OU","-9998OU");
+        find(pp, 5 - 1, 7 - 1,"-5758TO","-9989OU","-9988OU","-9998OU");
+        find(pp, 5 - 1, 8 - 1,"-5859TO","-9989OU","-9988OU","-9998OU");
         //
-        find(pl, 5 - 1, 7 - 1,"-5758NY","-5759NY");
-        find(pl, 5 - 1, 6 - 1,"-5657KY","-5657NY","-5658NY","-5659NY");
-        find(pl, 5 - 1, 5 - 1,"-5556KY","-5557KY","-5557NY","-5558NY","-5559NY");
-        find(pl, 5 - 1, 1 - 1,"-5152KY","-5153KY","-5154KY","-5155KY","-5156KY","-5157KY","-5157NY","-5158NY","-5159NY");
+        find(pl, 5 - 1, 7 - 1,"-5758NY","-5759NY","-9989OU","-9988OU","-9998OU");
+        find(pl, 5 - 1, 6 - 1,"-5657KY","-5657NY","-5658NY","-5659NY","-9989OU","-9988OU","-9998OU");
+        find(pl, 5 - 1, 5 - 1,"-5556KY","-5557KY","-5557NY","-5558NY","-5559NY","-9989OU","-9988OU","-9998OU");
+        find(pl, 5 - 1, 1 - 1,"-5152KY","-5153KY","-5154KY","-5155KY","-5156KY","-5157KY","-5157NY","-5158NY","-5159NY","-9989OU","-9988OU","-9998OU");
         //
-        find(pn, 5 - 1, 7 - 1,"-5749NK","-5769NK");
-        find(pn, 5 - 1, 6 - 1,"-5648NK","-5668NK");
-        find(pn, 5 - 1, 5 - 1,"-5547KE","-5547NK","-5567KE","-5567NK");
-        find(pn, 5 - 1, 4 - 1,"-5446KE","-5466KE");
+        find(pn, 5 - 1, 7 - 1,"-5749NK","-5769NK","-9989OU","-9988OU","-9998OU");
+        find(pn, 5 - 1, 6 - 1,"-5648NK","-5668NK","-9989OU","-9988OU","-9998OU");
+        find(pn, 5 - 1, 5 - 1,"-5547KE","-5547NK","-5567KE","-5567NK","-9989OU","-9988OU","-9998OU");
+        find(pn, 5 - 1, 4 - 1,"-5446KE","-5466KE","-9989OU","-9988OU","-9998OU");
         //
-        find(ps, 5 - 1, 8 - 1,"-5847GI","-5847NG","-5849GI","-5849NG","-5859GI","-5859NG","-5867GI","-5867NG","-5869GI","-5869NG");
-        find(ps, 5 - 1, 7 - 1,"-5746GI","-5746NG","-5748GI","-5748NG","-5758GI","-5758NG","-5766GI","-5766NG","-5768GI","-5768NG");
-        find(ps, 5 - 1, 6 - 1,"-5645GI","-5647GI","-5647NG","-5657GI","-5657NG","-5665GI","-5667GI","-5667NG");
-        find(ps, 5 - 1, 5 - 1,"-5544GI","-5546GI","-5556GI","-5564GI","-5566GI");
+        find(ps, 5 - 1, 8 - 1,"-5847GI","-5847NG","-5849GI","-5849NG","-5859GI","-5859NG","-5867GI","-5867NG","-5869GI","-5869NG","-9989OU","-9988OU","-9998OU");
+        find(ps, 5 - 1, 7 - 1,"-5746GI","-5746NG","-5748GI","-5748NG","-5758GI","-5758NG","-5766GI","-5766NG","-5768GI","-5768NG","-9989OU","-9988OU","-9998OU");
+        find(ps, 5 - 1, 6 - 1,"-5645GI","-5647GI","-5647NG","-5657GI","-5657NG","-5665GI","-5667GI","-5667NG","-9989OU","-9988OU","-9998OU");
+        find(ps, 5 - 1, 5 - 1,"-5544GI","-5546GI","-5556GI","-5564GI","-5566GI","-9989OU","-9988OU","-9998OU");
         //
-        find(pg, 5 - 1, 8 - 1,"-5848KI","-5849KI","-5857KI","-5859KI","-5868KI","-5869KI");
-        find(pg, 5 - 1, 5 - 1,"-5545KI","-5546KI","-5554KI","-5556KI","-5565KI","-5566KI");
+        find(pg, 5 - 1, 8 - 1,"-5848KI","-5849KI","-5857KI","-5859KI","-5868KI","-5869KI","-9989OU","-9988OU","-9998OU");
+        find(pg, 5 - 1, 5 - 1,"-5545KI","-5546KI","-5554KI","-5556KI","-5565KI","-5566KI","-9989OU","-9988OU","-9998OU");
         //
-        find(pb, 5 - 1, 8 - 1,"-5814UM","-5825UM","-5836UM","-5847UM","-5849UM","-5867UM","-5869UM","-5876UM","-5885UM","-5894UM");
-        find(pb, 5 - 1, 7 - 1,"-5713UM","-5724UM","-5735UM","-5739UM","-5746UM","-5748UM","-5766UM","-5768UM","-5775UM","-5779UM","-5784UM","-5793UM");
-        find(pb, 5 - 1, 6 - 1,"-5612KA","-5623KA","-5629UM","-5634KA","-5638UM","-5645KA","-5647UM","-5665KA","-5667UM","-5674KA","-5678UM","-5683KA","-5689UM","-5692KA");
-        find(pb, 5 - 1, 5 - 1,"-5511KA","-5519UM","-5522KA","-5528UM","-5533KA","-5537UM","-5544KA","-5546KA","-5564KA","-5566KA","-5573KA","-5577UM","-5582KA","-5588UM","-5591KA","-5599UM");
+        find(pb, 5 - 1, 8 - 1,"-5814UM","-5825UM","-5836UM","-5847UM","-5849UM","-5867UM","-5869UM","-5876UM","-5885UM","-5894UM","-9989OU","-9988OU","-9998OU");
+        find(pb, 5 - 1, 7 - 1,"-5713UM","-5724UM","-5735UM","-5739UM","-5746UM","-5748UM","-5766UM","-5768UM","-5775UM","-5779UM","-5784UM","-5793UM","-9989OU","-9988OU","-9998OU");
+        find(pb, 5 - 1, 6 - 1,"-5612KA","-5623KA","-5629UM","-5634KA","-5638UM","-5645KA","-5647UM","-5665KA","-5667UM","-5674KA","-5678UM","-5683KA","-5689UM","-5692KA","-9989OU","-9988OU","-9998OU");
+        find(pb, 5 - 1, 5 - 1,"-5511KA","-5519UM","-5522KA","-5528UM","-5533KA","-5537UM","-5544KA","-5546KA","-5564KA","-5566KA","-5573KA","-5577UM","-5582KA","-5588UM","-5591KA","-9989OU","-9988OU","-9998OU");
         //
-        find(pr, 5 - 1, 8 - 1,"-5818RY","-5828RY","-5838RY","-5848RY","-5851RY","-5852RY","-5853RY","-5854RY","-5855RY","-5856RY","-5857RY","-5859RY","-5868RY","-5878RY","-5888RY","-5898RY");
-        find(pr, 5 - 1, 7 - 1,"-5717RY","-5727RY","-5737RY","-5747RY","-5751RY","-5752RY","-5753RY","-5754RY","-5755RY","-5756RY","-5758RY","-5759RY","-5767RY","-5777RY","-5787RY","-5797RY");
-        find(pr, 5 - 1, 6 - 1,"-5616HI","-5626HI","-5636HI","-5646HI","-5651HI","-5652HI","-5653HI","-5654HI","-5655HI","-5657RY","-5658RY","-5659RY","-5666HI","-5676HI","-5686HI","-5696HI");
-        find(pr, 5 - 1, 5 - 1,"-5515HI","-5525HI","-5535HI","-5545HI","-5551HI","-5552HI","-5553HI","-5554HI","-5556HI","-5557RY","-5558RY","-5559RY","-5565HI","-5575HI","-5585HI","-5595HI");
+        find(pr, 5 - 1, 8 - 1,"-5818RY","-5828RY","-5838RY","-5848RY","-5851RY","-5852RY","-5853RY","-5854RY","-5855RY","-5856RY","-5857RY","-5859RY","-5868RY","-5878RY","-5888RY","-5898RY","-9989OU","-9988OU","-9998OU");
+        find(pr, 5 - 1, 7 - 1,"-5717RY","-5727RY","-5737RY","-5747RY","-5751RY","-5752RY","-5753RY","-5754RY","-5755RY","-5756RY","-5758RY","-5759RY","-5767RY","-5777RY","-5787RY","-5797RY","-9989OU","-9988OU","-9998OU");
+        find(pr, 5 - 1, 6 - 1,"-5616HI","-5626HI","-5636HI","-5646HI","-5651HI","-5652HI","-5653HI","-5654HI","-5655HI","-5657RY","-5658RY","-5659RY","-5666HI","-5676HI","-5686HI","-5696HI","-9989OU","-9988OU","-9998OU");
+        find(pr, 5 - 1, 5 - 1,"-5515HI","-5525HI","-5535HI","-5545HI","-5551HI","-5552HI","-5553HI","-5554HI","-5556HI","-5557RY","-5558RY","-5559RY","-5565HI","-5575HI","-5585HI","-5595HI","-9989OU","-9988OU","-9998OU");
         //
-        find((byte)(NARI|pp), 5 - 1, 7 - 1,"-5747TO","-5748TO","-5756TO","-5758TO","-5767TO","-5768TO");
-        find((byte)(NARI|pn), 5 - 1, 7 - 1,"-5747NK","-5748NK","-5756NK","-5758NK","-5767NK","-5768NK");
-        find((byte)(NARI|pl), 5 - 1, 7 - 1,"-5747NY","-5748NY","-5756NY","-5758NY","-5767NY","-5768NY");
-        find((byte)(NARI|ps), 5 - 1, 7 - 1,"-5747NG","-5748NG","-5756NG","-5758NG","-5767NG","-5768NG");
-        find((byte)(NARI|pb), 5 - 1, 7 - 1,"-5713UM","-5724UM","-5735UM","-5739UM","-5746UM","-5747UM","-5748UM","-5756UM","-5758UM","-5766UM","-5767UM","-5768UM","-5775UM","-5779UM","-5784UM","-5793UM");
-        find((byte)(NARI|pr), 5 - 1, 7 - 1,"-5717RY","-5727RY","-5737RY","-5746RY","-5747RY","-5748RY","-5751RY","-5752RY","-5753RY","-5754RY","-5755RY","-5756RY","-5758RY","-5759RY","-5766RY","-5767RY","-5768RY","-5777RY","-5787RY","-5797RY");
+        find((byte)(NARI|pp), 5 - 1, 7 - 1,"-5747TO","-5748TO","-5756TO","-5758TO","-5767TO","-5768TO","-9989OU","-9988OU","-9998OU");
+        find((byte)(NARI|pn), 5 - 1, 7 - 1,"-5747NK","-5748NK","-5756NK","-5758NK","-5767NK","-5768NK","-9989OU","-9988OU","-9998OU");
+        find((byte)(NARI|pl), 5 - 1, 7 - 1,"-5747NY","-5748NY","-5756NY","-5758NY","-5767NY","-5768NY","-9989OU","-9988OU","-9998OU");
+        find((byte)(NARI|ps), 5 - 1, 7 - 1,"-5747NG","-5748NG","-5756NG","-5758NG","-5767NG","-5768NG","-9989OU","-9988OU","-9998OU");
+        find((byte)(NARI|pb), 5 - 1, 7 - 1,"-5713UM","-5724UM","-5735UM","-5739UM","-5746UM","-5747UM","-5748UM","-5756UM","-5758UM","-5766UM","-5767UM","-5768UM","-5775UM","-5779UM","-5784UM","-5793UM","-9989OU","-9988OU","-9998OU");
+        find((byte)(NARI|pr), 5 - 1, 7 - 1,"-5717RY","-5727RY","-5737RY","-5746RY","-5747RY","-5748RY","-5751RY","-5752RY","-5753RY","-5754RY","-5755RY","-5756RY","-5758RY","-5759RY","-5766RY","-5767RY","-5768RY","-5777RY","-5787RY","-5797RY","-9989OU","-9988OU","-9998OU");
 	}
 	
 	/** 王が８方向に動くことができるか */
@@ -129,36 +129,45 @@ class BanmenNextTest {
         find(pk, 5 - 1, 7 - 1,"-5746OU","-5747OU","-5748OU","-5756OU","-5758OU","-5766OU","-5767OU","-5768OU");		
 	}
 	
-	/** 盤面をクリアする */
-	private void clearBanmen(BanmenOnly banmen) {
-		// 盤面をクリア
-        for (int x = 0; x < B_MAX ; x++) {
-            for (int y = 0; y < B_MAX ; y++) {
-            	banmen.setKoma(pNull,x,y);
-            }
-        }
-	}
 
     /** 該当の設定があるか確認する */
 	private void find(byte koma,int x,int y,String... teStrings) {
 		factory.clearAllHash();
 
 		// 初期情報を作成する
-		BanmenNext banmenNext = factory.create(null, null);
-		BanmenOnly b = banmenNext.getBanmen();
+		BanmenOnly b = new BanmenOnly(null,0);
 		logger.debug(b.toString());
-		clearBanmen(b); // 盤面を全消しする
-		b.setKoma(koma, x, y);
+		b.clearForCSAProtocol();// 盤面を全消しする
+        b.setTegoma(koma, 1, Math.max(0, b.getTegoma(koma, 1) - 1)); // 後手から１枚とって
+		b.setKoma(koma, x, y); // 盤面に置く
 		logger.debug(b.toString());
 		if ((koma & ENEMY) != 0) {
 			b.setTeban(1);//後手
+	        // 先手に駒を寄せる
+	        b.setTegoma(BanmenDefine.pP, 0, b.getTegoma(BanmenDefine.pP,1));
+	        b.setTegoma(BanmenDefine.pL, 0, b.getTegoma(BanmenDefine.pL,1));
+	        b.setTegoma(BanmenDefine.pN, 0, b.getTegoma(BanmenDefine.pN,1));
+	        b.setTegoma(BanmenDefine.pS, 0, b.getTegoma(BanmenDefine.pS,1));
+	        b.setTegoma(BanmenDefine.pG, 0, b.getTegoma(BanmenDefine.pG,1));
+	        b.setTegoma(BanmenDefine.pB, 0, b.getTegoma(BanmenDefine.pB,1));
+	        b.setTegoma(BanmenDefine.pR, 0, b.getTegoma(BanmenDefine.pR,1));
+	        //
+	        b.setTegoma(BanmenDefine.pP, 1, 0);
+	        b.setTegoma(BanmenDefine.pL, 1, 0);
+	        b.setTegoma(BanmenDefine.pN, 1, 0);
+	        b.setTegoma(BanmenDefine.pS, 1, 0);
+	        b.setTegoma(BanmenDefine.pG, 1, 0);
+	        b.setTegoma(BanmenDefine.pB, 1, 0);
+	        b.setTegoma(BanmenDefine.pR, 1, 0);
+	        
 		}
+        b.endForCSAProtocol();// 王がいなかったら適当に置く
 		logger.debug(b.toString());
+		BanmenNext after = factory.create(null, b);
 		//
 		//
-		HashMap<Integer,BanmenNext> childMap;
-		childMap = banmenNext.getChild(factory);
-		logger.debug(banmenNext.toString());
+		HashMap<Integer,BanmenNext> childMap = after.getChild(factory);
+		logger.debug(after.toString());
 		for (Map.Entry<Integer,BanmenNext> childEntry : childMap.entrySet()) {
             int te = childEntry.getKey();
             boolean flag = false;
@@ -240,16 +249,16 @@ class BanmenNextTest {
 	void testMain() {
 		// 初期情報を作成する
 		BanmenNext banmenNext = factory.create(null,null);
-		BanmenOnly banmen = banmenNext.getBanmen();
+		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+7776FU"));
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-1112KY"));
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2726FU"));
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		HashMap<Integer,BanmenNext> child = banmenNext.getChild(factory);
 		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
 			String sKey = changeTeIntToString(childEntry.getKey());
@@ -284,7 +293,7 @@ class BanmenNextTest {
 	void testHinari() {
 		// 初期情報を作成する
 		BanmenNext banmenNext = factory.create(null,null);
-		BanmenOnly banmen = banmenNext.getBanmen();
+		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2818HI"));
@@ -315,7 +324,7 @@ class BanmenNextTest {
         //
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+0095FU"));
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-0015FU"));
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
         //
 		child = banmenNext.getChild(factory);
 		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
@@ -330,7 +339,7 @@ class BanmenNextTest {
             assertNotEquals(sKey,"-9296RY");
         }
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1312TO"));
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		child = banmenNext.getChild(factory);
 		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
 			String sKey = changeTeIntToString(childEntry.getKey());
@@ -351,7 +360,7 @@ class BanmenNextTest {
 	void testKiKiNaShi() {
 		// 初期情報を作成する
 		BanmenNext banmenNext = factory.create(null,null);
-		BanmenOnly banmen = banmenNext.getBanmen();
+		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1716FU"));
@@ -369,7 +378,7 @@ class BanmenNextTest {
         //
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1121TO"));
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9989TO"));
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		HashMap<Integer,BanmenNext> child;
 		child = banmenNext.getChild(factory);
 		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
@@ -384,7 +393,7 @@ class BanmenNextTest {
             assertNotEquals(sKey,"-0098KE");
         }
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2131TO"));
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		child = banmenNext.getChild(factory);
 		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
 			String sKey = changeTeIntToString(childEntry.getKey());
@@ -407,7 +416,7 @@ class BanmenNextTest {
 	void testKiKiNaShi2() {
 		// 初期情報を作成する
 		BanmenNext banmenNext = factory.create(null,null);
-		BanmenOnly banmen = banmenNext.getBanmen();
+		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1716FU"));
@@ -426,7 +435,7 @@ class BanmenNextTest {
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1121TO"));
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9989TO"));
         //
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		//
 		HashMap<Integer,BanmenNext> child;
 		child = banmenNext.getChild(factory);
@@ -441,7 +450,7 @@ class BanmenNextTest {
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+0094KE"));
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-0016KE"));
         //
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		child = banmenNext.getChild(factory);
 		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
 			String sKey = changeTeIntToString(childEntry.getKey());
@@ -456,64 +465,64 @@ class BanmenNextTest {
 	void testTegoma() {
 		// 初期情報を作成する
 		BanmenNext banmenNext = factory.create(null,null);
-		BanmenOnly banmen = banmenNext.getBanmen();
+		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+7776FU"));
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3334FU"));
-		logger.debug(banmenNext.getBanmen().toString());
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
         //
-		assertEquals(0 , banmenNext.getBanmen().getTegoma(pB, 0));
-		assertEquals(0 , banmenNext.getBanmen().getTegoma(pB, 0));
+		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pB, 0));
+		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pB, 0));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+8822UM"));
-		logger.debug(banmenNext.getBanmen().toString());
-		assertEquals(1 , banmenNext.getBanmen().getTegoma(pB, 0));
-		assertEquals(0 , banmenNext.getBanmen().getTegoma(pB, 1));
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
+		assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pB, 0));
+		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pB, 1));
         //
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3435FU"));
-		assertEquals(0 , banmenNext.getBanmen().getTegoma(pG, 0));
-		assertEquals(0 , banmenNext.getBanmen().getTegoma(pS, 0));
+		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pG, 0));
+		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pS, 0));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2231UM"));
-		logger.debug(banmenNext.getBanmen().toString());
-		assertEquals(0 , banmenNext.getBanmen().getTegoma(pG, 0));
-		assertEquals(1 , banmenNext.getBanmen().getTegoma(pS, 0));
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
+		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pG, 0));
+		assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pS, 0));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3536FU"));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+3121UM"));
 		//
-        assertEquals(0 , banmenNext.getBanmen().getTegoma(pP, 1));
+        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 1));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3637TO"));
-		assertEquals(1 , banmenNext.getBanmen().getTegoma(pP, 1));
+		assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 1));
 		//
-        assertEquals(0 , banmenNext.getBanmen().getTegoma(pP, 0));
+        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 0));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2143UM"));
-        assertEquals(1 , banmenNext.getBanmen().getTegoma(pP, 0));
-		logger.debug(banmenNext.getBanmen().toString());
+        assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 0));
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		//
-		assertEquals(0 , banmenNext.getBanmen().getTegoma(pR, 1));
+		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pR, 1));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3728TO"));
-		assertEquals(1 , banmenNext.getBanmen().getTegoma(pR, 1));
-		logger.debug(banmenNext.getBanmen().toString());
+		assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pR, 1));
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		//
         //
-        assertEquals(1 , banmenNext.getBanmen().getTegoma(pP, 0));
+        assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 0));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+0042FU"));
-        assertEquals(0 , banmenNext.getBanmen().getTegoma(pP, 0));
+        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 0));
         //
-        assertEquals(1 , banmenNext.getBanmen().getTegoma(pP, 1));
+        assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 1));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-0037FU"));
-        assertEquals(0 , banmenNext.getBanmen().getTegoma(pP, 1));
-		logger.debug(banmenNext.getBanmen().toString());
+        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 1));
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
         //
-        assertEquals(1 , banmenNext.getBanmen().getTegoma(pS, 0));
+        assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pS, 0));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+0021GI"));
-        assertEquals(0 , banmenNext.getBanmen().getTegoma(pS, 0));
-		logger.debug(banmenNext.getBanmen().toString());
+        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pS, 0));
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
         //
-        assertEquals(1 , banmenNext.getBanmen().getTegoma(pR, 1));
+        assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pR, 1));
 		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-0055HI"));
-        assertEquals(0 , banmenNext.getBanmen().getTegoma(pR, 1));
-		logger.debug(banmenNext.getBanmen().toString());
+        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pR, 1));
+		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		//
 	}
 	
@@ -550,7 +559,7 @@ class BanmenNextTest {
         logger.debug("testCreateNextList start");
 		// 初期情報を作成する
 		BanmenNext banmenNext = factory.create(null,null);
-		BanmenOnly banmen = banmenNext.getBanmen();
+		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
 		HashMap<Integer,BanmenNext> child;
@@ -582,21 +591,21 @@ class BanmenNextTest {
 		factory.clearAllHash();//一回消す
 		banmenNext = null;
 		banmenNext = factory.create(null,null);
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("+3938GI")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("-1112KY")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("+4939KI")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("-2211KA")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("+3949KI")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("-1314FU")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("+4939KI")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("-2113KE")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("+2726FU")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("-1415FU")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("+2625FU")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("-1122KA")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("+2524FU")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("-2211KA")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getBanmen(),BanmenDefine.changeTeStringToInt("+2423TO")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+3938GI")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-1112KY")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+4939KI")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-2211KA")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+3949KI")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-1314FU")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+4939KI")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-2113KE")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+2726FU")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-1415FU")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+2625FU")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-1122KA")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+2524FU")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-2211KA")));
+		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+2423TO")));
 
 		// 打ち込み系に問題がありそうか？
 		String[] ansList = {
@@ -645,7 +654,7 @@ class BanmenNextTest {
 			if (ans.equals("+3847GI")) {
 				logger.debug("danger!");
 			}
-			BanmenOnly banmenTopOnly = banmenTopNext.getBanmen();
+			BanmenOnly banmenTopOnly = banmenTopNext.getMyKey().createBanmenOnly();
 			int te = BanmenDefine.changeTeStringToInt(ans);
 			BanmenOnly banmenTeOnly = new BanmenOnly(banmenTopOnly, te);
 			BanmenNext banmenTeNext = factory.create(null, banmenTeOnly); // ここで生成ミスってないか調べる
@@ -680,7 +689,7 @@ class BanmenNextTest {
 	public void UchiTest() {
 		String keyString = "0a23600c803c000000000000000e2aaaaaaaacccdddeeeef7befbffe00000000";
 		BanmenKey key = new BanmenKey(keyString);
-		BanmenNext next = new BanmenNextEval(key,null); // キーから復元する
+		BanmenNext next = new BanmenNextEval(key); // キーから復元する
 		HashMap<Integer,BanmenNext> childMap = next.getChild(factory);
 		int count = 0;
 		boolean hit = false;

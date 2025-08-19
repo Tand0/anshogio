@@ -408,7 +408,7 @@ public class BanmenOnly {
     }
     
     /** 盤面を初期化する */
-    private void clearForCSAProtocol() {
+    protected void clearForCSAProtocol() {
         for (int y = 0 ; y < BanmenDefine.B_MAX ; y++) {
             for (int x = 0 ; x < BanmenDefine.B_MAX ; x++) {
                 // 盤面から消す
@@ -480,7 +480,7 @@ public class BanmenOnly {
         return false;
     }
     /** CSA 状態にする（最後に先手後手が盤面に乗っていなかったら適当に乗せる） */
-    private void endForCSAProtocol() {
+    protected void endForCSAProtocol() {
         //
         // 先手後手の持ち物にあったらまずいので消す
         this.setTegoma(BanmenDefine.pK, 0, 0);
@@ -501,23 +501,35 @@ public class BanmenOnly {
         }
         
         // 盤面上に空があったらそこに置いておく
-        for (int y = BanmenDefine.B_MAX; 0 <= y; y--) {
-            if (senteOu && goteOu) {
+        for (int y = 0; y < BanmenDefine.B_MAX; y++) {
+            if (senteOu) {
                 break;
             }
-            for (int x = BanmenDefine.B_MAX; 0 <= x; x++) {
-                if (senteOu && goteOu) {
+            for (int x = 0; 0 <= BanmenDefine.B_MAX; x++) {
+                if (senteOu) {
                     break;
                 }
                 byte koma = this.getKoma(x, y);
                 if (koma == BanmenDefine.pNull) {
-                    if (! senteOu) {
-                        senteOu = true;
-                        this.setKoma(BanmenDefine.pK, x, y);
-                    } else if (! goteOu) {
-                        goteOu = true;
-                        this.setKoma(BanmenDefine.pk, x, y);
-                    }
+                    senteOu = true;
+                    this.setKoma(BanmenDefine.pK, x, y);
+                }
+            }
+        }
+        
+        // 盤面上に空があったらそこに置いておく
+        for (int y = BanmenDefine.B_MAX - 1; 0 <= y; y--) {
+            if (goteOu) {
+                break;
+            }
+            for (int x = BanmenDefine.B_MAX - 1; 0 <= x; x--) {
+                if (goteOu) {
+                    break;
+                }
+                byte koma = this.getKoma(x, y);
+                if (koma == BanmenDefine.pNull) {
+                    goteOu = true;
+                    this.setKoma(BanmenDefine.pk, x, y);
                 }
             }
         }

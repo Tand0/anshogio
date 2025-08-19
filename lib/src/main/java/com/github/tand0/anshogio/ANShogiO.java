@@ -411,7 +411,7 @@ public class ANShogiO {
         }
         //
         // もしも自身が先手で手番が先手でないか、自身が後手で手番が後手でないなら、自分でないので終了
-        if ((banmenList.getLast().getBanmen().getTeban() == 0) != (myTurn == 0)) {
+        if ((banmenList.getLast().getMyKey().getTeban() == 0) != (myTurn == 0)) {
             return;
         }
         // もしも自身が先手で手番が先手か、自身が後手で手番が後手なら手を指す
@@ -594,7 +594,7 @@ public class ANShogiO {
             obj.put("myTurn", myTurn);
             //
             if (! banmenList.isEmpty()) { // 最終盤面がある
-                BanmenOnly banmen = banmenList.getLast().getBanmen();
+                BanmenOnly banmen = banmenList.getLast().getMyKey().createBanmenOnly();
                 if (banmen != null) {
                     obj.put("banmen", banmen.getDisplayStatus());
                 }
