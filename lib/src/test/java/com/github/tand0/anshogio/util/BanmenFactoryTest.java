@@ -11,13 +11,18 @@ class BanmenFactoryTest {
     /** ロガー */
 	private final static Logger logger = LoggerFactory.getLogger(BanmenFactoryTest.class);
 
+	/** 盤面工場のコンストラクタ */
+	public BanmenFactoryTest() {
+	}
+
 	/** 削除がちゃんと動くかテストする */
 	@Test
 	public void removeTest() {
 	    logger.debug("start");
 	    // 初期場外
 	    BanmenFactory factory = new BanmenFactory();
-	    BanmenNext banmenNext = factory.create(null, null);
+	    BanmenKey key = new BanmenKey(new BanmenOnly(null,0));
+	    BanmenNext banmenNext = factory.create(null, key);
         assertEquals(factory.size(),1); // 初期盤面が登録されている
         //
 	    int size = banmenNext.getChild(factory).size();

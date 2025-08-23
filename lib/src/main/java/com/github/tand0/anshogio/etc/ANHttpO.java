@@ -1,6 +1,6 @@
 package com.github.tand0.anshogio.etc;
 
-import com.github.tand0.anshogio.CSAWorker2;
+import com.github.tand0.anshogio.CSAWorker;
 import com.github.tand0.anshogio.log.StackAppender;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -16,13 +16,19 @@ import java.io.OutputStream;
 import org.json.JSONObject;
 import com.github.tand0.anshogio.ANStatus;
 
+/** HTTPのアクセスを受け入れる
+ * @author A.N. HTTP王
+ */
 public class ANHttpO implements HttpHandler {
 
     /** 将棋データの保存場所 */
-    protected final CSAWorker2 worker;
+    protected final CSAWorker worker;
 
-    /** コンストラクタ */
-    public ANHttpO(CSAWorker2 worker) {
+    /** コンストラクタ
+     * 
+     * @param worker 社畜
+     */
+    public ANHttpO(CSAWorker worker) {
         this.worker = worker;
     }
     @Override
@@ -55,6 +61,8 @@ public class ANHttpO implements HttpHandler {
                 doDownload(request, response);
             } else if (urlString.equals("/postgres")) {
                 doPostgres(request, response);
+            } else if (urlString.equals("/cleardb")) {
+                doDbClear(request, response);
             } else if (urlString.equals("/connectOne")) {
                 doConnect(request, response, true);
             } else if (urlString.equals("/connect")) {
@@ -139,10 +147,20 @@ public class ANHttpO implements HttpHandler {
             exchange.close();
         }
     }
+    /**
+     * ステータスの取得
+     * @param req リクエスト
+     * @param res レスポンス
+     */
     protected void doStatus(JSONObject req, JSONObject res) {
         JSONObject result = worker.getDisplayStatus();
         res.put("result", result);
     }
+    /**
+     * postgresにデータを上げる
+     * @param req リクエスト
+     * @param res レスポンス
+     */
     protected void doPostgres(JSONObject req, JSONObject res) {
         if (this.worker.getProcessFlag()) {
             res.put("result", "Already Go");
@@ -153,6 +171,26 @@ public class ANHttpO implements HttpHandler {
         //
         res.put("result", "Postgres Start");
     }
+    /**
+     * DBクリア
+     * @param req リクエスト
+     * @param res レスポンス
+     */
+    protected void doDbClear(JSONObject req, JSONObject res) {
+        if (this.worker.getProcessFlag()) {
+            res.put("result", "Already Go");
+            return;
+        }
+        // ダウンロード開始
+        this.worker.doProcessFlag(2);
+        //
+        res.put("result", "DB clear Start");
+    }
+    /**
+     * ダウンロード
+     * @param req リクエスト
+     * @param res レスポンス
+     */
     protected void doDownload(JSONObject req, JSONObject res) {
         if (this.worker.getProcessFlag()) {
             res.put("result", "Already Go");
@@ -163,6 +201,11 @@ public class ANHttpO implements HttpHandler {
         //
         res.put("result", "Download Start");
     }
+    /**
+     * 将棋サーバを起動する
+     * @param req リクエスト
+     * @param res レスポンス
+     */
     protected void doServer(JSONObject req, JSONObject res) {
         if (this.worker.getServerFlag()) {
             res.put("result", "Already Go");
@@ -173,23 +216,43 @@ public class ANHttpO implements HttpHandler {
         //
         res.put("result", "Server Start");
     }
+    /**
+     * 将棋サーバと接続する
+     * @param req リクエスト
+     * @param res レスポンス
+     * @param stopFlag 連続対局する場合はtrue、１回ならfalse
+     */
     protected void doConnect(JSONObject req, JSONObject res, boolean stopFlag) {
         // 接続実施
         this.worker.doConnect(stopFlag);
         // コネクトしてね
         res.put("result", "OK");
     }
+    /**
+     * 連続対局を停止する
+     * @param req リクエスト
+     * @param res レスポンス
+     */
     protected void doStop(JSONObject req, JSONObject res) {
         // 接続実施
         this.worker.setStop(true);
         // コネクトしてね
         res.put("result", "OK");
     }
+    /**
+     * ログ表示をする
+     * @param req リクエスト
+     * @param res レスポンス
+     */
     protected void doLog(JSONObject req, JSONObject res) {
         res.put("log", StackAppender.getResult());
     }
     
-    /** ステータスの取得 */
+    /** ステータスの取得
+     * 
+     * @param status ステータス
+     * @return RESTに渡すステータス値
+     */
     public int getStatusInt(ANStatus status) {
         int ans = 0;
         switch (status) {
@@ -210,6 +273,11 @@ public class ANHttpO implements HttpHandler {
         }
         return ans;
     }
+    /**
+     * flutter側の画面を表示する操作
+     * @param fromURL URL
+     * @return データ
+     */
     protected File doFlutter(String fromURL) {
         // 先頭のフォルダ名がいたら取る
         fromURL = fromURL.substring("/flutter".length());
@@ -236,6 +304,11 @@ public class ANHttpO implements HttpHandler {
         }
         return targetFile;
     }
+    /**
+     * flutterで使うMIME
+     * @param file ファイル名
+     * @return MIME
+     */
     protected String getMime(File file) {
         String mime;
         String name = file.getName();

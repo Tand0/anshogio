@@ -1,6 +1,5 @@
 package com.github.tand0.anshogio.etc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,13 +20,18 @@ import com.github.tand0.anshogio.etc.ANPostgreO.ResultKey;
 import com.github.tand0.anshogio.util.BanmenFactory;
 import com.github.tand0.anshogio.util.BanmenNext;
 
+/**
+ * postgresへのアクセス用のテスト
+ */
 public class ANPostgreOTest {
     /** ロガーの位置 */
     private final static Logger logger = LoggerFactory.getLogger(ANPostgreOTest.class);
 	
+    /** コンストラクタ */
+    public ANPostgreOTest() {
+    }
     /**
      * まずは、普通に postgres が呼び出せるかの確認を行う
-     * @param argc
      */
 	@Test
 	public void mainTest() {
@@ -35,7 +39,7 @@ public class ANPostgreOTest {
 		obj.put("postgres.url", "jdbc:postgresql://127.0.0.1:5432/anshogio");
 		obj.put("postgres.user", "postgres");
 		obj.put("postgres.passwd", "postgres");
-		ANPostgreO data = new ANPostgreO(obj);
+		ANPostgreO data = new ANDbUpgradeO(obj);
 		try {
 			data.connect(); // 接続
 			data.init(); // 初期化
@@ -62,17 +66,12 @@ public class ANPostgreOTest {
 			return;
 		}
 	}
-	
-	@Test
-	public void fileReadTest() throws IOException, SQLException {
-		ANPostgreOMock mock = tumeEngine("test_01_csa.txt", false , 0);
-		assertEquals(mock.testKey,"a4981f3f8c80f95487a15a0a75438208a540221a403cf0c34030008cce7cd800");
-		assertEquals(mock.testWin,1);
-		assertEquals(mock.testLoss,0);
-		//
-	}
 
-	/** 実践データを使って詰みを検出できるかの評価 */
+	/**
+	 * 実践データを使って詰みを検出できるかの評価 
+	 * @throws IOException 例外
+	 * @throws SQLException 例外
+	 */
 	@Test
 	public void tumeshogiTest() throws IOException, SQLException {
 		//

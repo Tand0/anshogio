@@ -12,25 +12,31 @@ import org.json.JSONObject;
  * postgres をインストールしたあとに、以下を実行してDBを作らないとDBにログインできない
  * CREATE DATABASE anshogio; 
  */
-public class ANPostgreOMock extends ANPostgreO {
+public class ANPostgreOMock extends ANDbUpgradeO {
 
+    /** テスト用のkey値 */
 	public String testKey = null;
+
+	/** テスト用の勝ち数 */
 	public int testWin;
+	
+	/** テスト用の負け数 */
 	public int testLoss;
 	
 	
-    /** 親データ */
+    /**
+     * コンストラクタ
+     * @param setting 設定
+     */
     public ANPostgreOMock(JSONObject setting) {
     	super(setting);
     }
 	
-    /** 接続状態か確認する */
     @Override
     public boolean isAlive() {
     	return true; // 評価用に強制敵にtrueにする
     }
     
-    /** チェックする拡張子 */
     @Override
     public String getExtention() {
         return ".txt";

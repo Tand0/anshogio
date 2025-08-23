@@ -6,8 +6,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+/** コマの移動のテスト */
 public class KomaMoveTest {
-	@Test
+    /** コンストラクタ */
+    public KomaMoveTest() {
+        
+    }
+    /** 移動先が合法手である手を探す用。
+     * サイズが18個あるか確認する
+     */
+    @Test
 	public void moversTest() {
 		List<KomaMove> movers = KomaMove.movers;
 		

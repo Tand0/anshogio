@@ -3,10 +3,20 @@
 - 将棋ソフトをJavaなどで作ってみました。
 - 対戦できるように資料を作ります。
 
+## JavaDoc
+
+- [ANShogiOのJavaDoc](./javadoc/index.html)
+
+
+
+## より詳細なドキュメント
+
+- [ANShogiOのドキュメンテーション](https://amzn.to/4n1xsUR)
+
 ## 動かすにはどうすれば良いか？
 
-- postgres をインストールする。
-- python/flutter/java をいい感じにインストールする。
+- postgres をインストールする
+- python/flutter/java をいい感じにインストールする
 - pip3 で以下をインストールする
     - numpy
     - tensorflow

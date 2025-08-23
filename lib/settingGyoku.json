@@ -1,8 +1,9 @@
 {
 	"server.name": "localhost",
 	"server.port": 8081,
-    "downloadDir": "./log",
-    "targetYearStart": 2025,
+    "download.dir": "./log",
+    "download.book": "./log/book",
+    "target.year": 2025,
     "csa.ostname": "127.0.0.1",
     "csa.port": 4081,
     "csa.name": "ANShogiOVs",

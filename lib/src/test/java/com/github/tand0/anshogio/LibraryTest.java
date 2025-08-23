@@ -6,8 +6,15 @@ package com.github.tand0.anshogio;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/** ライブラリ eclipseでライブラリ作ったらできていた */
 class LibraryTest {
-    @Test void someLibraryMethodReturnsTrue() {
+    /** コンストラクタ */
+    public LibraryTest() {
+        
+    }
+    /** ライブラリ eclipseでライブラリ作ったらできていたのでよくわからん */
+    @Test
+    void someLibraryMethodReturnsTrue() {
         Library classUnderTest = new Library();
         assertTrue(classUnderTest.someLibraryMethod(), "someLibraryMethod should return 'true'");
     }

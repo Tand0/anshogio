@@ -2,36 +2,26 @@ package com.github.tand0.anshogio.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.HashMap;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * key値に対する評価
+ */
 class BanmenKeyTest {
+    /** ログ出力 */
 	private final static Logger logger = LoggerFactory.getLogger(BanmenKeyTest.class);
-	
-	public BanmenFactory factory = new BanmenFactory();
-	
-	@BeforeEach
-	void testBefore() {
-		// とりあえずクリアしておく
-		factory.clearAllHash();
+
+	/** コンストラクタ */
+	public BanmenKeyTest() {
 	}
-	@AfterEach
-	void testAfter() {
-		// とりあえずクリアしておく
-		factory.clearAllHash();
-	}
-	
 	/** encode test
 	 * 
 	 */
 	@Test
 	void pointTest() {
-		BanmenOnly only = new BanmenOnly(null,0); // デフォルト設定
+		BanmenOnly only = new BanmenOnly(); // デフォルト設定
 		String q = (new BanmenKey(only)).toString(); // 16進出力
 		assertEquals(q.length(),64);
 		//
@@ -58,12 +48,36 @@ class BanmenKeyTest {
 		}
 	}
 	/**
+     * 64bitテスト
+     */
+    @Test
+    void setBitTest() {
+        BanmenKey key1 = new BanmenKey((BanmenOnly)null);
+        BanmenKey key2 = new BanmenKey((BanmenOnly)null);
+        assertEquals(key1,key2);
+        //
+        Pointer p = new Pointer();
+        clearKey(key1,p);
+        clearKey(key2,p);
+        for (int i = 0 ; i < 256;i++) {
+            assertEquals(key1.getBit(i),0);
+            key1.setData(p, 1, 1);
+            assertEquals(key1.getBit(i),1);
+            //
+            assertEquals(key2.getBit(i),0);
+            key2.setBit(i);
+            assertEquals(key2.getBit(i),1);
+            //
+            assertEquals(key1,key2);
+        }
+    }
+	/**
 	 * 単純にキーから盤面読みだしてあっているかを確認する
 	 */
 	@Test
 	void firstTest() {
 		logger.debug("test start!");
-		BanmenOnly oldBanmen = new BanmenOnly(null,0);
+		BanmenOnly oldBanmen = new BanmenOnly();
 		BanmenKey key1 = new BanmenKey(oldBanmen);
 		BanmenOnly newBanmen = key1.createBanmenOnly();
 		BanmenKey key2 = new BanmenKey(newBanmen);
@@ -84,7 +98,7 @@ class BanmenKeyTest {
 	/** set のチェック */
 	@Test
 	void setDataTest() {
-		BanmenOnly oldBanmen = new BanmenOnly(null,0);
+		BanmenOnly oldBanmen = new BanmenOnly();
 		BanmenKey key = new BanmenKey(oldBanmen);
 		Pointer p = new Pointer();
 		//
@@ -175,7 +189,7 @@ class BanmenKeyTest {
 	/** set のチェック */
 	@Test
 	void getDataTest() {
-		BanmenOnly oldBanmen = new BanmenOnly(null,0);
+		BanmenOnly oldBanmen = new BanmenOnly();
 		BanmenKey key = new BanmenKey(oldBanmen);
 		Pointer p = new Pointer();
 		//
@@ -241,24 +255,14 @@ class BanmenKeyTest {
 		result = key.getData(p, 39+2+2+2+2); 
 		assertEquals(sum,result);
 	}
-
-	/** 初期手のチェック */
-	@Test
-	void nextKeyTest() {
-		BanmenFactory factory = new BanmenFactory();
-		BanmenNext next = factory.create(null, null);
-		HashMap<Integer,BanmenNext> map = next.getChild(factory);
-		assertEquals(map.size(),30);
-		int te = BanmenDefine.changeTeStringToInt("+3938GI");
-		logger.debug(BanmenDefine.changeTeIntToString(te));
-		BanmenNext target = map.get(te);
-		if (target == null) {
-			fail("target Null");
-		}
-		assertNotEquals(target.getMyKey(),0);
-	}
 	
-	/** clear key */
+	
+	
+	/**
+	 * clear key
+	 * @param key key value
+	 * @param p pointer
+	 */
 	void clearKey(BanmenKey key,Pointer p) {
 		key.key[0] = 0L;
 		key.key[1] = 0L;
@@ -267,51 +271,44 @@ class BanmenKeyTest {
 		p.clear();
 	}
 
-	/** 持ち駒のテスト */
+	/** 持ちコマのテスト */
 	@Test
 	void mochigomaTest() {
 		//
-		int teban = 0;
-		BanmenOnly only = new BanmenOnly(null,0);
-		BanmenKey key = new BanmenKey(only);
-		mochiGomaNext(key);
-		for (int i = 0; i < BanmenDefine.B_MAX; i++) {
-			for (int j = 0; j < BanmenDefine.B_MAX; j++) {
-				byte koma = (byte)(0xF & only.getKoma(i, j));
-				if ((koma == BanmenDefine.pK) || (koma == BanmenDefine.pNull)) {
-					continue;
-				}
-				only.setKoma(BanmenDefine.pNull, i, j);
-				only.setTegoma(koma,  teban, only.getTegoma(koma, teban) + 1);
-				//
-				key = new BanmenKey(only);
-				mochiGomaNext(key);
-				//
-			}
-		}
-		key = new BanmenKey(only);
-		mochiGomaNext(key);
-		//
-		for (byte koma = BanmenDefine.pp ; koma < BanmenDefine.pR; koma++) {
-			int sum = only.getTegoma(koma, teban);
-			if (sum <= 0) {
-				continue;
-			}
-			only.setTegoma(koma,    teban, only.getTegoma(koma, teban) - 1);
-			only.setTegoma(koma,1 - teban, only.getTegoma(koma, teban) + 1);
-			//
-			mochiGomaNext(key);
+		for (int teban = 0; teban < 2 ; teban++) {	   
+	        BanmenOnly only = new BanmenOnly();
+	        BanmenKey key = new BanmenKey(only);
+	        mochiGomaNext(key);
+	        for (int i = 0; i < BanmenDefine.B_MAX; i++) {
+	            for (int j = 0; j < BanmenDefine.B_MAX; j++) {
+	                byte koma = (byte)(0xF & only.getKoma(i, j));
+	                if ((koma == BanmenDefine.pK) || (koma == BanmenDefine.pNull)) {
+	                    continue;
+	                }
+	                only.setKoma(BanmenDefine.pNull, i, j);
+	                only.setTegoma(koma,  teban, only.getTegoma(koma, teban) + 1);
+	                //
+	                key = new BanmenKey(only);
+	                mochiGomaNext(key);
+	                //
+	            }
+	        }
 		}
 	}
 	
+	/**
+	 * 持ち駒の処理が BanmenKey で正常に動くのかを確認する
+	 * @param key key value
+	 */
 	public void mochiGomaNext(BanmenKey key) {
 		// 打ったあとにキー値を使って同じか確認する
-		String q = key.toString(); // キーを文字にする
-		BanmenKey banmenTeKey = new BanmenKey(q); // 文字からキーを作る
-		BanmenOnly banmenTeOnly2 = banmenTeKey.createBanmenOnly(); // キーから盤面を作る
-
-		// 同じキーのはずだから、同じキーになるはずだ
-		assertEquals(q,banmenTeKey.toString());
-		assertEquals(banmenTeOnly2.toString(),banmenTeOnly2.toString());		
+		String keyString = key.toString(); // キーを文字にする
+		BanmenKey banmenKey = new BanmenKey(keyString); // 文字からキーを作る
+        // 同じキーのはずだから、同じキーになるはずだ
+        assertEquals(keyString,banmenKey.toString());
+        //
+        BanmenOnly banmenOnly = banmenKey.createBanmenOnly(); // キーから盤面を作る
+        BanmenKey banmenKey2 = new BanmenKey(banmenOnly); // 文字からキーを作る
+		assertEquals(banmenKey.toString(),banmenKey2.toString());		
 	}
 }

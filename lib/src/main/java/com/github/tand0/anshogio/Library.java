@@ -3,7 +3,17 @@
  */
 package com.github.tand0.anshogio;
 
+/** ライブラリ eclipseでライブラリ作ったらできていた */
 public class Library {
+
+    /** コンストラクタ */
+    public Library() {
+        
+    }
+    /** いくつかのライブラリーメソッド
+     * 
+     * @return 常にtrue
+     */
     public boolean someLibraryMethod() {
         return true;
     }

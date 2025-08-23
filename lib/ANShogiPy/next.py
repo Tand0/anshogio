@@ -116,8 +116,9 @@ if os.path.isfile(keras_model_path):
 else:
     model = tf.keras.Sequential(name="next_model")
     model.add(tf.keras.layers.Input(shape=(256,),name="input_model"))
-    model.add(tf.keras.layers.Dense(units=1024, activation='sigmoid',name="sigmoid_model"))
-    model.add(tf.keras.layers.Dense(units=64, activation='tanh',name="tanh_model"))
+    model.add(tf.keras.layers.Dense(units=1024, activation='relu',name="relu_model"))
+    model.add(tf.keras.layers.Dense(units=64, activation='sigmoid',name="sigmoid_model"))
+    model.add(tf.keras.layers.Dense(units=64, activation='tanh',name="sigmoid_model"))
     model.add(tf.keras.layers.Dense(units=1,name="all_model"))
     model.compile(optimizer="adam", loss="mse", metrics=["mae"])
 #

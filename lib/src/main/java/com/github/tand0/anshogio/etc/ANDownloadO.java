@@ -22,28 +22,34 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tand0.anshogio.CSAWorker2;
+import com.github.tand0.anshogio.CSAWorker;
 
 
-/** ロードする */
+/** ダウンロードする
+ * @author A.N.ダウンロード王
+ */
 public class ANDownloadO implements Runnable {
 
 	/** ダウンロードフォルダ */
-	private final String DOWNLLOAD_DIR = "downloadDir";
+	private final static String DOWNLLOAD_DIR = "download.dir";
 	
 	/** ターゲットとする年 */
-	private final String DOWNLLOAD_YEAR_START = "targetYearStart";
+	protected final static String DOWNLLOAD_YEAR_START = "target.year";
 	
     /** ロガーの位置 */
     private final static Logger logger = LoggerFactory.getLogger(ANDownloadO.class);
 
-    private final CSAWorker2 parent;
+    /** 社畜 */
+    private final CSAWorker parent;
     
-    /** 親データ */
-    public ANDownloadO(CSAWorker2 parent) {
+    /** コンストラクタ
+     * @param parent 社畜やデータです
+     */
+    public ANDownloadO(CSAWorker parent) {
     	this.parent = parent;
     }
     
+    @Override
     public void run() {
         logger.trace("run start");
         final String downloadDir;
@@ -162,6 +168,12 @@ public class ANDownloadO implements Runnable {
         //
         logger.trace("download end");
     }
+    /**
+     * インデックスを生成する
+     * @param url URL
+     * @param file ファイル
+     * @throws IOException 例外
+     */
     private void createIndex(URL url,File file) throws IOException {
         if (file.exists()) {
             logger.debug("skip={}", file);

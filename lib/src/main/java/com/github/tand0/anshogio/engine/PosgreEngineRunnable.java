@@ -1,9 +1,9 @@
 package com.github.tand0.anshogio.engine;
 
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Map;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,24 +11,37 @@ import org.slf4j.LoggerFactory;
 import com.github.tand0.anshogio.etc.ANPostgreO;
 import com.github.tand0.anshogio.util.BanmenKey;
 import com.github.tand0.anshogio.util.BanmenNext;
+import com.github.tand0.anshogio.util.ChildTeNext;
 
 /** postgress に直近の手が登録されているか探しに行く */
 public class PosgreEngineRunnable extends EngineRunnable {
 	/** ログ */
 	private static final Logger logger = LoggerFactory.getLogger(PosgreEngineRunnable.class);
 	
+	/** postgresアクセス用 */
 	private final ANPostgreO aNPostgreO;
+	
+	/** 盤面のリスト(千日手防止用) */
 	private final LinkedList<BanmenNext> banmenList;
-	private final HashMap<Integer,BanmenNext> child;
+	
+	/** 子供 */
+	private final List<ChildTeNext> child;
+	
+	/** 現在の指し手 */
 	private int te = -2;
 
-	/** コンストラクタ */
-	public PosgreEngineRunnable(ANPostgreO aNPostgreO, LinkedList<BanmenNext> banmenList, HashMap<Integer,BanmenNext> child) {
+	/** コンストラクタ
+	 * 
+	 * @param aNPostgreO postgresアクセス用
+	 * @param banmenList 盤面のリスト
+	 * @param child 子供
+	 */
+	public PosgreEngineRunnable(ANPostgreO aNPostgreO, LinkedList<BanmenNext> banmenList, List<ChildTeNext> child) {
 		super(PosgreEngineRunnable.class.getSimpleName());
 		this.aNPostgreO = aNPostgreO;
 		this.banmenList = banmenList;
         //java.util.ConcurrentModificationException 対策で移し替えておく
-		this.child = new HashMap<>(child);
+		this.child = new ArrayList<>(child);
 	}
 	
 	/** 実処理を進める */
@@ -39,21 +52,21 @@ public class PosgreEngineRunnable extends EngineRunnable {
 		float value = (teban == 0) ? Float.MIN_VALUE : Float.MAX_VALUE;
 		//
 		// postgres から評価値を取得する
-		for (Map.Entry<Integer,BanmenNext> target : child.entrySet()) {
+		for (ChildTeNext target : child) {
 			if (this.isEnd()) {
 				break; // 停止が呼ばれている
 			}
 			if (! this.aNPostgreO.isAlive()) {
 				break; // 切断されている
 			}
-			if (banmenList.contains(target.getValue())) {
+			if (banmenList.contains(target.getNext())) {
 				continue; // 千日手を回避するため、同じ局面にはしない
 			}
-			if ((target.getValue().getPnDn(0).pn == 0) || (target.getValue().getPnDn(1).pn == 0)) {
+			if ((target.getNext().getPnDn(0).pn == 0) || (target.getNext().getPnDn(1).pn == 0)) {
 				// 詰みエンジンにより詰みが確定している
 				continue;
 			}
-			BanmenKey key = target.getValue().getMyKey();
+			BanmenKey key = target.getNext().getMyKey();
 			ANPostgreO.ReslutWinLoss winLoss;
 			try {
 				winLoss = aNPostgreO.readKey(key.toString());
@@ -77,17 +90,17 @@ public class PosgreEngineRunnable extends EngineRunnable {
 			if (teban == 0) { // 先手の場合、一番高手を選ぶ
 				if (value < winLossValue) {
 					value = winLossValue;
-					te = target.getKey();
+					te = target.getTe();
 				}
 			} else {
 				if (winLossValue < value) {
 					value = winLossValue;
-					te = target.getKey();
+					te = target.getTe();
 				}
 			}
 			//
 			// 値を設定する
-			target.getValue().setEval(true,winLossValue);
+			target.getNext().setEval(true,winLossValue);
 			//
 		}
 	}

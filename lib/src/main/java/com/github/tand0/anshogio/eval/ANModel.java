@@ -25,14 +25,26 @@ public class ANModel {
     /** 一度でも接続失敗したら以後は見ない */
     private boolean alive;
 	
+    /** 生存確認
+     * 
+     * @return 生きているならtrue
+     */
     public boolean isAlive() {
     	return this.alive;
     }
+    /**
+     * コンストラクタ
+     * @param setting 設定
+     */
 	public ANModel(JSONObject setting) {
 		this.alive = true;
 		this.setting = setting;
 	}
-	public float[] getData(long[] x) {
+	/**
+	 * データの取得
+	 * @return データ
+	 */
+	public float[] getData() {
 		float[] result = new float[256];
 		for (int i = 0 ; i < result.length; i++) {
 			result[i] = -1;
@@ -40,6 +52,11 @@ public class ANModel {
 		result[result.length -1] = 1;
 		return result;
 	}
+	/**
+	 * key値から評価値を取得
+	 * @param key key値
+	 * @return 評価値
+	 */
 	public Float getKey(String key) {
 		if (!isAlive()) {
 			logger.error("disconnect!");

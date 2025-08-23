@@ -3,31 +3,23 @@ package com.github.tand0.anshogio.util;
 import static com.github.tand0.anshogio.util.BanmenDefine.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 盤面用のテスト
+ */
 class BanmenNextTest {
+    /** ログ */
 	private final static Logger logger = LoggerFactory.getLogger(BanmenNextTest.class);
-	
-	public BanmenFactory factory = new BanmenFactory();
-	
-	@BeforeEach
-	void testBefore() {
-		// とりあえずクリアしておく
-		factory.clearAllHash();
+
+	/** コンストラクタ */
+	public BanmenNextTest() {
 	}
-	@AfterEach
-	void testAfter() {
-		// とりあえずクリアしておく
-		factory.clearAllHash();
-	}
-	
+	/** 先手のコマの移動が正しいか確認する */
 	@Test
 	public void komaSenteTest() {
 		//
@@ -59,7 +51,7 @@ class BanmenNextTest {
         find(pB, 5 - 1, 2 - 1,"+5216UM","+5225UM","+5234UM","+5241UM","+5243UM","+5261UM","+5263UM","+5274UM","+5285UM","+5296UM","+1112OU","+1121OU","+1122OU");
         find(pB, 5 - 1, 3 - 1,"+5317UM","+5326UM","+5331UM","+5335UM","+5342UM","+5344UM","+5362UM","+5364UM","+5371UM","+5375UM","+5386UM","+5397UM","+1112OU","+1121OU","+1122OU");
         find(pB, 5 - 1, 4 - 1,"+5418KA","+5421UM","+5427KA","+5432UM","+5436KA","+5443UM","+5445KA","+5463UM","+5465KA","+5472UM","+5476KA","+5481UM","+5487KA","+5498KA","+1112OU","+1121OU","+1122OU");
-        find(pB, 5 - 1, 5 - 1,"+5519KA","+5522UM","+5528KA","+5533UM","+5537KA","+5544KA","+5546KA","+5564KA","+5566KA","+5573UM","+5577KA","+5582UM","+5588KA","+5591UM","+5599KA","+1112OU","+1121OU","+1122OU");
+        find(pB, 5 - 1, 5 - 1,"+5519KA","+5522UM","+5528KA","+5533UM","+5537KA","+5544KA","+5546KA","+5564KA","+5566KA","+5573UM","+5577KA","+5582UM","+5591UM","+5588KA","+1112OU","+1121OU","+1122OU");
         //
         find(pR, 5 - 1, 2 - 1,"+5212RY","+5222RY","+5232RY","+5242RY","+5251RY","+5253RY","+5254RY","+5255RY","+5256RY","+5257RY","+5258RY","+5259RY","+5262RY","+5272RY","+5282RY","+5292RY","+1112OU","+1121OU","+1122OU");
         find(pR, 5 - 1, 3 - 1,"+5313RY","+5323RY","+5333RY","+5343RY","+5351RY","+5352RY","+5354RY","+5355RY","+5356RY","+5357RY","+5358RY","+5359RY","+5363RY","+5373RY","+5383RY","+5393RY","+1112OU","+1121OU","+1122OU");
@@ -76,6 +68,7 @@ class BanmenNextTest {
         find(ppR, 5 - 1, 3 - 1,"+5313RY","+5323RY","+5333RY","+5342RY","+5343RY","+5344RY","+5351RY","+5352RY","+5354RY","+5355RY","+5356RY","+5357RY","+5358RY","+5359RY","+5362RY","+5363RY","+5364RY","+5373RY","+5383RY","+5393RY","+1112OU","+1121OU","+1122OU");
 	}
 	
+    /** 後手のコマの移動が正しいか確認する */
 	@Test
 	public void komaGoteTest() {
 		//
@@ -105,7 +98,7 @@ class BanmenNextTest {
         find(pb, 5 - 1, 8 - 1,"-5814UM","-5825UM","-5836UM","-5847UM","-5849UM","-5867UM","-5869UM","-5876UM","-5885UM","-5894UM","-9989OU","-9988OU","-9998OU");
         find(pb, 5 - 1, 7 - 1,"-5713UM","-5724UM","-5735UM","-5739UM","-5746UM","-5748UM","-5766UM","-5768UM","-5775UM","-5779UM","-5784UM","-5793UM","-9989OU","-9988OU","-9998OU");
         find(pb, 5 - 1, 6 - 1,"-5612KA","-5623KA","-5629UM","-5634KA","-5638UM","-5645KA","-5647UM","-5665KA","-5667UM","-5674KA","-5678UM","-5683KA","-5689UM","-5692KA","-9989OU","-9988OU","-9998OU");
-        find(pb, 5 - 1, 5 - 1,"-5511KA","-5519UM","-5522KA","-5528UM","-5533KA","-5537UM","-5544KA","-5546KA","-5564KA","-5566KA","-5573KA","-5577UM","-5582KA","-5588UM","-5591KA","-9989OU","-9988OU","-9998OU");
+        find(pb, 5 - 1, 5 - 1,"-5519UM","-5522KA","-5528UM","-5533KA","-5537UM","-5544KA","-5546KA","-5564KA","-5566KA","-5573KA","-5577UM","-5582KA","-5588UM","-5591KA","-9989OU","-9988OU","-9998OU");
         //
         find(pr, 5 - 1, 8 - 1,"-5818RY","-5828RY","-5838RY","-5848RY","-5851RY","-5852RY","-5853RY","-5854RY","-5855RY","-5856RY","-5857RY","-5859RY","-5868RY","-5878RY","-5888RY","-5898RY","-9989OU","-9988OU","-9998OU");
         find(pr, 5 - 1, 7 - 1,"-5717RY","-5727RY","-5737RY","-5747RY","-5751RY","-5752RY","-5753RY","-5754RY","-5755RY","-5756RY","-5758RY","-5759RY","-5767RY","-5777RY","-5787RY","-5797RY","-9989OU","-9988OU","-9998OU");
@@ -119,7 +112,7 @@ class BanmenNextTest {
         find((byte)(NARI|pb), 5 - 1, 7 - 1,"-5713UM","-5724UM","-5735UM","-5739UM","-5746UM","-5747UM","-5748UM","-5756UM","-5758UM","-5766UM","-5767UM","-5768UM","-5775UM","-5779UM","-5784UM","-5793UM","-9989OU","-9988OU","-9998OU");
         find((byte)(NARI|pr), 5 - 1, 7 - 1,"-5717RY","-5727RY","-5737RY","-5746RY","-5747RY","-5748RY","-5751RY","-5752RY","-5753RY","-5754RY","-5755RY","-5756RY","-5758RY","-5759RY","-5766RY","-5767RY","-5768RY","-5777RY","-5787RY","-5797RY","-9989OU","-9988OU","-9998OU");
 	}
-	
+
 	/** 王が８方向に動くことができるか */
 	@Test
 	public void komaGotePkTest() {
@@ -130,12 +123,18 @@ class BanmenNextTest {
 	}
 	
 
-    /** 該当の設定があるか確認する */
+    /**
+     *  該当の設定があるか確認する
+     * @param koma コマ
+     * @param x コマのx
+     * @param y コマのy
+     * @param teStrings 移動先のリスト
+     */
 	private void find(byte koma,int x,int y,String... teStrings) {
-		factory.clearAllHash();
+		BanmenFactory factory = new BanmenFactory();
 
 		// 初期情報を作成する
-		BanmenOnly b = new BanmenOnly(null,0);
+		BanmenOnly b = new BanmenOnly();
 		logger.debug(b.toString());
 		b.clearForCSAProtocol();// 盤面を全消しする
         b.setTegoma(koma, 1, Math.max(0, b.getTegoma(koma, 1) - 1)); // 後手から１枚とって
@@ -143,7 +142,7 @@ class BanmenNextTest {
 		logger.debug(b.toString());
 		if ((koma & ENEMY) != 0) {
 			b.setTeban(1);//後手
-	        // 先手に駒を寄せる
+	        // 先手にコマを寄せる
 	        b.setTegoma(BanmenDefine.pP, 0, b.getTegoma(BanmenDefine.pP,1));
 	        b.setTegoma(BanmenDefine.pL, 0, b.getTegoma(BanmenDefine.pL,1));
 	        b.setTegoma(BanmenDefine.pN, 0, b.getTegoma(BanmenDefine.pN,1));
@@ -163,13 +162,14 @@ class BanmenNextTest {
 		}
         b.endForCSAProtocol();// 王がいなかったら適当に置く
 		logger.debug(b.toString());
-		BanmenNext after = factory.create(null, b);
+		BanmenKey key = new BanmenKey(b);
+		BanmenNext after = factory.create(null, key);
 		//
 		//
-		HashMap<Integer,BanmenNext> childMap = after.getChild(factory);
+		List<ChildTeNext> childMap = after.getChild(factory);
 		logger.debug(after.toString());
-		for (Map.Entry<Integer,BanmenNext> childEntry : childMap.entrySet()) {
-            int te = childEntry.getKey();
+		for (ChildTeNext teNext : childMap) {
+            int te = teNext.getTe();
             boolean flag = false;
             for (String teString : teStrings) {
             	int target = BanmenDefine.changeTeStringToInt(teString);
@@ -180,11 +180,11 @@ class BanmenNextTest {
             }
             if (!flag) {
             	String teString = BanmenDefine.changeTeIntToString(te);
-                fail("NG key=" + getKeyToString(koma) + " x=" + (x+1) + " y=" + (y+1) + " te=" + teString);            	
+                fail("NG key=" + getKomaToString(koma) + " x=" + (x+1) + " y=" + (y+1) + " te=" + teString);            	
             }
 		}
         if (teStrings.length != childMap.size()) {
-            fail("NG key=" + getKeyToString(koma) + " x=" + (x+1) + " y=" + (y+1)
+            fail("NG key=" + getKomaToString(koma) + " x=" + (x+1) + " y=" + (y+1)
             		+ " size=" + childMap.size() + " sum=" + teStrings.length);
         }
 	}
@@ -193,9 +193,12 @@ class BanmenNextTest {
 	 * 7手詰み確認
 	 */
 	@Test
-	void testTumi() {
-		// 初期情報を作成する
-		BanmenNext next = factory.create(null,null);
+	void tumiTest() {
+        BanmenFactory factory = new BanmenFactory();
+
+        // 初期情報を作成する
+	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
+		BanmenNext next = factory.create(null,topKey);
        //
 		logger.debug(next.toString());
 		next = next.decisionTe(factory,changeTeStringToInt("+2726FU"));
@@ -213,12 +216,12 @@ class BanmenNextTest {
         next = next.decisionTe(factory,changeTeStringToInt("+2423TO"));
 		logger.debug(next.toString());
         //
-		HashMap<Integer,BanmenNext> child = next.getChild(factory);
+		List<ChildTeNext> child = next.getChild(factory);
         assertEquals(child.size(),0); // もう手はない
         //
 		// 初期情報を作成する
         factory.clearAllHash();
-		next = factory.create(null,null);
+		next = factory.create(null,topKey);
        //
 		logger.debug(next.toString());
 		next = next.decisionTe(factory,changeTeStringToInt("+5968OU"));
@@ -244,11 +247,17 @@ class BanmenNextTest {
 		logger.debug("end");
 	}
 
-	
+
+	/** メインのテスト。
+	 * 盤面からいくつか動かして正しい動作をするか確認する
+	 */
 	@Test
-	void testMain() {
-		// 初期情報を作成する
-		BanmenNext banmenNext = factory.create(null,null);
+	void mainTest() {
+        BanmenFactory factory = new BanmenFactory();
+
+        // 初期情報を作成する
+	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
+		BanmenNext banmenNext = factory.create(null,topKey);
 		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
@@ -259,9 +268,9 @@ class BanmenNextTest {
 		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2726FU"));
 		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		HashMap<Integer,BanmenNext> child = banmenNext.getChild(factory);
-		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
-			String sKey = changeTeIntToString(childEntry.getKey());
+		List<ChildTeNext> child = banmenNext.getChild(factory);
+		for (ChildTeNext teNext : child) {
+			String sKey = changeTeIntToString(teNext.getTe());
             assertNotEquals(sKey,"-2112KA");
             assertNotEquals(sKey,"-2132KA");
             assertNotEquals(sKey,"-2132UM");
@@ -274,25 +283,32 @@ class BanmenNextTest {
 	/** 初手で何を指せるかの確認 */
 	@Test
 	void shokiTest() {
-		for (int i = 0 ; i < 100 ; i++) {
+        BanmenFactory factory = new BanmenFactory();
+
+        for (int i = 0 ; i < 100 ; i++) {
 			// 繰り返して問題ないか確認する
 			//
 
 			factory.clearAllHash();
-			BanmenNext next = factory.create(null,null);
+		    BanmenKey topKey = new BanmenKey(new BanmenOnly());
+			BanmenNext next = factory.create(null,topKey);
 			//
-			HashMap<Integer,BanmenNext> set = next.getChild(factory);
-			for (Map.Entry<Integer, BanmenNext> data : set.entrySet()) {
-				logger.debug(BanmenDefine.changeTeIntToString(data.getKey()));
+			List<ChildTeNext> teNextList = next.getChild(factory);
+			for (ChildTeNext teNext : teNextList) {
+				logger.debug(BanmenDefine.changeTeIntToString(teNext.getTe()));
 			}
-			assertEquals(set.size(), 30); // 30局面
+			assertEquals(teNextList.size(), 30); // 30局面
 		}
 	}
 	
+	/** 成り関係のテストをする */
 	@Test
-	void testHinari() {
-		// 初期情報を作成する
-		BanmenNext banmenNext = factory.create(null,null);
+	void hinariTest() {
+        BanmenFactory factory = new BanmenFactory();
+
+        // 初期情報を作成する
+	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
+		BanmenNext banmenNext = factory.create(null,topKey);
 		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
@@ -306,18 +322,18 @@ class BanmenNextTest {
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9596FU"));
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1413TO"));
         //
-		HashMap<Integer,BanmenNext> child;
+        List<ChildTeNext> child;
 		child = banmenNext.getChild(factory);
-		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
-			String sKey = changeTeIntToString(childEntry.getKey());
+		for (ChildTeNext teNextList : child) {
+			String sKey = changeTeIntToString(teNextList.getTe());
             assertNotEquals(sKey,"-0099FU");
             assertNotEquals(sKey,"+0011FU");
         }
         //
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9697TO"));
 		child = banmenNext.getChild(factory);
-		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
-			String sKey = changeTeIntToString(childEntry.getKey());
+		for (ChildTeNext teNextList : child) {
+			String sKey = changeTeIntToString(teNextList.getTe());
             assertNotEquals(sKey,"-0099FU");
             assertNotEquals(sKey,"+0011FU");
         }
@@ -327,8 +343,8 @@ class BanmenNextTest {
 		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
         //
 		child = banmenNext.getChild(factory);
-		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
-			String sKey = changeTeIntToString(childEntry.getKey());
+		for (ChildTeNext teNextList : child) {
+			String sKey = changeTeIntToString(teNextList.getTe());
             assertNotEquals(sKey,"+1814RY");
             assertNotEquals(sKey,"+1815RY");
             assertNotEquals(sKey,"+1816RY");
@@ -341,8 +357,8 @@ class BanmenNextTest {
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1312TO"));
 		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		child = banmenNext.getChild(factory);
-		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
-			String sKey = changeTeIntToString(childEntry.getKey());
+		for (ChildTeNext teNextList : child) {
+			String sKey = changeTeIntToString(teNextList.getTe());
             assertNotEquals(sKey,"+1814RY");
             assertNotEquals(sKey,"+1815RY");
             assertNotEquals(sKey,"+1816RY");
@@ -356,10 +372,14 @@ class BanmenNextTest {
 	}
 	
 	
+	/** 利きなしテスト */
 	@Test
 	void testKiKiNaShi() {
-		// 初期情報を作成する
-		BanmenNext banmenNext = factory.create(null,null);
+        BanmenFactory factory = new BanmenFactory();
+
+        // 初期情報を作成する
+	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
+		BanmenNext banmenNext = factory.create(null,topKey);
 		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
@@ -379,10 +399,10 @@ class BanmenNextTest {
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1121TO"));
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9989TO"));
 		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		HashMap<Integer,BanmenNext> child;
+		List<ChildTeNext> child;
 		child = banmenNext.getChild(factory);
-		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
-			String sKey = changeTeIntToString(childEntry.getKey());
+		for (ChildTeNext teNextList : child) {
+			String sKey = changeTeIntToString(teNextList.getTe());
             assertNotEquals(sKey,"+0011FU");
             assertNotEquals(sKey,"+0011KY");
             assertNotEquals(sKey,"+0011KE");
@@ -395,8 +415,8 @@ class BanmenNextTest {
         banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2131TO"));
 		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		child = banmenNext.getChild(factory);
-		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
-			String sKey = changeTeIntToString(childEntry.getKey());
+		for (ChildTeNext teNextList : child) {
+			String sKey = changeTeIntToString(teNextList.getTe());
             assertNotEquals(sKey,"+0011FU");
             assertNotEquals(sKey,"+0011KY");
             assertNotEquals(sKey,"+0011KE");
@@ -412,10 +432,14 @@ class BanmenNextTest {
 		
 	}
 	
+	/** 利きなしテスト、その2 */
 	@Test
 	void testKiKiNaShi2() {
-		// 初期情報を作成する
-		BanmenNext banmenNext = factory.create(null,null);
+        BanmenFactory factory = new BanmenFactory();
+
+        // 初期情報を作成する
+	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
+		BanmenNext banmenNext = factory.create(null,topKey);
 		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
@@ -437,10 +461,10 @@ class BanmenNextTest {
         //
 		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		//
-		HashMap<Integer,BanmenNext> child;
+		List<ChildTeNext> child;
 		child = banmenNext.getChild(factory);
-		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
-			String sKey = changeTeIntToString(childEntry.getKey());
+		for (ChildTeNext teNextList : child) {
+			String sKey = changeTeIntToString(teNextList.getTe());
             assertNotEquals(sKey,"+9991KY");
             assertNotEquals(sKey,"+1911KY");
         }
@@ -452,8 +476,8 @@ class BanmenNextTest {
         //
 		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
 		child = banmenNext.getChild(factory);
-		for (Map.Entry<Integer,BanmenNext> childEntry : child.entrySet()) {
-			String sKey = changeTeIntToString(childEntry.getKey());
+		for (ChildTeNext teNextList : child) {
+			String sKey = changeTeIntToString(teNextList.getTe());
             assertNotEquals(sKey,"+9291FU");
             assertNotEquals(sKey,"+1819FU");
             assertNotEquals(sKey,"+9482KE");
@@ -461,10 +485,14 @@ class BanmenNextTest {
         }
 	}
 	
+	/** 手コマのテスト */
 	@Test
-	void testTegoma() {
-		// 初期情報を作成する
-		BanmenNext banmenNext = factory.create(null,null);
+	void tegomaTest() {
+        BanmenFactory factory = new BanmenFactory();
+
+        // 初期情報を作成する
+	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
+		BanmenNext banmenNext = factory.create(null,topKey);
 		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
@@ -527,10 +555,9 @@ class BanmenNextTest {
 	}
 	
 	
-	
-	
+	/** 文字の手から手に変更することのテスト */
 	@Test
-	void testChangeTeStringToInt() {
+	void changeTeStringToIntTest() {
         String moveString;
         int move;
         String result;
@@ -554,23 +581,27 @@ class BanmenNextTest {
         assertEquals(moveString,result);
 	}
 	
+	/** 子作りのテスト */
 	@Test
-	void testCreateNextList() {
+	void createNextListTest() {
+        BanmenFactory factory = new BanmenFactory();
+
         logger.debug("testCreateNextList start");
 		// 初期情報を作成する
-		BanmenNext banmenNext = factory.create(null,null);
+        BanmenKey topKey = new BanmenKey(new BanmenOnly());
+		BanmenNext banmenNext = factory.create(null,topKey);
 		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
-		HashMap<Integer,BanmenNext> child;
+		List<ChildTeNext> child;
 		child = banmenNext.getChild(factory);
 		assertEquals(child.size(),30); // 初期盤面の合法手
         //
 		BanmenNext nextEntry = banmenNext.decisionTe(factory,changeTeStringToInt("+7776FU"));
 		logger.debug(nextEntry.toString());
 		child = nextEntry.getChild(factory);
-		for (Map.Entry<Integer,BanmenNext> x : child.entrySet()) {
-			logger.debug("  " + BanmenDefine.changeTeIntToString(x.getKey()));
+		for (ChildTeNext x : child) {
+			logger.debug("  " + BanmenDefine.changeTeIntToString(x.getTe()));
 		}
 		assertEquals(child.size(),30); // 初期盤面の合法手
 		//
@@ -580,37 +611,38 @@ class BanmenNextTest {
 	/** 次の手を指せるか */
 	@Test
 	void keyTest() {
-		
-		factory.clearAllHash();//一回消す
-		BanmenNext banmenNext = null;
-		banmenNext = factory.create(null, null);
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+7776FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3334FU"));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+8822UM"));
-		
-		factory.clearAllHash();//一回消す
-		banmenNext = null;
-		banmenNext = factory.create(null,null);
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+3938GI")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-1112KY")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+4939KI")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-2211KA")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+3949KI")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-1314FU")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+4939KI")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-2113KE")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+2726FU")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-1415FU")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+2625FU")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-1122KA")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+2524FU")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("-2211KA")));
-		banmenNext = factory.create(banmenNext,new BanmenOnly(banmenNext.getMyKey().createBanmenOnly(),BanmenDefine.changeTeStringToInt("+2423TO")));
+	    BanmenFactory factory = new BanmenFactory();
 
+		factory.clearAllHash();//一回消す
+        String[] ansList = {
+                "+7776FU",
+                "-3334FU",
+                "+8822UM"};
+        sasu(ansList);
+
+	      // 打ち込み系に問題がありそうか？
+		String[] ansList0 = {
+                "+3938GI",
+                "-1112KY",
+                "+4939KI",
+                "-2211KA",
+                "+3949KI",
+                "-1314FU",
+                "+4939KI",
+                "-2113KE",
+                "+2726FU",
+                "-1415FU",
+                "+2625FU",
+                "-1122KA",
+                "+2524FU",
+                "-2211KA",
+                "+2423TO"};
+        sasu(ansList0);
+        
 		// 打ち込み系に問題がありそうか？
-		String[] ansList = {
+		String[] ansList1 = {
 				"+7776FU", "-8384FU", "+8833UM", "-2133KE"};
-		sasu(ansList);
+		sasu(ansList1);
 		
 		// 打ち込み系に問題がありそうか？
 		String[] ansList2 = {
@@ -646,18 +678,22 @@ class BanmenNextTest {
         sasu(ansList4);
 	}
 	
+	/**
+	 * 容疑者を探す
+	 * @param ansList 合法手のリスト
+	 */
 	public void sasu(String [] ansList) {
-		factory.clearAllHash();//一回消す
-		BanmenNext banmenTopNext = factory.create(null,null);
+        BanmenFactory factory = new BanmenFactory();
+
+        BanmenKey topKey = new BanmenKey(new BanmenOnly());
+		BanmenNext banmenTopNext = factory.create(null,topKey);
 		for (String ans : ansList) {
 			logger.debug("sasu " + ans);
-			if (ans.equals("+3847GI")) {
-				logger.debug("danger!");
-			}
 			BanmenOnly banmenTopOnly = banmenTopNext.getMyKey().createBanmenOnly();
 			int te = BanmenDefine.changeTeStringToInt(ans);
 			BanmenOnly banmenTeOnly = new BanmenOnly(banmenTopOnly, te);
-			BanmenNext banmenTeNext = factory.create(null, banmenTeOnly); // ここで生成ミスってないか調べる
+			BanmenKey key = new BanmenKey(banmenTeOnly);
+			BanmenNext banmenTeNext = factory.create(null, key); // ここで生成ミスってないか調べる
 			//
 			// 次の手とのキー同士の比較は当然異なるはず
 			assertNotEquals(banmenTopNext.getMyKey(), banmenTeNext.getMyKey());
@@ -683,28 +719,6 @@ class BanmenNextTest {
 			// 次の手にする
 			banmenTopNext = banmenTeNext;
 		}
-	}
-	/** コマ打ちテスト */
-	@Test
-	public void UchiTest() {
-		String keyString = "0a23600c803c000000000000000e2aaaaaaaacccdddeeeef7befbffe00000000";
-		BanmenKey key = new BanmenKey(keyString);
-		BanmenNext next = new BanmenNextEval(key); // キーから復元する
-		HashMap<Integer,BanmenNext> childMap = next.getChild(factory);
-		int count = 0;
-		boolean hit = false;
-		for (BanmenNext child: childMap.values()) {
-			if (child.isEnemyOute()) {
-				logger.debug(child.toString());
-				count++;
-				if (child.getChild(factory).size() == 0) {
-					hit = true;
-				}
-				
-			}
-		}
-		assertEquals(count,3);
-		assertEquals(hit,true);
 	}
 	
 }

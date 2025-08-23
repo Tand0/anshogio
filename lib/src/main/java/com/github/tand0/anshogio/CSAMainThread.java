@@ -12,10 +12,13 @@ import org.slf4j.LoggerFactory;
  * CSAのメイン処理スレッド
  */
 public class CSAMainThread implements Runnable {
+    /** ロガー */
 	private final static Logger logger = LoggerFactory.getLogger(CSAMainThread.class);
 
+	/** 社畜 */
     private final CSAWorker worker;
     
+    /** CSAのクライアント */
 	private CSAClient client;
 
     /** セレクタ */
@@ -25,13 +28,16 @@ public class CSAMainThread implements Runnable {
     private boolean aliveFlag = true;
     
 	/** コンストラクタ
-     */
+	 * 
+	 * @param worker 社畜
+	 */
     public CSAMainThread(CSAWorker worker) {
     	logger.debug("start");
     	this.worker = worker;
     }
 
     /** スレッド実行 */
+    @Override
     public void run() {
     	logger.debug("CSAMainThread.run() start");
         try {
@@ -57,8 +63,9 @@ public class CSAMainThread implements Runnable {
         }
         logger.debug("CSAMainThread.run() end");
     }
-    /**
-     * runループ１つ分の処理
+    /** runループ１つ分の処理
+     * 
+     * @throws IllegalStateException 例外
      */
     public void runWhile() throws IllegalStateException {
     	//logger.trace("ANMainThreadImpl runWhile start");
@@ -98,8 +105,9 @@ public class CSAMainThread implements Runnable {
             /*EMPTY*/
         }
     }
-    /** 
-     * 社畜から手を指された
+    /** 社畜から手を指された
+     * 
+     * @param te 指し手
      */
 	public void sendTe(int te) {
 		CSAClient client = this.client;
@@ -107,7 +115,10 @@ public class CSAMainThread implements Runnable {
 			client.sendTe(te);
 		}
 	}
-    /** セレクタの取得 */
+    /** セレクタの取得
+     * 
+     * @return セレクタ
+     */
     public Selector getSelector() {
         return this.selector;
     }

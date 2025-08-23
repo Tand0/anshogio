@@ -12,25 +12,39 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tand0.anshogio.CSAWorker2;
+import com.github.tand0.anshogio.CSAWorker;
 
-/** ロードする */
+/** 自前の将棋サーバを立ち上げる
+ * @author A.N. 将棋サーバー王
+ */
 public class ANShogiServerO implements Runnable {
 	
     /** ロガーの位置 */
     private final static Logger logger = LoggerFactory.getLogger(ANShogiServerO.class);
 
-    private final CSAWorker2 parent;
+    /** 社畜 */
+    private final CSAWorker parent;
     
+    /** フォルダ名の取得
+     * 
+     * @return フォルダ名
+     */
     public String getDir() {
     	return "AriShogiServer.dir";
     }
+    /** 将棋サーバの名称の取得
+     * 
+     * @return 名前
+     */
     public String getName() {
     	return "AriShogiServer.name";
     }
     
-    /** 親データ */
-    public ANShogiServerO(CSAWorker2 parent) {
+    /** コンストラクタ
+     * 
+     * @param parent 社畜
+     */
+    public ANShogiServerO(CSAWorker parent) {
     	this.parent = parent;
     }
 

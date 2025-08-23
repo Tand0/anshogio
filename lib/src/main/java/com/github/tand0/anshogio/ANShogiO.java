@@ -10,8 +10,8 @@ import java.net.InetSocketAddress;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +24,8 @@ import com.github.tand0.anshogio.engine.EngineRunnable;
 import com.github.tand0.anshogio.engine.PnDnEngineRunnable;
 import com.github.tand0.anshogio.engine.PosgreEngineRunnable;
 import com.github.tand0.anshogio.engine.TensorEngineRunnable;
+import com.github.tand0.anshogio.etc.ANDbClearO;
+import com.github.tand0.anshogio.etc.ANDbUpgradeO;
 import com.github.tand0.anshogio.etc.ANDownloadO;
 import com.github.tand0.anshogio.etc.ANHttpO;
 import com.github.tand0.anshogio.etc.ANPostgreO;
@@ -31,8 +33,10 @@ import com.github.tand0.anshogio.etc.ANShogiServerO;
 import com.github.tand0.anshogio.eval.ANModel;
 import com.github.tand0.anshogio.util.BanmenDefine;
 import com.github.tand0.anshogio.util.BanmenFactory;
+import com.github.tand0.anshogio.util.BanmenKey;
 import com.github.tand0.anshogio.util.BanmenNext;
 import com.github.tand0.anshogio.util.BanmenOnly;
+import com.github.tand0.anshogio.util.ChildTeNext;
 import com.sun.net.httpserver.HttpServer;
 
 
@@ -42,7 +46,15 @@ public class ANShogiO {
     /** ログ */
     private static final Logger logger = LoggerFactory.getLogger(ANShogiO.class);
 
-    /** メイン処理 */
+    /** コンストラクタ */
+    public ANShogiO() {
+    }
+    
+    /** メイン処理
+     * 
+     * @param argc メイン引数
+     * @throws IOException IO例外時は終了
+     */
     public static final void main(String[] argc) throws IOException {
         logger.debug("start debug!");
         ANShogiO aNShogiO = new ANShogiO();
@@ -69,6 +81,7 @@ public class ANShogiO {
     /** 連戦フラグ */
     private boolean stopFlag;
 
+    /** CSAメインスレッド */
     private CSAMainThread casMain = null;
     
     /** DBへの接続用 */
@@ -86,12 +99,18 @@ public class ANShogiO {
     /** ログバッファー */
     private StringBuffer logBuff = new StringBuffer();
     
-    /** 設定ファイルの取得 */
+    /** 設定ファイルの取得
+     * 
+     * @param settingFile 設定ファイル
+     */
     public void setSettingFileName(String settingFile) {
         this.settingFile = settingFile;
     }
 
-    /** 設定ファイルの取得 */
+    /** 設定ファイルの取得
+     * 
+     * @return 設定ファイル
+     */
     public String getSettingFileName() {
         return (settingFile == null)? SETTING_FILE : settingFile;
     }
@@ -133,9 +152,8 @@ public class ANShogiO {
         } catch (IOException e) {
             setStatus(ANStatus.ERROR);
         }
-        
         // DBへ接続する
-        this.aNPostgreO = new ANPostgreO(setting);
+        this.aNPostgreO = new ANDbUpgradeO(setting);
         try {
             this.aNPostgreO.connect();
         } catch (SQLException e) {
@@ -157,7 +175,7 @@ public class ANShogiO {
             try {
                 runnable = queue.poll(1000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                runnable = null;
+                logger.debug("InterruptedException e={}", e.getMessage());
             }
             if (runnable != null) {
                 runnable.run();
@@ -181,7 +199,8 @@ public class ANShogiO {
         banmenList.clear();
         //
         // 初期値を入れる
-        banmenList.addLast(factory.create(null, null));
+        BanmenKey key = new BanmenKey(new BanmenOnly());
+        banmenList.addLast(factory.create(null, key));
         //
         // 初期値を変更する
         setStatus(ANStatus.START);
@@ -192,32 +211,50 @@ public class ANShogiO {
         t.setName("CSAMainThread");
         t.start();
     }
-    /** 連戦しないようにする */
+    /** 連戦しないようにする
+     * 
+     * @param stopFlag 停止フラグ。trueで停止
+     */
     public void setStop(boolean stopFlag) {
         this.stopFlag = stopFlag;
     }
-    /** 連戦フラグを取得する */
+    /** 連戦フラグを取得する 
+     * 
+     * @return 停止フラグ。true で停止
+     */
     public boolean getStopFlag() {
         return this.stopFlag;
     }
 
-    /** */
+    /**
+     * メインスレッドにキューを追加する
+     * @param x 実施内容
+     */
     public void addQueue(Runnable x) {
         this.queue.add(x);
     }
 
-    /** ステータスの取得 */
+    /** ステータスの取得
+     * 
+     * @return ステータス
+     */
     public ANStatus getStatus() {
         return this.status;
     }
-    /** ステータスの設定 */
+    /** ステータスの設定
+     * 
+     * @param status ステータス
+     */
     public void setStatus(ANStatus status) {
         this.status = status;
         if (this.status == ANStatus.END) {
             restart(stopFlag);
         }
     }
-    /** 再開する */
+    /** 再開する
+     * 
+     * @param flag trueの場合、停止するだけで再開しない。
+     */
     public void restart(boolean flag) {
         logger.debug("restart");
         CSAMainThread casMain = this.casMain;
@@ -241,8 +278,11 @@ public class ANShogiO {
             doConnect();
         }
     }
+    /**
+     * ログを生成する
+     */
     protected void createLog() {
-        String logDir = this.getSetting().getString("downloadDir");
+        String logDir = this.getSetting().getString("download.dir");
         if (logDir == null) {
             return;
         }
@@ -268,7 +308,10 @@ public class ANShogiO {
         }
     }
     
-    /** 設定情報の取得 */
+    /** 設定情報の取得
+     * 
+     * @return 設定ファイル
+     */
     public JSONObject getSetting() {
         return this.setting;
     }
@@ -281,39 +324,80 @@ public class ANShogiO {
     
     /** CSAプロトコルで得られた時間(トータルタイム) */
     private Integer totalTime;
+    /** 
+     * トータルタイムの取得
+     * @return トータルタイム
+     */
     public int getTotalTime() {
         return (totalTime == null)? 0 : totalTime;
     }
+    /**
+     * トータルタイムの設定
+     * @param totalTime トータルタイム
+     */
     public void setTotalTime(int totalTime) {
         this.totalTime = totalTime;
     }
     /** CSAプロトコルで得られた時間(秒読みタイム) */
     private Integer byoyomiTime;
+    /**
+     * 秒読みタイムの取得
+     * @return 秒読みタイム
+     */
     public int getByoyomiTime() {
         return (byoyomiTime == null)? 0 : byoyomiTime;
     }
+    /**
+     * 秒読みタイムの設定
+     * @param byoyomiTime 秒読みタイム
+     */
     public void setByoyomiTime(int byoyomiTime) {
         this.byoyomiTime = byoyomiTime;
     }
     /** CSAプロトコルで得られた時間(遅延時間) */
     private Integer delayTime;
+    /**
+     * 遅延時間の取得
+     * @return 遅延時間
+     */
     public int getDelayTime() {
         return  (delayTime == null)? 0 : delayTime;
     }
+    /**
+     * 遅延時間の設定
+     * @param delayTime 遅延時間
+     */
     public void setDelayTime(int delayTime) {
         this.delayTime = delayTime;
     }
 
     /** CSAプロトコルで得られた時間(1手毎の加算時間) */
     private Integer incrementTime;
+    /**
+     * 1手毎の加算時間の取得
+     * @return 1手毎の加算時間
+     */
     public int getIncrementTime() {
         return  (incrementTime == null)? 0 : incrementTime;
     }
+    /**
+     * 1手毎の加算時間の設定
+     * @param incrementTime 1手毎の加算時間
+     */
     public void setIncrementTime(Integer incrementTime) {
         this.incrementTime = incrementTime;
     }
     
-    /** 処理の開始 */
+    /** 処理の開始
+     * 
+     * @param senteName 先手の名前
+     * @param goteName 後手の名前
+     * @param myTurn 自身が先手番か？ 0先手,1後手
+     * @param totalTime トータルタイム
+     * @param byoyomiTime 秒読み時間
+     * @param delayTime 遅延時間
+     * @param incrementTime 1手毎の加算時間
+     */
     public void start(
             String senteName,
             String goteName,
@@ -344,7 +428,10 @@ public class ANShogiO {
         // 対戦の開始
         fight(startBanmenTime);
     }
-    /** 相手から呼ばれる次の一手 */
+    /** 相手から呼ばれる次の一手
+     * 
+     * @param teString 次の手(CSAプロトコル)
+     */
     public void setNextMove(String teString) {
         // 開始時刻をチェックする
         final long startBanmenTime = System.currentTimeMillis();
@@ -386,11 +473,25 @@ public class ANShogiO {
         fight(startBanmenTime);
     }
     
+    /**
+     * engineの待ち処理を行うスレッド
+     */
     private Thread engineWaitThread = null;
+    /**
+     * postgresエンジンの処理を行うスレッド
+     */
     private PosgreEngineRunnable posgreEngineRunnable = null;
+    /**
+     * TensorFlowエンジンの処理を行うスレッド
+     */
     private TensorEngineRunnable tensorEngineRunnable = null;
+    /** PnDnエンジンの処理を行うスレッド */
     private PnDnEngineRunnable pnDnEngineRunnable = null;
-    
+
+    /** 戦え！
+     * 
+     * @param startBanmenTime 手を打ち始めた開始時刻
+     */
     public void fight(long startBanmenTime) {
         
         // 目標時刻を設定する( 秒読み時間 + 加算時間 )
@@ -417,7 +518,7 @@ public class ANShogiO {
         // もしも自身が先手で手番が先手か、自身が後手で手番が後手なら手を指す
         //
         // 合法手を探す
-        HashMap<Integer,BanmenNext> child = banmenList.getLast().getChild(factory);
+        List<ChildTeNext> child = banmenList.getLast().getChild(factory);
         //
         // エンジンを手ごとにインスタンス化する
         posgreEngineRunnable = new PosgreEngineRunnable(aNPostgreO, banmenList, child);
@@ -505,7 +606,10 @@ public class ANShogiO {
 
     }
 
-    /** 手を送信する */
+    /** 手を送信する
+     * 
+     * @param te 指し手
+     */
     private void sendTe(int te) {
         // メインスレッドで指す手を実施する
         ANShogiO.this.addQueue(()->{
@@ -521,13 +625,16 @@ public class ANShogiO {
         });
     }
     
-    /** 社畜の取得 */
-    public CSAWorker2 getCSAWorker2() {
+    /** 社畜の取得
+     * 
+     * @return 社畜
+     */
+    public CSAWorker getCSAWorker2() {
         return workerImpl;
     }
     
-    /** 社畜 */
-    private CSAWorker2 workerImpl = new CSAWorker2() {
+    /** 社畜情報 */
+    private CSAWorker workerImpl = new CSAWorker() {
 
         @Override
         public JSONObject getSetting() {
@@ -618,9 +725,12 @@ public class ANShogiO {
             if (processNum == 0) {
                 processFlag = new Thread(new ANDownloadO(this));
                 processFlag.setName("ANDownloadO");
-            } else {
+            } else if (processNum == 1) {
                 processFlag = new Thread(aNPostgreO);
                 processFlag.setName("ANPostgreO");
+            } else {
+                processFlag = new Thread(new ANDbClearO(this.getSetting()));
+                processFlag.setName("DBClear");
             }
             processFlag.start();
         }

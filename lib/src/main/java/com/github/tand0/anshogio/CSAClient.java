@@ -58,17 +58,23 @@ public class CSAClient implements Runnable {
     /** 社畜 */
     private final CSAWorker worker;
 	
+    /** ホスト名のdict名 */
 	private static final String HOSTNAME = "csa.ostname";
 
+    /** CSAポートのdict名 */
 	private static final String PORT = "csa.port";
 
+    /** CSA名のdict名 */
 	private static final String NAME = "csa.name";
 
+    /** CSAパスワードのdict名 */
 	private static final String PASSEORD = "csa.password";
 	
     /**
-	 * コンストラクタ 
-	 */
+     * コンストラクタ 
+     * @param selector セレクター
+     * @param worker ワーカー
+     */
 	public CSAClient(Selector selector, CSAWorker worker) {
 		logger.debug("Client constructor start");
 		this.selector = selector;
@@ -112,8 +118,9 @@ public class CSAClient implements Runnable {
         //logger.trace("Client run end");
 	}
 	
-    /** コネクト処理
-     * finishConnect を呼ぶ
+    /** コネクト処理。finishConnect を呼ぶ処理
+     * 
+     * @param key セレクションキー
      */
     public void connect(SelectionKey key) {
         if (worker.getStatus() != ANStatus.BEGIN_CONNECT) {
@@ -233,15 +240,23 @@ public class CSAClient implements Runnable {
     	}
     }
     
+    /** 先手名称 */
     private String senteName = "";
-    private String goteName = "";    
+    /** 後手名称 */
+    private String goteName = "";
+    /** 自分のターン、先手0, 後手1 */
     private int myTurn = 0;
+    /** トータルタイム */
     private Integer totalTime = null;
+    /** 秒読み時間 */
     private Integer byoyomiTime = null;
+    /** 遅延時間 */
     private Integer delayTime = null;
+    /** 1手の加算時間 */
     private Integer incrementTime = null;
     /**
      * 一行読みます
+     * @param message 送られてきたメッセージ
      */
     protected void readString(String message) {
     	logger.debug(">{}->{}",this.worker.getStatus(),message.trim());
@@ -374,8 +389,9 @@ public class CSAClient implements Runnable {
     	}
     }
 
-    /** 
-     * 社畜から手を指された
+    /** 社畜から手を指された
+     * 
+     * @param te 指し手
      */
 	public void sendTe(int te) {
 		if (this.worker.getStatus() == ANStatus.FIGHT) {

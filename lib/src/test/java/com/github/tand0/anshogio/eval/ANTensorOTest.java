@@ -14,17 +14,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.tand0.anshogio.util.BanmenKey;
-import com.github.tand0.anshogio.util.BanmenNext;
+import com.github.tand0.anshogio.util.BanmenOnly;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import com.github.tand0.anshogio.ANShogiO;
-import com.github.tand0.anshogio.util.BanmenFactory;
-
 /** ロードする */
 public class ANTensorOTest {
     /** ロガーの位置 */
     private final static Logger logger = LoggerFactory.getLogger(ANTensorOTest.class);
+    
+
+    /** コンストラクタ */
+    public ANTensorOTest() {
+    }
     
     /** データが取れることを確認する 例外が出なければＯＫ 
      * @throws IOException 例外が発生した。テストとしてはダメです
@@ -47,12 +50,9 @@ public class ANTensorOTest {
         //
         Thread.sleep(5 *1000); // wait to invoked HttpServer.
         //
-        // 工場を立てる
-        BanmenFactory factory = new BanmenFactory();
         //
         // 初期情報を作成する
-        BanmenNext banmenNext = factory.create(null, null);
-        BanmenKey key = banmenNext.getMyKey();
+        BanmenKey key = new BanmenKey(new BanmenOnly());
         //
         // モデルはちゃんと動きますか？
         ANModel aNModel = new ANModel(mock.getSetting());
@@ -65,6 +65,10 @@ public class ANTensorOTest {
         //
         Thread.sleep(3 *1000); // wait for HttpServer
     }
+    
+    /**
+     * サーバ側の模擬
+     */
     class Working implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {

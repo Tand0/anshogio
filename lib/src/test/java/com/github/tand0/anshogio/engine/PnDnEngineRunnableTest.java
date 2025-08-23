@@ -16,7 +16,12 @@ import com.github.tand0.anshogio.util.BanmenNext;
 
 /** PnDnアルゴリズムに対するテスト */
 public class PnDnEngineRunnableTest {
-
+    /** コンストラクタ */
+    public PnDnEngineRunnableTest() {
+    }
+    /**
+     * 書籍No1のテスト
+     */
     @Test
     public void no1Test() {
         int teban = 0; // 先手が攻める0、後手が攻める1
@@ -32,6 +37,9 @@ public class PnDnEngineRunnableTest {
         // 後手側のPnが0になっている
         assertEquals(next.getPnDn(1- teban).pn,0);
     }
+    /**
+     * 書籍No2のテスト
+     */
     @Test
     public void no2Test() {
         int teban = 1; // 先手が攻める0、後手が攻める1
@@ -47,6 +55,9 @@ public class PnDnEngineRunnableTest {
         // Pnが0になっている
         assertEquals(next.getPnDn(1- teban).pn,0);
     }
+    /**
+     * 書籍No2-2のテスト
+     */
     @Test
     public void no2no2Test() {
         int teban = 0; // 先手が攻める0、後手が攻める1
@@ -66,6 +77,9 @@ public class PnDnEngineRunnableTest {
         // Pnが0になっている
         assertEquals(next.getPnDn(teban).pn,0);
     }
+    /**
+     * 書籍No2-3のテスト
+     */
     @Test
     public void no2no3Test() {
         int teban = 1; // 先手が攻める0、後手が攻める1
@@ -87,16 +101,26 @@ public class PnDnEngineRunnableTest {
         // Pnが0になっている
         assertEquals(a.getPnDn(teban).pn,0);
     }
+    /**
+     * 書籍No3のテスト
+     */
     @Test
     public void no3Test() {
         int teban = 0; // 先手が攻める0、後手が攻める1
         no3to4Test(teban);
     }
+    /**
+     * 書籍No4のテスト
+     */
     @Test
     public void no4Test() {
         int teban = 1; // 先手が攻める0、後手が攻める1
         no3to4Test(teban);
     }
+    /**
+     * 書籍No3から4のテストの中身
+     * @param teban 手番
+     */
     public void no3to4Test(int teban) {
         HashSet<BanmenNext> route = new HashSet<>();
         BanmenFactory factory = new BanmenFactory();
@@ -111,6 +135,9 @@ public class PnDnEngineRunnableTest {
         assertEquals(next.getPnDn(1 - teban).pn,0);
     }
 
+    /**
+     * 書籍No5以降のテスト
+     */
     @Test
     public void no5OverTest() {
         int teban = 0; // 先手が攻める0、後手が攻める1
@@ -150,16 +177,34 @@ public class PnDnEngineRunnableTest {
         assertEquals(a1.getPnDn(teban).pn,0);
     }
     
-    /** mockを取得する */
+    /**
+     * mockを取得する
+     * @param teban 手番
+     * @param number 評価用の番号
+     * @return 盤面のMock
+     */
     public BanmenNextMock getBaseText(int teban, int number) {
         return getBaseText(teban,number,false);
     }
-    /** mockを取得する */
+    /**
+     * mockを取得する
+     * @param teban 手番
+     * @param number 評価用の番号
+     * @param isKingWin 入玉詰みならtrue
+     * @return 盤面のMock
+     */
     public BanmenNextMock getBaseText(int teban, int number, boolean isKingWin) {
         return getBaseText(teban,number,false, true);
     }
         
-    /** mockを取得する */
+    /**
+     * mockを取得する
+     * @param teban 手番
+     * @param number 評価用の番号
+     * @param isKingWin 入玉詰みならtrue
+     * @param enemyOute 相手に王手が掛かっているならtrue
+     * @return 盤面のMock
+     */
     public BanmenNextMock getBaseText(int teban, int number, boolean isKingWin, boolean enemyOute) {
         String keyString = String.format(Locale.JAPANESE,"%064x", number);
         BanmenKey key = new BanmenKey(keyString);

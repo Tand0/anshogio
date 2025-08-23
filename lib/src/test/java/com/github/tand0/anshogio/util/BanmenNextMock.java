@@ -1,12 +1,13 @@
 package com.github.tand0.anshogio.util;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /** BanmenNextのMockオブジェクト */
 public class BanmenNextMock extends BanmenNextEval {
 
     /** MOck用のオブジェクト */
-    private HashMap<Integer,BanmenNext> mockChild = new HashMap<>();
+    private List<ChildTeNext> mockChild = new ArrayList<>();
     
     /** MOKC用の入玉勝ちチェック (trueなら入玉勝ち) */
     private boolean kingWin;
@@ -15,7 +16,13 @@ public class BanmenNextMock extends BanmenNextEval {
     private final boolean enemyOute;
 
     
-    /** コンストラクタ */
+    /**
+     * コンストラクタ
+     * @param key key値
+     * @param teban 手番
+     * @param kingWin 入玉勝ち
+     * @param enemyOute 相手に王手に掛かっているか
+     */
     public BanmenNextMock(BanmenKey key,int teban, boolean kingWin,boolean enemyOute) {
         super(key);
         this.getMyKey().setTeban(teban); // ダミーを作る
@@ -24,16 +31,19 @@ public class BanmenNextMock extends BanmenNextEval {
     }
     /** 子づくりする(Mockなのでfactoryは使わない。盤面から合法手を作らない) */
     @Override
-    public synchronized HashMap<Integer, BanmenNext> getChildGetGouhou(BanmenFactory factory, BanmenOnly only) {
+    public synchronized List<ChildTeNext> getChildGetGouhou(BanmenFactory factory, BanmenOnly only) {
         if (this.childFileld == null) {
             this.childFileld = this.mockChild;
         }
         return this.mockChild;
     }
-    /** mock用に合法手を追加する */
+    /**
+     * mock用に合法手を追加する
+     * @param next 盤面
+     */
     public void addMockChild(BanmenNext next) {
         int key = next.getMyKey().hashCode();
-        mockChild.put(key, next);
+        mockChild.add(new ChildTeNext(key, next));
     }
 
     /**

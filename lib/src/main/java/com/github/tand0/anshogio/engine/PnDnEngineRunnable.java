@@ -1,10 +1,13 @@
 package com.github.tand0.anshogio.engine;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 
 import com.github.tand0.anshogio.util.BanmenFactory;
 import com.github.tand0.anshogio.util.BanmenNext;
+import com.github.tand0.anshogio.util.ChildTeNext;
 import com.github.tand0.anshogio.util.PnDn;
 
 /** 詰めろエンジンを詰む */
@@ -16,11 +19,17 @@ public class PnDnEngineRunnable extends EngineRunnable {
     /** 最大でチェックする必至の手順 */
     private static final int MAX_TUMERO = 5;
     
+    /** 工場 */
     private final BanmenFactory factory;
     
+    /** 同一局面のリスト */
     private final LinkedList<BanmenNext> banmenList;
 
-    /** コンストラクタ */
+    /** コンストラクタ
+     * 
+     * @param factory 工場
+     * @param banmenList 手持ちの盤面の一覧
+     */
     public PnDnEngineRunnable(BanmenFactory factory,LinkedList<BanmenNext> banmenList) {
         super(PnDnEngineRunnable.class.getSimpleName());
         this.banmenList = banmenList;
@@ -28,6 +37,7 @@ public class PnDnEngineRunnable extends EngineRunnable {
     }
 
     /** MAX_TUMEROで示す階層までPnDnを探索する */
+    @Override
     public void run() {
         BanmenNext next = banmenList.getLast();
         int teban = banmenList.getLast().getMyKey().getTeban();
@@ -47,7 +57,14 @@ public class PnDnEngineRunnable extends EngineRunnable {
             }
         }
     }
-    /** PnDn を開始する盤面を探す */
+    /** PnDn を開始する盤面を探す
+     * 
+     * @param level 探索深さ
+     * @param seme 0なら先手が攻めか、1なら先手が受けか。
+     * @param next 次の盤面
+     * @param route 盤面のリスト(千日手回避用)
+     * @return 終了させる必要がある場合true
+     */
     public boolean findBanmenNext(int level, int seme, BanmenNext next,HashSet<BanmenNext> route) {
         if (isEnd()) {
             return true;
@@ -60,7 +77,14 @@ public class PnDnEngineRunnable extends EngineRunnable {
         }
         return limitFlag;
     }
-    /** 0階層なら探索を行う */
+    /** 0階層なら探索を行う
+     * 
+     * @param level 探索深さ
+     * @param seme 0なら先手が攻めか、1なら先手が受けか。
+     * @param next 次の盤面
+     * @param route 盤面のリスト(千日手回避用)
+     * @return 終了させる必要がある場合true
+     */
     private boolean findLevel0(int level, int seme, BanmenNext next,HashSet<BanmenNext> route) {
         boolean limitFlag = false;
         while ((! isEnd()) && (! factory.checkMemory()) && (! limitFlag)) {
@@ -74,32 +98,39 @@ public class PnDnEngineRunnable extends EngineRunnable {
         }
         return limitFlag;
     }
-    /** 1階層以上なるなら1階層下の合法手を探索する */
+    /** 1階層以上なるなら1階層下の合法手を探索する
+     * 
+     * @param level 探索深さ
+     * @param seme 0なら先手が攻めか、1なら先手が受けか。
+     * @param next 次の盤面
+     * @param route 盤面のリスト(千日手回避用)
+     * @return 終了させる必要がある場合true
+     */
     private boolean findLevelOther(int level, int seme, BanmenNext next,HashSet<BanmenNext> route) {
         //java.util.ConcurrentModificationExceptionが出たので一度退避
-        HashSet<BanmenNext> childHashSet = new HashSet<>(next.getChild(factory).values());
-        for (BanmenNext child : childHashSet) {
+        List<ChildTeNext> childHashSet = new ArrayList<>(next.getChild(factory));
+        for (ChildTeNext teNext : childHashSet) {
             if (isEnd() || factory.checkMemory()) {
                 return true;
             }
-            if (route.contains(child)) {
+            if (route.contains(teNext.getNext())) {
                 continue; // 重複している
             }
             //
-            route.add(child);
-            findBanmenNext(level, seme, child,route); //再帰処理
-            route.remove(child);
+            route.add(teNext.getNext());
+            findBanmenNext(level, seme, teNext.getNext(),route); //再帰処理
+            route.remove(teNext.getNext());
         }
         // 戻り値を受けて値を更新する
         boolean flag = true;
         PnDn basePnDn = next.getPnDn(seme);
-        for (BanmenNext child : next.getChild(factory).values()) {
-            PnDn childPndn = child.getPnDn(seme);
+        for (ChildTeNext teNext : next.getChild(factory)) {
+            PnDn childPndn = teNext.getNext().getPnDn(seme);
             if (flag) {
                 flag = false; // 初期はこうなる。初期フラグを落とす
                 basePnDn.pn = childPndn.pn;
                 basePnDn.dn = childPndn.dn;
-            } else if (seme == child.getMyKey().getTeban()) {
+            } else if (seme == teNext.getNext().getMyKey().getTeban()) {
                 basePnDn.sumPn(childPndn);
                 basePnDn.minDn(childPndn);
             } else {

@@ -8,10 +8,16 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** コマ移動のテスト */
 public class MoveKomaTest {
+    /** ログ */
 	private final static Logger logger = LoggerFactory.getLogger(MoveKomaTest.class);
 	
-	
+    /** コンストラクタ */
+    public MoveKomaTest() {
+        
+    }
+	/** コマ移動のテスト */
 	@Test
 	public void moversTest() {
 		Map<Integer,MoveKoma> moveKomaMap = MoveKoma.moverKomaMap;

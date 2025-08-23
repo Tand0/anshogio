@@ -11,11 +11,15 @@ import static com.github.tand0.anshogio.util.BanmenDefine.pP;
 import static com.github.tand0.anshogio.util.BanmenDefine.pR;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import com.github.tand0.anshogio.util.BanmenDefine.CheckLow;
 
+/**
+ * 盤面情報の実態
+ */
 public abstract class BanmenNextBase implements BanmenNext {
 
 	/** 自分のキー */
@@ -23,7 +27,7 @@ public abstract class BanmenNextBase implements BanmenNext {
 
 	
 	/** 合法手のハッシュ */
-	protected HashMap<Integer,BanmenNext> childFileld = null;
+	protected List<ChildTeNext> childFileld = null;
 	
 	/** コンストラクタ
 	 * @param key キー
@@ -40,7 +44,7 @@ public abstract class BanmenNextBase implements BanmenNext {
 
 	/**
 	 * テーブルから削除する
-	 * @param owner 消そうとしている親
+	 * @param factory 工場
 	 */
 	@Override
 	public void createDown(BanmenFactory factory) {
@@ -52,19 +56,19 @@ public abstract class BanmenNextBase implements BanmenNext {
 		// ファクトリーから先に削除する
 		factory.remove(getMyKey());
 		//
-		HashMap<Integer,BanmenNext> childNow = this.childFileld;
+		List<ChildTeNext> childNow = this.childFileld;
+		this.childFileld = null; // ループ対策で先に消す
 		if (childNow != null) {
 	        // 子供を念入りに殺しに行く
-	        for (BanmenNext backup : childNow.values()) {
-	            backup.createDown(factory); // 子孫も消す(オーナーは自分になる)
+	        for (ChildTeNext backup : childNow) {
+	            backup.getNext().createDown(factory); // 子孫も消す(オーナーは自分になる)
 	        }
 	        //
 		}
-		clearAllHash();
 	}
 	@Override
 	public void clearAllHash() {
-	    HashMap<Integer,BanmenNext> childNow = this.childFileld;
+	    List<ChildTeNext> childNow = this.childFileld;
         if (childNow != null) {
             childNow.clear(); // テーブルを消す(ガベージコレクト対策)
         }
@@ -101,18 +105,23 @@ public abstract class BanmenNextBase implements BanmenNext {
 		return false;
 	}
 
-	/** childが展開されていたらtrue */
+	@Override
 	public boolean isExpandChild() {
 		return this.childFileld != null;
 	}
 	
-	/** 子づくりする */
-	public synchronized HashMap<Integer, BanmenNext> getChildGetGouhou(BanmenFactory factory,BanmenOnly banmenOnly) {
+	/**
+	 * 子づくりする
+	 * @param factory 工場
+	 * @param banmenOnly 盤面
+	 * @return 子供のリスト
+	 */
+	public synchronized List<ChildTeNext> getChildGetGouhou(BanmenFactory factory,BanmenOnly banmenOnly) {
 		if (this.childFileld != null) {
 			return this.childFileld;
 		}
 		//
-		final HashMap<Integer,BanmenNext> child = new HashMap<Integer,BanmenNext>();
+		final List<ChildTeNext> child = new LinkedList<ChildTeNext>();
 		//
 		// 自分の王の位置を到底する
 		int myOuX;
@@ -140,10 +149,21 @@ public abstract class BanmenNextBase implements BanmenNext {
 		//
 		return child;
 	}
-	/** 子づくりする（盤面上の移動元、および、王の位置は分かっている場合） */
+	/**
+	 * 子づくりする（盤面上の移動元、および、王の位置は分かっている場合）
+	 * @param factory 工場
+	 * @param child 子供
+	 * @param x x位置
+	 * @param y y位置
+	 * @param myOuX 自分の王の位置x
+	 * @param myOuY 自分の王の位置y
+	 * @param enemyOuX 相手の王の位置x
+	 * @param enemyOuY 相手の王の位置y
+	 * @param banmenOnly 盤面
+	 */
 	private void getChildXY(
 			BanmenFactory factory,
-			HashMap<Integer,BanmenNext> child,
+			List<ChildTeNext> child,
 			int x, int y,
 			int myOuX,int myOuY,
 			int enemyOuX,int enemyOuY,
@@ -155,16 +175,27 @@ public abstract class BanmenNextBase implements BanmenNext {
 			// 打つ
 		    getChildXYUchi(factory, child, x, y, myOuX, myOuY, enemyOuX, enemyOuY, teban, banmenOnly);
 		} else if ((teban != 0)  != ((koma & ENEMY) != 0)) {
-			return;  // 自分の駒でなければ終了
+			return;  // 自分のコマでなければ終了
 		} else {
 		    // 移動する
 		    getChildXYMove(factory, child, x, y, myOuX, myOuY, enemyOuX, enemyOuY, koma, teban, banmenOnly);;
 		}
 	}
-	/** 打ち込み処理 */
+	/** 打ち込み処理
+     * @param factory 工場
+     * @param child 子供
+     * @param x x位置
+     * @param y y位置
+     * @param myOuX 自分の王の位置x
+     * @param myOuY 自分の王の位置y
+     * @param enemyOuX 相手の王の位置x
+     * @param enemyOuY 相手の王の位置y
+     * @param teban 手番
+     * @param banmenOnly 盤面
+	 */
 	private void getChildXYUchi(
             BanmenFactory factory,
-            HashMap<Integer,BanmenNext> child,
+            List<ChildTeNext> child,
             int x, int y,
             int myOuX,int myOuY,
             int enemyOuX,int enemyOuY,
@@ -184,10 +215,22 @@ public abstract class BanmenNextBase implements BanmenNext {
             setNext(factory, child, tegomaHave, BEAT,BEAT,x,y,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
         });
 	}
-	/** 移動処理 */
+	/** 移動処理
+     * @param factory 工場
+     * @param child 子供
+     * @param x x位置
+     * @param y y位置
+     * @param myOuX 自分の王の位置x
+     * @param myOuY 自分の王の位置y
+     * @param enemyOuX 相手の王の位置x
+     * @param enemyOuY 相手の王の位置y
+     * @param koma コマ
+     * @param teban 手番
+     * @param banmenOnly 盤面
+	 */
     private void getChildXYMove(
             BanmenFactory factory,
-            HashMap<Integer,BanmenNext> child,
+            List<ChildTeNext> child,
             int x, int y,
             int myOuX,int myOuY,
             int enemyOuX,int enemyOuY,
@@ -213,7 +256,7 @@ public abstract class BanmenNextBase implements BanmenNext {
                     // 既に成っている or 成れません
                     setNext(factory, child, koma, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
                 } else {
-                    // 成ることのできる駒でまだ成っていない、または、成れない
+                    // 成ることのできるコマでまだ成っていない、または、成れない
                     //
                     if (low.getKyouseiNari(teban, y) || low.getKyouseiNari(teban, yy)) {
                         //NG 成ることが強制される位置
@@ -231,17 +274,32 @@ public abstract class BanmenNextBase implements BanmenNext {
                         setNext(factory, child, koma, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
                     }
                 }
-                if ((!xYFlag.getFlag()) || (pNull != banmenOnly.getKoma(xx, yy))) {
-                    break;//8方向チェックか、移動先に駒がいたらそこまで
+                if ((!xYFlag.getFlag())
+                        || (pNull != banmenOnly.getKoma(xx, yy))) {
+                    break;//8方向チェックか、移動先にコマがいたらそこまで
                 }
             }
         });
     }
 	
-	/** 移動する（移動元と移動先が決まっているパターン) */
+	/**
+	 * 移動する（移動元と移動先が決まっているパターン)
+     * @param factory 工場
+     * @param child 子供
+     * @param oldX 移動元のx位置
+     * @param oldY 移動元のy位置
+     * @param newX 移動先のx位置
+     * @param newY 移動先のy位置
+     * @param myOuX 自分の王の位置x
+     * @param myOuY 自分の王の位置y
+     * @param enemyOuX 相手の王の位置x
+     * @param enemyOuY 相手の王の位置y
+     * @param koma コマ
+     * @param banmenOnly 盤面
+	 */
 	private void setNext(
 	        BanmenFactory factory,
-            HashMap<Integer,BanmenNext> child,
+	        List<ChildTeNext> child,
             byte koma,
 			int oldX, int oldY,
 			int newX, int newY,
@@ -252,11 +310,15 @@ public abstract class BanmenNextBase implements BanmenNext {
 			return; // はみ出る
 		}
 		//
-		boolean tebanNow = banmenOnly.getTeban()!=0; //手番が反対になっている
-		byte nextKey = banmenOnly.getKoma(newX,newY);
-		boolean tebanKoma = (nextKey & ENEMY) == 0;
-		if ((nextKey != pNull) && ((tebanKoma && !tebanNow) || (!tebanKoma && tebanNow))) {
-			return; // 移動先が空でなくて、かつ、自身のコマなら移動できない
+		boolean tebanNow = banmenOnly.getTeban() != 0; //手番が反対になっている
+		byte targetKoma = banmenOnly.getKoma(newX,newY);
+		boolean targetTeban = (targetKoma & ENEMY) == 0;
+		if ((targetKoma != pNull) &&
+		        ((targetTeban != tebanNow))) {
+			return; // 移動先が空でなくて、かつ、自身のコマならば移動できない
+		}
+		if ((targetKoma & 0b1111) == BanmenDefine.pK) {
+		    return; // 王は取ってはいけない
 		}
 		//
 		int te = changeTeToInt(koma,oldX,oldY,newX, newY);
@@ -265,7 +327,7 @@ public abstract class BanmenNextBase implements BanmenNext {
 		BanmenOnly nextBanmen = new BanmenOnly(banmenOnly, te);
 		//
 		if ((koma & 0b1111) == BanmenDefine.pK) {
-			// 移動する駒が王なら移動先が王の位置だ
+			// 移動するコマが王なら移動先が王の位置だ
 			myOuX = newX;
 			myOuY = newY;
 		}
@@ -275,10 +337,11 @@ public abstract class BanmenNextBase implements BanmenNext {
 		}
 		//
 		// 盤面を工場から取り出して使用フラグを１あげる
-		BanmenNext result = factory.create(this, nextBanmen);
+		BanmenKey key = new BanmenKey(nextBanmen);
+		BanmenNext result = factory.create(this, key);
 		//
 		// 手を追加する
-		child.put(te, result);
+		child.addLast(new ChildTeNext(te, result));
 		//
 		// 相手に王手をかけているかチェック
 		if (nextBanmen.checkSelfMate(1- banmenOnly.getTeban(),enemyOuX,enemyOuY)) {
@@ -329,35 +392,42 @@ public abstract class BanmenNextBase implements BanmenNext {
 
 	/**
 	 * ツリーの手を追加または決定する
-	 * @param te
+	 * @param factory 工場
+	 * @param te 指し手
 	 * @param deleteOtherChild 追加時に兄弟がいたら全消し
+	 * @return 盤面
 	 */
 	private BanmenNext decisionTe(BanmenFactory factory, int te,boolean deleteOtherChild) {
-	    HashMap<Integer,BanmenNext> child = this.childFileld;
+	    List<ChildTeNext> child = this.childFileld;
 		if (child == null) {
-		    child = new HashMap<Integer,BanmenNext>();
+		    child = new LinkedList<ChildTeNext>();
 			this.childFileld = child;
 		}
-		// テーブルから消しながら取得
-		BanmenNext next = child.remove(te);
+		ChildTeNext entry = null;
 		if (deleteOtherChild) {
 			// 一子相伝ゆえにほかの子は……全消しします
             // 一回退避しないと ConcurrentModificationException が出る
-		    ArrayList<BanmenNext> backupList = new ArrayList<>(child.values());
-		    for (BanmenNext childChild : backupList) {
-		        childChild.createDown(factory); // ownerは自分です
+		    ArrayList<ChildTeNext> backupList = new ArrayList<>(child);
+		    for (ChildTeNext teNext : backupList) {
+		        if (teNext.getTe() == te) {
+		            entry = teNext;
+		            continue; // 自分は除く
+		        }
+		        teNext.getNext().createDown(factory); // ownerは自分です
 		    }
+		    // 全消し
 			child.clear();
 		}
-	    if (next == null) {
+	    if (entry == null) {
 	        // 存在しない場合は作ります
 	        BanmenOnly nextBanmen = new BanmenOnly(this.getMyKey().createBanmenOnly(), te);
-	        next = factory.create(this, nextBanmen);
+	        BanmenKey key = new BanmenKey(nextBanmen);
+	        entry = new ChildTeNext(te, factory.create(this, key));
 	    }
 		// ほかの子がいなくなったところで、自身を追加
-		child.put(te, next);
+		child.addLast(entry);
 
-		return next;
+		return entry.getNext();
 	}
 	
 	@Override
@@ -371,11 +441,11 @@ public abstract class BanmenNextBase implements BanmenNext {
 	        b.append(key.createBanmenOnly().toString());
 		}
 		//
-		HashMap<Integer,BanmenNext> child = this.childFileld;
+		List<ChildTeNext> child = this.childFileld;
 		if (child != null) {
 			b.append("te: ");
-			for (Integer data : child.keySet()) {
-				String teString = BanmenDefine.changeTeIntToString(data);
+			for (ChildTeNext data : child) {
+				String teString = BanmenDefine.changeTeIntToString(data.getTe());
 				b.append(teString);
 				b.append(" ");
 			}

@@ -1,49 +1,82 @@
 package com.github.tand0.anshogio.util;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 
 /** 木構造付きの情報 */
 public interface BanmenNext extends Comparable<BanmenNext> {
 
-	/** 子供のリストが展開されていたらtrue */
+	/**
+	 * 子供のリストが展開されいるか？（PnDnで展開チェックに使う
+	 * @return 子供のリストが展開されていたらtrue
+	 */
 	public boolean isExpandChild();
 	
-	/** 子供のリストを取得する */
-	public HashMap<Integer,BanmenNext> getChild(BanmenFactory factory);
+	/**
+	 * 子供のリストを取得する
+	 * @param factory 工場
+	 * @return 子供
+	 */
+	public List<ChildTeNext> getChild(BanmenFactory factory);
 
-    /** 子供に手を追加する */
+    /**
+     * 子供に手を追加する
+     * @param factory 工場
+     * @param te 指し手
+     * @return 盤面
+     */
     public BanmenNext addTe(BanmenFactory factory, int te);
     
-    /** 手を決定する(ほかの手は消す) */
+    /**
+     * 手を決定する(ほかの手は消す)
+     * @param factory 工場
+     * @param te 指し手
+     * @return 盤面
+     */
     public BanmenNext decisionTe(BanmenFactory factory,int te);
 	
-	/** 自分のキーを渡す */
+	/**
+	 * 自分のキーを渡す
+	 * @return key値
+	 */
 	public BanmenKey getMyKey();
 	
 	/**
 	 * 使用中が１つ増える
+	 * @param factory 工場
 	 */
 	public void createDown(BanmenFactory factory);
 
 	/** 全消しする */
 	public void clearAllHash();
 
-	/** hash code */
+	/**
+	 * hash code
+	 * @return hash
+	 */
 	public long hashCodeLong();
 
 	/** hash code */
 	@Override
     public int hashCode();
 	
-	/** hash code */
+	/**
+	 * hash code
+	 * @return hash
+	 */
     public int hashCodeInt();
 
-	/** hash code */
+    /**
+     * hash code
+     * @return hash
+     */
     public short hashCodeShort();
     
-	/** hash code */
+    /**
+     * hash code
+     * @return hash
+     */
     public byte hashCodeByte();
     
 	/**
@@ -52,28 +85,56 @@ public interface BanmenNext extends Comparable<BanmenNext> {
 	 */
 	public boolean isKingWin();
 	
-	/** 強制フラグを取得する */
+	/**
+	 * 強制フラグを取得する
+	 * @return 強制フラグ
+	 */
 	public boolean getForceFlag();
 	
-	/** 評価値をセットする */
+	/**
+	 * 評価値をセットする
+	 * @param force trueなら強制
+	 * @param eval 評価値
+	 */
 	public void setEval(boolean force,float eval);
 	
-	/** 評価値を取得する */
+	/** 評価値を取得する
+	 * 
+	 * @return 評価値。評価していない場合は null
+	 */
 	public Float getEvel();
 	
-	/** 最善手を返す */
+	/**
+	 * 最善手を返す
+	 * @param factory 工場
+	 * @param banmenList 過去に打った盤面のリスト(千日手防止用)
+	 * @return 打つべき手
+	 */
 	public int getEvelTe(BanmenFactory factory,LinkedList<BanmenNext> banmenList);
 
-	/** DnPnを返す */
+	/**
+	 * PnDn を返す
+	 * @param teban 手番
+	 * @return PnDn値
+	 */
 	public PnDn getPnDn(int teban);
 	
-	/** 詰めろをチェックする */
+	/**
+	 * 詰めろをチェックする
+	 * @param factory 工場
+	 * @param seme 先手が攻めなら0、先手が受けなら1
+	 * @param level 探索レベル
+	 * @param route 過去に打った盤面のリスト(千日手防止用)
+	 * @return もう検索できないならtrue
+	 */
 	public boolean executePnDn(BanmenFactory factory,int seme, int level, HashSet<BanmenNext> route);
 
 	/** 王手にする */
 	public void setEnemyOute();
 
-    /** 敵に王手をしているならtrue
+    /**
+     * 王手情報
+     * @return 敵に王手をしているならtrue
      */
     public boolean isEnemyOute();
 }

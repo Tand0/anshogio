@@ -4,8 +4,20 @@ import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
 import ch.qos.logback.classic.spi.LoggingEvent;
+
+/**
+ * ログ用の appender 。蓄積をしておいて、webからの要求にログ情報を返す
+ * @param <E> extends側でこの記載があったのでそのまま
+ */
 public class StackAppender<E> extends UnsynchronizedAppenderBase<E>  {
+    /** ログ情報 */
 	public static LinkedList<LoggingEvent> linkedList = new LinkedList<>();
+
+	/** コンストラクタ */
+	public StackAppender() {
+	    super();
+	}
+	
 	@Override
 	protected void append(E eventObject) {
 		if (!(eventObject instanceof LoggingEvent)) {
@@ -17,7 +29,10 @@ public class StackAppender<E> extends UnsynchronizedAppenderBase<E>  {
 			linkedList.removeFirst();
 		}
 	}
-	/** Webから読みだすときに使う */
+	/** Webから読みだすときに使う
+	 * 
+	 * @return ログ
+	 */
 	public static String getResult() {
 		StringBuilder b = new StringBuilder();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");

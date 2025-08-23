@@ -2,13 +2,47 @@ package com.github.tand0.anshogio.util;
 
 /** keyを作成するときのポインターの設定 */
 public class Pointer {
-	public int index = 0;
-	public int pos = 0;
+    /** pos内のindex値 */
+	public int index;
+	/** 配列のどこを取るか */
+	public int pos;
+	
+    
+    /** 出現した歩の数 */
+    int pKSum = 0;
+
+    /** 出現した香の数 */
+    int pPSum = 0;
+
+    /** 出現した桂の数 */
+    int pNSum = 0;
+
+    /** 出現した桂の数 */
+    int pLSum = 0;
+
+    /** 出現した銀の数 */
+    int pSSum = 0;
+
+    /** 出現した金の数 */
+    int pGSum = 0;
+
+    /** 出現した飛の数 */
+    int pRSum = 0;
+    
+    /** 出現した角の数 */
+    int pBSum = 0;
+    
+	/** コンストラクタ */
+	public Pointer() {
+	    index = 0;
+	    pos = 0;
+	}
+	/** クリアする */
 	public void clear() {
 		index = 0;
 		pos = 0;
 	}
-    /** 持ち駒超過チェック */
+    /** 持ちコマ超過チェック */
     public void checkSum() {
     	boolean flag =  (pPSum <= 18) && (pLSum <= 4) && (pNSum <= 4) && (pSSum <= 4) && (pGSum <= 4)
     			&& (pRSum <= 2) && (pBSum <= 2) && (pKSum <= 2);
@@ -18,19 +52,12 @@ public class Pointer {
     			" s=" + pSSum + " g=" + pGSum + " r=" + pRSum + " b=" + pBSum + " k=" + pKSum);
     	}
     }
-    /** すべての駒を打ったチェック */
+    /**
+     * すべてのコマを打ったチェック
+     * @return 全てのコマを打ったらtrue
+     */
     public boolean okSum() {
     	return (pPSum == 18) && (pLSum == 4) && (pNSum == 4) && (pSSum == 4) && (pGSum == 4)
     			&& (pRSum == 2) && (pBSum == 2) && (pKSum == 2);
     }
-    
-	int pKSum = 0;
-	int pPSum = 0;
-	int pLSum = 0;
-	int pNSum = 0;
-	int pSSum = 0;
-	int pGSum = 0;
-	int pRSum = 0;
-	int pBSum = 0;
-
 }

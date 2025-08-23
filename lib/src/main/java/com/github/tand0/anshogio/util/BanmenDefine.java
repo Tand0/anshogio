@@ -65,50 +65,58 @@ public interface BanmenDefine {
 	/** moveで持ちコマを打った時のolxXY値 */
 	int BEAT = 9;
 
-	/** コマを CSA文字に変換 */
-	static String getKeyToString(int key) {
-		key = key & (~ENEMY);
-		String keyString;
-		switch (key) {
-			case pP: keyString = "FU"; break;// 歩
-			case pL: keyString = "KY"; break;// 香
-			case pN: keyString = "KE"; break;// 桂
-			case pS: keyString = "GI"; break;// 銀
-			case pG: keyString = "KI"; break;// 金
-			case pB: keyString = "KA"; break;// 角
-			case pR: keyString = "HI"; break;// 飛
-			case pK: keyString = "OU"; break;// 玉
-			case ppP: keyString = "TO"; break;// と
-			case ppL: keyString = "NY"; break;// 香成
-			case ppN: keyString = "NK"; break;// 桂成
-			case ppS: keyString = "NG"; break;// 銀成
-			case ppB: keyString = "UM"; break;// 馬
-			case ppR: keyString = "RY"; break;// 竜
-			default: keyString = "* "; break;// 空白
+	/** コマを CSA文字に変換
+	 * 
+	 * @param koma コマ
+	 * @return CSA文字
+	 */
+	static String getKomaToString(int koma) {
+		koma = koma & (~ENEMY);
+		String komaString;
+		switch (koma) {
+			case pP: komaString = "FU"; break;// 歩
+			case pL: komaString = "KY"; break;// 香
+			case pN: komaString = "KE"; break;// 桂
+			case pS: komaString = "GI"; break;// 銀
+			case pG: komaString = "KI"; break;// 金
+			case pB: komaString = "KA"; break;// 角
+			case pR: komaString = "HI"; break;// 飛
+			case pK: komaString = "OU"; break;// 玉
+			case ppP: komaString = "TO"; break;// と
+			case ppL: komaString = "NY"; break;// 香成
+			case ppN: komaString = "NK"; break;// 桂成
+			case ppS: komaString = "NG"; break;// 銀成
+			case ppB: komaString = "UM"; break;// 馬
+			case ppR: komaString = "RY"; break;// 竜
+			default: komaString = "* "; break;// 空白
 		}
-		return keyString;
+		return komaString;
 	}
-	/** CSA文字をコマに変換 */
-	static byte getStringToKey(String keyString) {
-		byte key;
-		switch (keyString.toUpperCase()) {
-            case "FU": key = pP; break;
-    		case "KY": key = pL; break;// 香
-    		case "KE": key = pN; break;// 桂
-    		case "GI": key = pS; break;// 銀
-    		case "KI": key = pG; break;// 金
-    		case "KA": key = pB; break;// 角
-    		case "HI": key = pR; break;// 飛
-    		case "OU": key = pK; break;// 玉
-    		case "TO": key = ppP; break;// と
-    		case "NY": key = ppL; break;// 香成
-    		case "NK": key = ppN; break;// 桂成
-    		case "NG": key = ppS; break;// 銀成
-    		case "UM": key = ppB; break;// 馬
-    		case "RY": key = ppR; break;// 竜
-    		default: key = pNull; break;
+	/** CSA文字をコマに変換
+	 * 
+	 * @param komaString CSA文字
+	 * @return コマ
+	 */
+	static byte getStringToKoma(String komaString) {
+		byte koma;
+		switch (komaString.toUpperCase()) {
+            case "FU": koma = pP; break;
+    		case "KY": koma = pL; break;// 香
+    		case "KE": koma = pN; break;// 桂
+    		case "GI": koma = pS; break;// 銀
+    		case "KI": koma = pG; break;// 金
+    		case "KA": koma = pB; break;// 角
+    		case "HI": koma = pR; break;// 飛
+    		case "OU": koma = pK; break;// 玉
+    		case "TO": koma = ppP; break;// と
+    		case "NY": koma = ppL; break;// 香成
+    		case "NK": koma = ppN; break;// 桂成
+    		case "NG": koma = ppS; break;// 銀成
+    		case "UM": koma = ppB; break;// 馬
+    		case "RY": koma = ppR; break;// 竜
+    		default: koma = pNull; break;
     	}
-		return key;
+		return koma;
 	}
 	/** 変更する
 	 *
@@ -123,8 +131,8 @@ public interface BanmenDefine {
 			return "win";
 		}
 		StringBuilder buff = new StringBuilder();
-		int key = (te >> (6 * 4)) & 0x3F;
-		buff.append(((key & ENEMY) == 0) ? '+' : '-');
+		int koma = (te >> (6 * 4)) & 0x3F;
+		buff.append(((koma & ENEMY) == 0) ? '+' : '-');
 		int oldY = te & 0x1F;
 		int oldX = (te >> 6) & 0x1F;
 		if (oldY == BEAT) { // 打った
@@ -138,7 +146,7 @@ public interface BanmenDefine {
 		int newX = (te >> (6 * 3)) & 0x1F;
 		buff.append((char) ('1' + newX));
 		buff.append((char) ('1' + newY));
-		buff.append(getKeyToString(key));
+		buff.append(getKomaToString(koma));
 		return buff.toString();
 	}
 
@@ -152,7 +160,7 @@ public interface BanmenDefine {
 			return 0;
 		}
 		int teban = string.charAt(0) == '+' ? 0 : 1;
-		String keyString = string.substring(5, 7);
+		String komaString = string.substring(5, 7);
 		int oldX = string.charAt(1);
 		int oldY = string.charAt(2);
 		if (oldY == '0') {
@@ -164,22 +172,55 @@ public interface BanmenDefine {
 		}
 		int newX = string.charAt(3) - '1';
 		int newY = string.charAt(4) - '1';
-		byte key = getStringToKey(keyString);
-		key = (byte) (key | (teban * ENEMY));
-		return changeTeToInt(key, oldX, oldY, newX, newY);
+		byte koma = getStringToKoma(komaString);
+		koma = (byte) (koma | (teban * ENEMY));
+		return changeTeToInt(koma, oldX, oldY, newX, newY);
 	}
 
+	/**
+	 * USIの文字をkomaに変換する
+	 * @param at USIの文字
+	 * @return コマ情報
+	 */
+	static byte getUsiKomaToKoma(char at) {
+	       byte koma;
+           switch (at) {
+           // 先手
+           case 'P': koma = pP; break;
+           case 'L': koma = pL; break;// 香
+           case 'N': koma = pN; break;// 桂
+           case 'S': koma = pS; break;// 銀
+           case 'G': koma = pG; break;// 金
+           case 'B': koma = pB; break;// 角
+           case 'R': koma = pR; break;// 飛
+           case 'K': koma = pK; break;// 玉
+           //
+           // 後手
+           case 'p': koma = pp; break;
+           case 'l': koma = pl; break;// 香
+           case 'n': koma = pn; break;// 桂
+           case 's': koma = ps; break;// 銀
+           case 'g': koma = pg; break;// 金
+           case 'b': koma = pb; break;// 角
+           case 'r': koma = pr; break;// 飛
+           case 'k': koma = pk; break;// 玉
+           //
+           // 分からん
+           default: koma = pNull; break;
+           }
+           return koma;
+	}
 	/** 変更する
 	 *
-	 * @param key コマ
+	 * @param koma コマ
 	 * @param oldX 移動前x、打つ場合は BEAT
 	 * @param oldY 移動前y
 	 * @param newX 移動後x
 	 * @param newY 移動後y
 	 * @return 手
 	 */
-	static int changeTeToInt(byte key, int oldX, int oldY, int newX, int newY) {
-		return oldY | (oldX << 6) | (newY << (6 * 2)) | (newX << (6 * 3)) | (key << (6 * 4));
+	static int changeTeToInt(byte koma, int oldX, int oldY, int newX, int newY) {
+		return oldY | (oldX << 6) | (newY << (6 * 2)) | (newX << (6 * 3)) | (koma << (6 * 4));
 	}
 
 	/** 成りや打ちを管理する
@@ -236,14 +277,25 @@ public interface BanmenDefine {
 			}
 			return (teban == 0) ? (y < uchiKinshi) : ((8 - uchiKinshi) < y);
 		}
+		/**
+		 * 成らずの考慮も必要か？／桂馬／銀／香車などは成らずを検討しないといけない。
+		 * @return 成っているならtrue
+		 */
 		public boolean isNarazuOK() {
 			return narazuOK;
 		}
+		/** 成らない情報
+		 * 
+		 * @return 成ることができないならtrue
+		 */
 		public boolean isNarenai() {
 			return narenai;
 		}
 	}
 	
+	/**
+	 * 合法手チェック用
+	 */
 	public static final CheckLow[] checkLow = {
 			new CheckLow( 8,  0, false, true), //pNull 空白
 			new CheckLow(+1, +1, false, false ), // pP 歩
