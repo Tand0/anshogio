@@ -19,14 +19,15 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import com.github.tand0.anshogio.ANShogiO;
+
 /** ロードする */
-public class ANTensorOTest {
+public class ANServerModelTest {
     /** ロガーの位置 */
-    private final static Logger logger = LoggerFactory.getLogger(ANTensorOTest.class);
+    private final static Logger logger = LoggerFactory.getLogger(ANServerModelTest.class);
     
 
     /** コンストラクタ */
-    public ANTensorOTest() {
+    public ANServerModelTest() {
     }
     
     /** データが取れることを確認する 例外が出なければＯＫ 
@@ -55,7 +56,7 @@ public class ANTensorOTest {
         BanmenKey key = new BanmenKey(new BanmenOnly());
         //
         // モデルはちゃんと動きますか？
-        ANModel aNModel = new ANModel(mock.getSetting());
+        ANModel aNModel = new ANServerModel(mock.getSetting());
         Float result = aNModel.getKey(key.toString());
         //
         assertNotNull(result);

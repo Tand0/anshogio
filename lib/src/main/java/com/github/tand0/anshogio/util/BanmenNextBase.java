@@ -341,7 +341,8 @@ public abstract class BanmenNextBase implements BanmenNext {
 		BanmenNext result = factory.create(this, key);
 		//
 		// 手を追加する
-		child.addLast(new ChildTeNext(te, result));
+		ChildTeNext target = new ChildTeNext(te, result);
+		child.addLast(target);
 		//
 		// 相手に王手をかけているかチェック
 		if (nextBanmen.checkSelfMate(1- banmenOnly.getTeban(),enemyOuX,enemyOuY)) {
@@ -355,7 +356,7 @@ public abstract class BanmenNextBase implements BanmenNext {
 			if (result.getChild(factory).size() == 0) {
 				// 次の手がない場合
 				//
-				child.remove(te); // 手を削除する（すでに子供として登録しているので必要）
+				child.remove(target); // 手を削除する（すでに子供として登録しているので必要）
 			    this.createDown(factory); // 検索テーブルから取り除く
 				return; // 打ち歩詰めチェック
 			}

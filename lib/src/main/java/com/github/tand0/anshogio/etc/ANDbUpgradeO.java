@@ -52,10 +52,10 @@ public class ANDbUpgradeO extends ANPostgreO {
 		try {
 		    //
 		    // 定跡の読み込み
-	        logger.debug("load db start");
-		    ANDbJosekiO aNDbO = new ANDbJosekiO(this.getSetting());
-		    aNDbO.run();
-	        logger.debug("load db end");
+	        //logger.debug("load db start");
+		    //ANDbJosekiO aNDbO = new ANDbJosekiO(this.getSetting());
+		    //aNDbO.run();
+	        //logger.debug("load db end");
 			//
 			connect();
 			init();

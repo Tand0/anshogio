@@ -5,8 +5,10 @@ import os
 import time
 import sys
 
-keras_model_path = 'next_model.keras'
-np_savez_comp = 'np_savez_comp'
+keras_model_path  = 'next_model'
+tflite_model_path = 'tflite_model'
+np_savez_path = 'np_savez_comp'
+binal_flag = ''
 
 #
 # キーデータの分割
@@ -17,10 +19,11 @@ def split_data(my_data : str):
                 break
             next = int(my_data[:1], 16)
             #
-            next4 = int(next/8)%2 != 0
-            next3 = int((next/4))%2 != 0
-            next2 = int((next/2))%2 != 0
-            next1 = int(next)%2 != 0
+            # 4bitの1か0を生成する
+            next4 = float(int(next/8)%2)
+            next3 = float(int((next/4))%2)
+            next2 = float(int((next/2))%2)
+            next1 = float(int(next)%2)
             data_list = data_list + [next4,next3,next2,next1]
             my_data = my_data[1:]
             # print(f"data_list={data_list} size={len(data_list)}")
@@ -71,28 +74,51 @@ class CustomDataset():
         return self.getKey(key,win,loss)
 
     def getitem_all(self):
+        dataset_len = self.__len__()
+        x = np.zeros(shape=(dataset_len,256), dtype = np.float32)
+        y = np.zeros(shape=(dataset_len,1), dtype = np.float32)
+        print("np end!")
         self.cursor.execute(f"SELECT * FROM keytable WHERE (win + loss) > {self.min_kyokumen};")
         self.query_result = self.cursor.fetchall()
+        print("query end!")
         idx = 0
+        old_time = 0
+        now_time = time.time()
         for quest_one in self.query_result:
             key = quest_one[0]
             win = quest_one[1]
             loss = quest_one[2]
             data_list, result = self.getKey(key,win,loss)
-            if idx == 0:
-                x = np.array([data_list], dtype=np.bool)
-                y = np.array(result, dtype=np.float32)
-            else:
-                x = np.append(x, [data_list], axis=0)
-                y = np.append(y, result)
+            #
+            # こちらを採用します！
+            x[idx] = np.array([data_list], dtype=np.float32)
+            y[idx] = result
+            #
+            # ↓は遅いのでリストラしました
+            #if idx == 0:
+            #    x = np.array([data_list], dtype=np.float32)
+            #    y = np.array(result, dtype=np.float32)
+            #else:
+            #    x = np.append(x, [data_list], axis=0)
+            #    y = np.append(y, result)
+            #
             idx = idx + 1
+            now_time = time.time()
+            if ((old_time + 15) < now_time): # x秒以上経過したら
+                old_time = now_time
+                rate = int(idx/dataset_len * 100)
+                time_string = time.strftime('%Y/%m/%d %H:%M:%S')
+                print(f"{time_string} idx={idx}/{dataset_len}={rate}%")
         return (x,y)
         #
 #
 # 評価用に 16進数を2進に変更するポリシーかましたら動くか確認する
 class IntMyDataset():
     def __init__(self):
-        self.len = 16
+        self.len = 1024
+        #
+        # 有効となる発生局面数(IntMyDatasetでは使わない)
+        self.min_kyokumen = self.len
         #
 
     def __len__(self):
@@ -109,56 +135,46 @@ class IntMyDataset():
         #
         return (data_list, idx)
 
+    def getitem_all(self):
+        dataset_len = self.__len__()
+        x = np.zeros(shape=(dataset_len,256), dtype = np.float32)
+        y = np.zeros(shape=(dataset_len,1), dtype = np.float32)
+        print("np end!")
+        old_time = 0
+        now_time = time.time()
+        for idx in range(dataset_len):
+            (data_list, result) = self.__getitem__(idx)
+            #
+            # こちらを採用します！
+            x[idx] = np.array([data_list], dtype=np.float32)
+            y[idx] = result
+        return (x,y)
+        #
 #
 # モデルの生成またはロード
-if os.path.isfile(keras_model_path):
-    model = tf.keras.models.load_model(keras_model_path)
-else:
-    model = tf.keras.Sequential(name="next_model")
-    model.add(tf.keras.layers.Input(shape=(256,),name="input_model"))
-    model.add(tf.keras.layers.Dense(units=1024, activation='relu',name="relu_model"))
-    model.add(tf.keras.layers.Dense(units=64, activation='sigmoid',name="sigmoid_model"))
-    model.add(tf.keras.layers.Dense(units=64, activation='tanh',name="tanh_model"))
-    model.add(tf.keras.layers.Dense(units=1,name="all_model"))
-    model.compile(optimizer="adam", loss="mse", metrics=["mae"])
-#
-# メイン処理
-def main2():
-    dataset = CustomDataset("localhost","anshogio","postgres","postgres")
-    dataset_len = dataset.__len__()
-    old_time = 0
-    now_time = time.time()
-    idx = 0
-    #
-    while idx < dataset_len:
-        (data_list, result) = dataset.__getitem__(idx)
-        if idx == 0: # 最初はxyをクリアする(0をbach_stepにすると毎回クリアされるが…)
-            x = np.array([data_list], dtype=np.bool)
-            y = np.array(result, dtype=np.float32)
-        else:
-            x = np.append(x, [data_list], axis=0)
-            y = np.append(y, result)
+def load_model():
+    if os.path.isfile(keras_model_path + binal_flag + '.keras'):
+        model = tf.keras.models.load_model(keras_model_path + binal_flag + '.keras')
+    else:
         #
-        # インデックス加算
-        idx = idx + 1
+        model = tf.keras.Sequential(name="next_model")
+        model.add(tf.keras.layers.Input(shape=(256,),name="input_model"))
         #
-        # 時刻更新
-        now_time = time.time()
-        #
-        # 時間表示
-        if ((old_time + 60) < now_time): # x秒以上経過したら
-            # 表示に使用する
-            rate = int(idx/dataset_len * 100)
-            old_time = now_time
-            time_string = time.strftime('%Y/%m/%d %H:%M:%S')
-            print(f"{time_string} rate={idx}/{dataset_len}({rate}%)")
-    # 保存
-    np.savez_compressed(np_savez_comp, x, y)
+        # ここをreluにしたら精度が悪くなったのでsigmoidに変えた
+        model.add(tf.keras.layers.Dense(units=1024, activation='sigmoid',name="sigmoid1_model"))
+        model.add(tf.keras.layers.Dense(units=64, activation='tanh',name="sigmoid2_model"))
+        #model.add(tf.keras.layers.Dense(units=16, activation='tanh',name="tanh_model"))
+        model.add(tf.keras.layers.Dense(units=1,name="all_model"))
+        model.compile(optimizer="adam", loss="mse", metrics=["mae"])
+    return model
 
 #
 # メイン処理
-def main3():
-    dataset = CustomDataset("localhost","anshogio","postgres","postgres")
+def mainLoad():
+    if binal_flag == '':
+        dataset = CustomDataset("localhost","anshogio","postgres","postgres")
+    else:
+        dataset = IntMyDataset()
     dataset_len = dataset.__len__()
     #
     # 時刻表示
@@ -169,111 +185,76 @@ def main3():
     # 取得
     x,y = dataset.getitem_all()
     # 保存
-    np.savez_compressed(np_savez_comp, x, y)
+    np.savez_compressed(np_savez_path + binal_flag, x, y)
     #
     now_time = time.time()
     time_string = time.strftime('%Y/%m/%d %H:%M:%S')
     print(f"{time_string} end")
 
-def main4():
+def mainEval():
+    print(tf.version.VERSION)
+    model = load_model()
     # データロード
-    npz_comp = np.load(np_savez_comp + ".npz")
-    # 処理
-    model.fit(npz_comp['arr_0'], npz_comp['arr_1'], epochs=200)
+    npz_comp = np.load(np_savez_path + binal_flag + ".npz")
+    #
+    # 繰り返し評価数
+    epochs = 1
+    #
+    # loaderによって処理を変える
+    if binal_flag == '':
+        epochs = 30 # 本番
+    else:
+        epochs = 800 # テスト
+    #
+    model.fit(npz_comp['arr_0'], npz_comp['arr_1'], epochs=epochs)
     # データを保存します
-    print(f"data saving")
-    #tf.saved_model.save(model, keras_model_path)
-    model.save(keras_model_path)
+    print(f"data saving start")
+    model.save(keras_model_path + binal_flag + '.keras')
+    print(f"data saving end")
+    #
+    # save for .pb file
+    model.export(keras_model_path + binal_flag)
+    #
+    # TensorFlow のデータを lite に変更します。
+    #print(f"data convert start")
+    #converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    #converter.experimental_new_converter = True
+    #tflite_model = converter.convert()
+    #print(f"data convert end")
+    #print(f"data convert saving start")
+    #with open(tflite_model_path + binal_flag + ".tflite", 'wb') as o:
+    #    o.write(tflite_model)
+    #print(f"data convert saving end")
 
 
-#
-# メイン処理
-def main():
-    #
-    # 初期時間の設定
-    old_time = 0
-    end_time = time.time() + (2* 60 * 60) # 2時間経過したら
-    #
-    # バッチの長さ
-    bach_step = 0
-    #
-    # データセットを用意する
-    #dataset = IntMyDataset()
-    dataset = CustomDataset("localhost","anshogio","postgres","postgres")
-    dataset_len = dataset.__len__()
-    print(f"DataSet len={dataset_len}")
-    #
-    for epoch in range(10000):
-        #
-        # 作業用のデータを作成する
-        idx = bach_step
-        now_time = time.time()
-        epo_time = now_time
-        #
-        # 最大まで行ったときはクリアする
-        if dataset_len <= idx:
-            idx = 0
-            bach_step = 0
-        #
-        while idx < dataset_len:
-            (data_list, result) = dataset.__getitem__(idx)
-            if idx == 0: # 最初はxyをクリアする(0をbach_stepにすると毎回クリアされるが…)
-                x = np.array([data_list], dtype=np.bool)
-                y = np.array(result, dtype=np.float32)
-            else:
-                x = np.append(x, [data_list], axis=0)
-                y = np.append(y, result)
-            #
-            # インデックス加算
-            idx = idx + 1
-            #
-            # 時刻更新
-            now_time = time.time()
-            #
-            if ((old_time + 30) < now_time): # x秒以上経過したら
-                # 表示に使用する
-                rate = int(idx/dataset_len * 100)
-                old_time = now_time
-                time_string = time.strftime('%Y/%m/%d %H:%M:%S')
-                print(f"{time_string} epoch={epoch} rate={idx}/{dataset_len}({rate}%)")
-            #
-            if ((epo_time + (5 * 60)) < now_time): # x秒以上経過したら一端終了する
-                epo_time = now_time
-                bach_step = idx
-                break
-            #
-            if (end_time < now_time): # 時間経過したら//終わる
-                bach_step = idx
-                break
-        #
-        # 学習する
-        model.fit(x, y, epochs=400)
-        #
-        if (end_time < now_time): # 時間経過したら//終わる
-           break
-        #
-    #
-    # データを保存します
-    print(f"data saving")
-    #tf.saved_model.save(model, keras_model_path)
-    model.save(keras_model_path)
-    #
+def mainTest():
+    model = load_model()
     # (テスト)計算予想の行です
-    a = np.array([x[5]])
-    b = np.array([y[5]])
-    predictions = model(a)
-    print(f"a={a}, b={b} predeiction={predictions[0]}")
-
-
+    for idx in range(16):
+        data_list = split_data(format(idx, '064x'))
+        a = np.array([data_list])
+        b = np.array([idx])
+        predictions = model(a)
+        print(f"a={a}, b={b} predeiction={predictions[0]}")
 
 if __name__ == "__main__":
     if 2 <= len(sys.argv):
         if sys.argv[1] == "load":
-            main3()
+            mainLoad()
         elif sys.argv[1] == "eval":
-            main4()    
+            mainEval()
+        elif sys.argv[1] == "load_binal":
+            binal_flag = '_binal'
+            mainLoad()
+        elif sys.argv[1] == "eval_binal":
+            binal_flag = '_binal'
+            mainEval()            
+        elif sys.argv[1] == "test_binal":
+            binal_flag = '_binal'
+            mainTest()
         else:
-            print('Command error')
+            print(f"Command error c={sys.argv[1]}")
+            #
     else:
         print('Arguments are too short')
 #

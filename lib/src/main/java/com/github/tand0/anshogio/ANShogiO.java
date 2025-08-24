@@ -30,6 +30,7 @@ import com.github.tand0.anshogio.etc.ANDownloadO;
 import com.github.tand0.anshogio.etc.ANHttpO;
 import com.github.tand0.anshogio.etc.ANPostgreO;
 import com.github.tand0.anshogio.etc.ANShogiServerO;
+import com.github.tand0.anshogio.eval.ANLocalModel;
 import com.github.tand0.anshogio.eval.ANModel;
 import com.github.tand0.anshogio.util.BanmenDefine;
 import com.github.tand0.anshogio.util.BanmenFactory;
@@ -161,8 +162,7 @@ public class ANShogiO {
         }
         
         // tensorへ接続する
-        this.aNModel = new ANModel(setting);
-        
+        this.aNModel = new ANLocalModel(setting);
         
         // メインのループを呼ぶ
         loop();

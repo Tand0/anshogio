@@ -13,6 +13,7 @@ plugins {
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+
 }
 
 dependencies {
@@ -41,6 +42,9 @@ dependencies {
     
     // https://mvnrepository.com/artifact/org.postgresql/postgresql
     implementation("org.postgresql:postgresql:42.7.7")
+    
+    // https://mvnrepository.com/artifact/org.tensorflow/tensorflow
+    implementation("org.tensorflow:tensorflow-core-platform:+")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

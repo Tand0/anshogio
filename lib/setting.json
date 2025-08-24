@@ -17,5 +17,6 @@
     "fliutter.dir": "D:\\gitwork\\Ari-Shogi-Server\\eclipse-workspace\\com.github.tand0.anshogio\\lib\\ANShogiF\\build\\web",
     "tensor.url": "http://localhost:8083/b",
     "tensor.name":"python next_fastapi.py",
-    "tensor.dir": "D:/gitwork/Ari-Shogi-Server/eclipse-workspace/com.github.tand0.anshogio/lib/ANShogiPy"
+    "tensor.dir":   "D:/gitwork/Ari-Shogi-Server/eclipse-workspace/com.github.tand0.anshogio/lib/ANShogiPy",
+    "tensor.model": "D:/gitwork/Ari-Shogi-Server/eclipse-workspace/com.github.tand0.anshogio/lib/ANShogiPy/next_model"
 }
