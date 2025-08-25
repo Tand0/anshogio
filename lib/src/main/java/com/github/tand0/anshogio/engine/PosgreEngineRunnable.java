@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.tand0.anshogio.etc.ANPostgreO;
+import com.github.tand0.anshogio.etc.ReslutWinLoss;
 import com.github.tand0.anshogio.util.BanmenKey;
 import com.github.tand0.anshogio.util.BanmenNext;
 import com.github.tand0.anshogio.util.ChildTeNext;
@@ -50,6 +51,7 @@ public class PosgreEngineRunnable extends EngineRunnable {
 		//
 		int teban = banmenList.getLast().getMyKey().getTeban();
 		float value = (teban == 0) ? Float.MIN_VALUE : Float.MAX_VALUE;
+		int joseki = 0;
 		//
 		// postgres から評価値を取得する
 		for (ChildTeNext target : child) {
@@ -67,7 +69,7 @@ public class PosgreEngineRunnable extends EngineRunnable {
 				continue;
 			}
 			BanmenKey key = target.getNext().getMyKey();
-			ANPostgreO.ReslutWinLoss winLoss;
+			ReslutWinLoss winLoss;
 			try {
 				winLoss = aNPostgreO.readKey(key.toString());
 			} catch (SQLException e) {
@@ -87,6 +89,33 @@ public class PosgreEngineRunnable extends EngineRunnable {
 				// 評価値を -1.0～1.0の間で出す
 				winLossValue = ((((float)winLoss.win) / sum) - 0.5f) * 2;
 			}
+            //
+            // 値を設定する
+            target.getNext().setEval(true,winLossValue);
+            //
+	        if (0 < winLoss.joseki ) { // 定跡なら
+                if (joseki == 0) {
+                    te = target.getTe();
+                    joseki = winLoss.joseki;
+                    target.getNext().setEval(true,winLossValue);
+                } else {
+                    if (winLoss.joseki < joseki) {
+                        te = target.getTe();
+                        // より先に現れた定跡を選ぶ
+                        joseki = winLoss.joseki;
+                    } else if (winLoss.joseki == joseki) {
+                        if (Math.random() < 0.5) {
+                            te = target.getTe();
+                            // 同じ値ならランダムで選ぶ
+                            joseki = winLoss.joseki;
+                        }
+                    }
+                }
+                continue;
+            }
+            if (0 < joseki ) {
+                continue; // 一度定跡の手が現れたらこれ以上は評価しない
+            }
 			if (teban == 0) { // 先手の場合、一番高手を選ぶ
 				if (value < winLossValue) {
 					value = winLossValue;
@@ -98,9 +127,6 @@ public class PosgreEngineRunnable extends EngineRunnable {
 					te = target.getTe();
 				}
 			}
-			//
-			// 値を設定する
-			target.getNext().setEval(true,winLossValue);
 			//
 		}
 	}

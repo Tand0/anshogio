@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.github.tand0.anshogio.engine.EngineRunnable;
 import com.github.tand0.anshogio.engine.PnDnEngineRunnable;
-import com.github.tand0.anshogio.etc.ANPostgreO.ReslutWinLoss;
-import com.github.tand0.anshogio.etc.ANPostgreO.ResultKey;
 import com.github.tand0.anshogio.util.BanmenFactory;
 import com.github.tand0.anshogio.util.BanmenNext;
 
@@ -45,8 +43,8 @@ public class ANPostgreOTest {
 			data.init(); // 初期化
 			//
 			String key1 = "key1";
-			data.addKey(key1, 1, 2);
-			data.addKey(key1, 1, 2);
+			data.addKey(key1, 1, 2, 0);
+			data.addKey(key1, 1, 2, 0);
 			//
 			ReslutWinLoss winLoss = data.readKey(key1);
 			logger.debug("key1=" + key1 + ",win=" + winLoss.win + " loss=" + winLoss.loss);

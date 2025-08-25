@@ -68,46 +68,7 @@ public abstract class ANPostgreO implements Runnable {
     public JSONObject getSetting() {
         return this.setting;
     }
-    /** win と loss の戻り値 */
-    public class ReslutWinLoss {
         
-        /** win 値 */
-    	public int win;
-
-    	/** loss 値 */
-    	public int loss;
-    	
-    	/** コンストラクタ
-    	 * @param win win値
-    	 * @param loss loss値
-    	 */
-    	public ReslutWinLoss(int win, int loss) {
-    		this.win = win;
-    		this.loss = loss;
-    	}
-    }
-    
-    /** 結果配置用のクラス */
-    public class ResultKey {
-        /** key値 */
-    	public final String key;
-    	/** 勝った数 */
-    	public final int win;
-    	/** 負けた数 */
-    	public final int loss;
-    	/**
-    	 * コンストラクタ
-    	 * @param key 局面のkey値
-    	 * @param win この局面で先手が勝った数
-    	 * @param loss この局面で先手が負けた数
-    	 */
-    	public ResultKey(String key, int win, int loss) {
-    		this.key = key;
-    		this.win = win;
-    		this.loss = loss;
-    	}
-    }
-    
     /** postgres のコネクション */
     private Connection conn = null;
 
@@ -220,7 +181,7 @@ public abstract class ANPostgreO implements Runnable {
 				//
 				// 存在していないので作る
 				// テーブルの作成
-				final String sql = "CREATE TABLE keytable (key varchar(64) PRIMARY KEY,win integer,loss integer);";
+				final String sql = "CREATE TABLE keytable (key varchar(64) PRIMARY KEY,win integer,loss integer,joseki integer);";
 				logger.debug("sql=" + sql);
 				stmt.executeUpdate(sql);
 			}
@@ -254,30 +215,46 @@ public abstract class ANPostgreO implements Runnable {
 		}
 		//
 	}
+	   /** キーのテーブルへの追加
+     * @param key キー値
+     * @param win 勝った数の追加分
+     * @param loss 負けた数の追加分
+     * @param joseki 定跡：０なら定跡でない、１以上なら定跡
+     * @throws SQLException 例外
+     */
+    public void addKey(String key,int win,int loss,int joseki) throws SQLException {
+        addKey(key,win,loss,joseki,true);
+    }
 	/** キーのテーブルへの追加
 	 * @param key キー値
 	 * @param win 勝った数の追加分
 	 * @param loss 負けた数の追加分
+	 * @param joseki 定跡：０なら定跡でない、１以上なら定跡
+	 * @param addFlag 追加フラグ。trueなら追加、falseなら差し替え
 	 * @throws SQLException 例外
 	 */
-	public void addKey(String key,int win,int loss) throws SQLException {
+	public void addKey(String key,int win,int loss,int joseki,boolean addFlag) throws SQLException {
 		try (Statement stmt = conn.createStatement()) {
 			//
 			ReslutWinLoss readResult = readKey(key);
 			if (readResult == null) {
 				//
 				// 存在しなければinsertを実行
-				final String sqlInsert = "INSERT INTO keytable VALUES ('" + key + "'," + win + "," + loss + ");";
+				final String sqlInsert = "INSERT INTO keytable VALUES ('" + key + "'," + win + "," + loss + "," + joseki +  ");";
 				logger.trace("sql=" + sqlInsert);
 				stmt.executeUpdate(sqlInsert);
 			} else {
 				//
-				// readした値を更新
-				win += readResult.win;
-				loss += readResult.loss;
+			    if (addFlag) {
+			        // readした値を更新
+			        win += readResult.win;
+			        loss += readResult.loss;
+			    } else {
+			        // 差し替え   
+			    }
 				//
 				// 存在すればupdateを実行
-				final String sqlUpdate = "UPDATE keytable SET win=" + win + ",loss=" + loss + " WHERE key='" + key + "';";
+				final String sqlUpdate = "UPDATE keytable SET win=" + win + ",loss=" + loss + ",joseki=" + joseki +  " WHERE key='" + key + "';";
 				logger.trace("sql=" + sqlUpdate);
 				stmt.executeUpdate(sqlUpdate);
 			}
@@ -308,9 +285,10 @@ public abstract class ANPostgreO implements Runnable {
 		try (Statement stmt = conn.createStatement()) {
 			try (ResultSet rset = stmt.executeQuery(sql)) {
 				while (rset.next()) {
-					ReslutWinLoss reslut = new ReslutWinLoss(0,0);
+					ReslutWinLoss reslut = new ReslutWinLoss(0,0,0);
 					reslut.win = reslut.win + rset.getInt("win");
-					reslut.loss = reslut.loss + rset.getInt("loss");
+                    reslut.loss = reslut.loss + rset.getInt("loss");
+                    reslut.joseki = reslut.joseki + rset.getInt("joseki");
 					return reslut;
 				}
 				return null;
@@ -350,8 +328,9 @@ public abstract class ANPostgreO implements Runnable {
 				while (rset.next()) {
 					String key = rset.getString("key");
 					int win = rset.getInt("win");
-					int loss = rset.getInt("loss");
-					return new ResultKey(key,win,loss);
+                    int loss = rset.getInt("loss");
+                    int joseki = rset.getInt("joseki");
+					return new ResultKey(key,win,loss,joseki);
 				}
 			}
 		}

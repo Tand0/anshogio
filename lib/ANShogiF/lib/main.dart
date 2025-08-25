@@ -26,6 +26,7 @@ class _MyAppState extends State<MyApp> {
   String stopString = '/stop';
   String postgresString = '/postgres';
   String cleardbString = '/cleardb';
+  String josekiString = '/joseki';
   String downloadString = '/download';
   String serverString = '/server';
   int state = 0;
@@ -96,6 +97,11 @@ class _MyAppState extends State<MyApp> {
             nextState(cleardbString,{});
           },
           child: Text(cleardbString)));
+        buttonList.add(TextButton(
+          onPressed: () {
+            nextState(josekiString,{});
+          },
+          child: Text(josekiString)));
         buttonList.add(TextButton(
           onPressed: () {
             nextState(downloadString,{});

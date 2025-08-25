@@ -25,6 +25,7 @@ import com.github.tand0.anshogio.engine.PnDnEngineRunnable;
 import com.github.tand0.anshogio.engine.PosgreEngineRunnable;
 import com.github.tand0.anshogio.engine.TensorEngineRunnable;
 import com.github.tand0.anshogio.etc.ANDbClearO;
+import com.github.tand0.anshogio.etc.ANDbJosekiO;
 import com.github.tand0.anshogio.etc.ANDbUpgradeO;
 import com.github.tand0.anshogio.etc.ANDownloadO;
 import com.github.tand0.anshogio.etc.ANHttpO;
@@ -716,8 +717,8 @@ public class ANShogiO {
         @Override
         public void doProcessFlag(int processNum) {         
             if (getProcessFlag()) {
-                // もし生きているなら
-                return; // 終了
+                logger.error("process is alive");
+                return; // もし生きているなら⇒終了
             }
             //
             // スレッド起動
@@ -728,9 +729,15 @@ public class ANShogiO {
             } else if (processNum == 1) {
                 processFlag = new Thread(aNPostgreO);
                 processFlag.setName("ANPostgreO");
-            } else {
+            } else if (processNum == 2) {
                 processFlag = new Thread(new ANDbClearO(this.getSetting()));
                 processFlag.setName("DBClear");
+            } else if (processNum == 3) {
+                processFlag = new Thread(new ANDbJosekiO(this.getSetting()));
+                processFlag.setName("ANDbJosekiO");
+            } else {
+                logger.error("processNum exception!");
+                return; // 終了
             }
             processFlag.start();
         }

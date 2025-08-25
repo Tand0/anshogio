@@ -48,7 +48,7 @@ class CustomDataset():
         #
     def __len__(self):
         # データセットのサイズを返す
-        self.cursor.execute(f"SELECT count(*) FROM keytable WHERE (win + loss) > {self.min_kyokumen};")
+        self.cursor.execute(f"SELECT count(*) FROM keytable WHERE (win + loss) > {self.min_kyokumen} and joseki=0;")
         self.query_result = self.cursor.fetchall()
         #print(type(self.query_result[0][0]))
         return self.query_result[0][0]
@@ -65,7 +65,7 @@ class CustomDataset():
         return (data_list, ans)
 
     def __getitem__(self, idx):
-        self.cursor.execute(f"SELECT * FROM keytable WHERE (win + loss) > {self.min_kyokumen} LIMIT 1 OFFSET {idx} ;")
+        self.cursor.execute(f"SELECT key,win,loss FROM keytable WHERE (win + loss) > {self.min_kyokumen} and joseki=0 LIMIT 1 OFFSET {idx} ;")
         self.query_result = self.cursor.fetchall()
         key = self.query_result[0][0]
         win = self.query_result[0][1]
@@ -78,7 +78,7 @@ class CustomDataset():
         x = np.zeros(shape=(dataset_len,256), dtype = np.float32)
         y = np.zeros(shape=(dataset_len,1), dtype = np.float32)
         print("np end!")
-        self.cursor.execute(f"SELECT * FROM keytable WHERE (win + loss) > {self.min_kyokumen};")
+        self.cursor.execute(f"SELECT key,win,loss FROM keytable WHERE (win + loss) > {self.min_kyokumen} and joseki=0 ;")
         self.query_result = self.cursor.fetchall()
         print("query end!")
         idx = 0
@@ -202,29 +202,31 @@ def mainEval():
     #
     # loaderによって処理を変える
     if binal_flag == '':
-        epochs = 30 # 本番
+        epochs = 40 # 本番
     else:
         epochs = 800 # テスト
     #
-    model.fit(npz_comp['arr_0'], npz_comp['arr_1'], epochs=epochs)
-    # データを保存します
-    print(f"data saving start")
-    model.save(keras_model_path + binal_flag + '.keras')
-    print(f"data saving end")
-    #
-    # save for .pb file
-    model.export(keras_model_path + binal_flag)
-    #
-    # TensorFlow のデータを lite に変更します。
-    #print(f"data convert start")
-    #converter = tf.lite.TFLiteConverter.from_keras_model(model)
-    #converter.experimental_new_converter = True
-    #tflite_model = converter.convert()
-    #print(f"data convert end")
-    #print(f"data convert saving start")
-    #with open(tflite_model_path + binal_flag + ".tflite", 'wb') as o:
-    #    o.write(tflite_model)
-    #print(f"data convert saving end")
+    # Ctrl-Cで止めるまで継続して動作しつづける
+    while True:
+        model.fit(npz_comp['arr_0'], npz_comp['arr_1'], epochs=epochs)
+        # データを保存します
+        print(f"data saving start")
+        model.save(keras_model_path + binal_flag + '.keras')
+        print(f"data saving end")
+        #
+        # save for .pb file
+        model.export(keras_model_path + binal_flag)
+        #
+        # TensorFlow のデータを lite に変更します。
+        #print(f"data convert start")
+        #converter = tf.lite.TFLiteConverter.from_keras_model(model)
+        #converter.experimental_new_converter = True
+        #tflite_model = converter.convert()
+        #print(f"data convert end")
+        #print(f"data convert saving start")
+        #with open(tflite_model_path + binal_flag + ".tflite", 'wb') as o:
+        #    o.write(tflite_model)
+        #print(f"data convert saving end")
 
 
 def mainTest():

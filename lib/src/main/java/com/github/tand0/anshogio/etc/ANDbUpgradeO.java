@@ -50,12 +50,6 @@ public class ANDbUpgradeO extends ANPostgreO {
 		logger.debug("run start!");
 		BanmenFactory factory = new BanmenFactory();
 		try {
-		    //
-		    // 定跡の読み込み
-	        //logger.debug("load db start");
-		    //ANDbJosekiO aNDbO = new ANDbJosekiO(this.getSetting());
-		    //aNDbO.run();
-	        //logger.debug("load db end");
 			//
 			connect();
 			init();
@@ -104,6 +98,7 @@ public class ANDbUpgradeO extends ANPostgreO {
             close();
             sum = 0;
 		}
+        //
 		logger.debug("run over!");	
 	}
 	/** 指定されたデータの出力
@@ -280,7 +275,8 @@ public class ANDbUpgradeO extends ANPostgreO {
 			// 後手勝ちでtrue, 先手勝ちでfalse, 千日手は後手勝ち
 			int winInt =  winLoss;
 			int lossInt = (1 - winLoss) | sennichte;
-			addKey(nextd.getMyKey().toString(), winInt, lossInt);
+			int joseki = 0; // 定跡ではない
+			addKey(nextd.getMyKey().toString(), winInt, lossInt,joseki);
 			//
 			// ログ表示
 			//logger.debug(nextd.toString());

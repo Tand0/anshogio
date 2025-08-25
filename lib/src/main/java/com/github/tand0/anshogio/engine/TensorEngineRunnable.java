@@ -60,10 +60,12 @@ public class TensorEngineRunnable extends EngineRunnable {
 			if (result == null) {
 				break;
 			}
+            //
+            // 上限超えていたら補正する
+            result = Math.max(-1, Math.min(1, result));
+            //
+            // 評価値を設定する
 			teNext.getNext().setEval(false, result);
-			//
-			// 上限超えていたら補正する
-			result = Math.max(-1, Math.min(1, result));
 			//
 		}
 	}

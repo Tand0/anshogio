@@ -22,7 +22,9 @@ public class ANPostgreOMock extends ANDbUpgradeO {
 	
 	/** テスト用の負け数 */
 	public int testLoss;
-	
+	   
+    /** テスト用の定跡フラグ */
+    public int testJoseki;
 	
     /**
      * コンストラクタ
@@ -51,10 +53,11 @@ public class ANPostgreOMock extends ANDbUpgradeO {
 	public void init() throws SQLException  {
 	}
 	@Override
-	public void addKey(String key,int win,int loss) throws SQLException {
+	public void addKey(String key,int win,int loss, int joseki) throws SQLException {
 		testKey = key;
 		testWin = win;
 		testLoss = loss;
+		testJoseki = joseki;
 	}
 	@Override
     public void updateDate() throws SQLException {        

@@ -36,7 +36,7 @@ public class ANDbJosekiO extends ANPostgreO {
     }
 
     /** 盤面のhash */
-    public HashSet<BanmenKey> keySet = new HashSet<>();
+    public HashSet<ResultKey> keySet = new HashSet<>();
     
     /** ログフォルダにあるファイルを読み込んでDBに押し込む */
     @Override
@@ -52,19 +52,8 @@ public class ANDbJosekiO extends ANPostgreO {
             runDbFile(new File(downloadDir));
             logger.debug("size={}", keySet.size());
             //
-            for (BanmenKey key : keySet) {
-                int teban = key.getTeban(); // 先手0、後手1
-                // 評価値を見るとき、手を打った後の盤面を見るので、先手番0なら後手1の勝率を上げる。
-                // 例：初期局面は先手0番、７七歩を打った時は後手1番⇒後手1で7七歩の時winを高くする
-                int win = teban * 1000; // 自分の番の処理数をあげる
-                int loss = (1 - teban) * 1000; // 自分の番の処理数をあげる
-                //
-                // 良く指される手として両方ともに1,000づつ入れる
-                // すると評価値は0.0に近づくので結局winが1個とかのマイナーな手を指されがち。
-                //int win = 1000;
-                //int loss = 1000;
-                //
-                addKey(key.toString(),win,loss);
+            for (ResultKey rKey : keySet) {
+                addKey(rKey.key,rKey.win,rKey.loss,rKey.joseki,false);
             }
             //
         } catch (SQLException e){
@@ -105,6 +94,8 @@ public class ANDbJosekiO extends ANPostgreO {
      * @throws IOException 例外
      */
     public void runDbFileOne(File file) throws IOException {
+        // 1以上で定跡
+        int joseki = 1;
         //
         logger.debug("f={}",file.getAbsolutePath());
         try (FileReader fr = new FileReader(file);
@@ -118,7 +109,22 @@ public class ANDbJosekiO extends ANPostgreO {
                     continue; // コメント
                 } else if (0 <= string.indexOf("sfen")) {
                     only = BanmenOnly.createSfen(string);
-                    keySet.add(new BanmenKey(only));
+                    BanmenKey key = new BanmenKey(only);
+                    int teban = key.getTeban(); // 先手0、後手1
+                    // 評価値を見るとき、手を打った後の盤面を見るので、先手番0なら後手1の勝率を上げる。
+                    // 例：初期局面は先手0番、７七歩を打った時は後手1番⇒後手1で7七歩の時winを高くする
+                    int win = teban * 1000; // 自分の番の処理数をあげる
+                    int loss = (1 - teban) * 1000; // 自分の番の処理数をあげる
+                    //
+                    // 良く指される手として両方ともに1,000づつ入れる
+                    // すると評価値は0.0に近づくので結局winが1個とかのマイナーな手を指されがち。
+                    //int win = 1000;
+                    //int loss = 1000;
+                    //
+                     // 0以外なら定跡
+                    ResultKey rKey = new ResultKey(key.toString(),win,loss,joseki);
+                    keySet.add(rKey);
+                    joseki++; // 後ろの手の方が優先順位は低い
                 } else {
                     // 手が指される
                     int te = only.changeUsiTeToInt(string);

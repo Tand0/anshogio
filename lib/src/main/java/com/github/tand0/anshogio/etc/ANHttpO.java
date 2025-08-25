@@ -56,23 +56,25 @@ public class ANHttpO implements HttpHandler {
             if (urlString.equals("/")) {
                 statusCode = 301;
             } else if (urlString.equals("/state")) {
-                    doStatus(request, response);
+                this.doStatus(request, response);
             } else if (urlString.equals("/download")) {
-                doDownload(request, response);
+                this.doDownload(request, response);
             } else if (urlString.equals("/postgres")) {
-                doPostgres(request, response);
+                this.doPostgres(request, response);
             } else if (urlString.equals("/cleardb")) {
-                doDbClear(request, response);
+                this.doDbClear(request, response);
+            } else if (urlString.equals("/joseki")) {
+                this.doDbJoseki(request, response);
             } else if (urlString.equals("/connectOne")) {
-                doConnect(request, response, true);
+                this.doConnect(request, response, true);
             } else if (urlString.equals("/connect")) {
-                doConnect(request, response, false);
+                this.doConnect(request, response, false);
             } else if (urlString.equals("/stop")) {
-                doStop(request, response);
+                this.doStop(request, response);
             } else if (urlString.equals("/server")) {
-                doServer(request, response);
+                this.doServer(request, response);
             } else if (urlString.equals("/log")) {
-                doLog(request, response);
+                this.doLog(request, response);
             } else if (0 == urlString.indexOf("/flutter")) {
                 File file = doFlutter(urlString);
                 if (file == null) {
@@ -157,6 +159,21 @@ public class ANHttpO implements HttpHandler {
         res.put("result", result);
     }
     /**
+     * ダウンロード
+     * @param req リクエスト
+     * @param res レスポンス
+     */
+    protected void doDownload(JSONObject req, JSONObject res) {
+        if (this.worker.getProcessFlag()) {
+            res.put("result", "Already Go");
+            return;
+        }
+        // ダウンロード開始
+        this.worker.doProcessFlag(0);
+        //
+        res.put("result", "Download Start");
+    }
+    /**
      * postgresにデータを上げる
      * @param req リクエスト
      * @param res レスポンス
@@ -187,19 +204,19 @@ public class ANHttpO implements HttpHandler {
         res.put("result", "DB clear Start");
     }
     /**
-     * ダウンロード
+     * DBに定跡を詰む
      * @param req リクエスト
      * @param res レスポンス
      */
-    protected void doDownload(JSONObject req, JSONObject res) {
+    protected void doDbJoseki(JSONObject req, JSONObject res) {
         if (this.worker.getProcessFlag()) {
             res.put("result", "Already Go");
             return;
         }
         // ダウンロード開始
-        this.worker.doProcessFlag(0);
+        this.worker.doProcessFlag(3);
         //
-        res.put("result", "Download Start");
+        res.put("result", "DB clear Start");
     }
     /**
      * 将棋サーバを起動する

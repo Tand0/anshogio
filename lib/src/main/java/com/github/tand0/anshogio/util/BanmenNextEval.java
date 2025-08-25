@@ -171,7 +171,7 @@ public class BanmenNextEval extends BanmenNextBase {
             this.forceFlag = true;
             this.eval = eval;
         } else {
-            if (this.forceFlag) {
+            if (! this.forceFlag) {
                 this.eval = eval;
             }
         }
@@ -211,20 +211,22 @@ public class BanmenNextEval extends BanmenNextBase {
                     te = teNext.getTe();
                 }
             } else {
-                if (!forceFlagTarget) {
-                    // forceFlagTargetがfalseの場合
-                    // つまり、childのforceFlagが一度もtrueになったことがない場合、
-                    forceFlagTarget = teNext.getNext().getForceFlag();
-                    if (forceFlagTarget) {
-                        // これまでに来た値はpostgreの値でないので書き換える
-                        te = teNext.getTe();
-                        continue;
-                    }
-                    // forceFlagTargetがfalseの場合は続行
-                } else if (!teNext.getNext().getForceFlag()) {
-                    // forceFlagTargetがtrueで、
-                    // childのforceFlagがfalseの場合は無視する(postgreの指し手を優先する)
+                boolean childForceFlag = teNext.getNext().getForceFlag();
+                if (forceFlagTarget && (!childForceFlag)) {
+                    // forceFlagTarget が true で、
+                    // child の forceFlag が falseの場合は
+                    // 無視する(postgreの指し手を優先する)
                     continue;
+                }
+                if ((!forceFlagTarget) && childForceFlag) {
+                    // forceFlagTarget が false (つまり、childのforceFlagが一度もtrueになったことがない)で
+                    // でかつ、childForceFlag が true の場合は
+                    // forceFlagTarget を trule にする
+                    forceFlagTarget = true;
+                    // 初期値を与えて繰り返す
+                    te = teNext.getTe();
+                    continue;
+                    // childForceFlagがfalseの場合は続行
                 }
                 //
                 // forceFlagTargetがfalseの場合
