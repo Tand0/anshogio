@@ -8,10 +8,9 @@ import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.tand0.anshogio.util.BanmenFactory;
+import com.github.tand0.anshogio.util.BanmenFactoryMock;
 import com.github.tand0.anshogio.util.BanmenKey;
 import com.github.tand0.anshogio.util.BanmenNextMock;
-import com.github.tand0.anshogio.util.BanmenNext;
 
 
 /** PnDnアルゴリズムに対するテスト */
@@ -25,17 +24,17 @@ public class PnDnEngineRunnableTest {
     @Test
     public void no1Test() {
         int teban = 0; // 先手が攻める0、後手が攻める1
-        HashSet<BanmenNext> route = new HashSet<>();
-        BanmenFactory factory = new BanmenFactory();
+        HashSet<BanmenKey> route = new HashSet<>();
+        BanmenFactoryMock factory = new BanmenFactoryMock();
         //
         // 位置をチェックする
-        BanmenNextMock next = getBaseText(teban,1);
+        BanmenNextMock next = getBaseText(null, factory, teban);
         //
         // pndnを１回動かす(合法手を展開する)
-        next.executePnDn(factory, teban, 100, route);
+        next.executePnDn(factory, teban, 0, route);
         //
         // 後手側のPnが0になっている
-        assertEquals(next.getPnDn(1- teban).pn,0);
+        assertEquals(next.getPnDn()[1- teban].pn,0);
     }
     /**
      * 書籍No2のテスト
@@ -43,17 +42,17 @@ public class PnDnEngineRunnableTest {
     @Test
     public void no2Test() {
         int teban = 1; // 先手が攻める0、後手が攻める1
-        HashSet<BanmenNext> route = new HashSet<>();
-        BanmenFactory factory = new BanmenFactory();
+        HashSet<BanmenKey> route = new HashSet<>();
+        BanmenFactoryMock factory = new BanmenFactoryMock();
         //
         // 位置をチェックする
-        BanmenNextMock next = getBaseText(teban,1);
+        BanmenNextMock next = getBaseText(null, factory, teban);
         //
         // pndnを１回動かす(合法手を展開する)
-        next.executePnDn(factory, teban, 100, route);
+        next.executePnDn(factory, teban, 0, route);
         //
         // Pnが0になっている
-        assertEquals(next.getPnDn(1- teban).pn,0);
+        assertEquals(next.getPnDn()[1- teban].pn,0);
     }
     /**
      * 書籍No2-2のテスト
@@ -61,45 +60,43 @@ public class PnDnEngineRunnableTest {
     @Test
     public void no2no2Test() {
         int teban = 0; // 先手が攻める0、後手が攻める1
-        LinkedList<BanmenNext> banmenList = new LinkedList<>();
-        BanmenFactory factory = new BanmenFactory();
+        LinkedList<BanmenKey> banmenList = new LinkedList<>();
+        BanmenFactoryMock factory = new BanmenFactoryMock();
         //
         // 位置をチェックする
-        BanmenNextMock next = getBaseText(teban,1);
-        banmenList.add(next);
-        BanmenNextMock child = getBaseText(1- teban,2);
-        next.addMockChild(child);
+        BanmenNextMock next = getBaseText(null, factory, teban);
+        banmenList.addLast(next.getMyKey());
+        getBaseText(next, factory, 1- teban);
+        //
         //
         PnDnEngineRunnable run = new PnDnEngineRunnable(factory,banmenList);
-        run.start(); // 実行
-        run.join(); // 終わるまで待つ
+        run.run(); // スレッドを使わず直実行
         //
         // Pnが0になっている
-        assertEquals(next.getPnDn(teban).pn,0);
+        assertEquals(next.getPnDn()[teban].pn,0);
     }
     /**
      * 書籍No2-3のテスト
      */
     @Test
     public void no2no3Test() {
-        int teban = 1; // 先手が攻める0、後手が攻める1
-        LinkedList<BanmenNext> banmenList = new LinkedList<>();
-        BanmenFactory factory = new BanmenFactory();
-        //
-        // 位置をチェックする
-        BanmenNextMock a = getBaseText(1 - teban,1);
-        banmenList.add(a);
-        BanmenNextMock b = getBaseText(teban,2);
-        a.addMockChild(b);
-        BanmenNextMock c = getBaseText(1- teban,3);
-        b.addMockChild(c);
-        //
-        PnDnEngineRunnable run = new PnDnEngineRunnable(factory,banmenList);
-        run.start(); // 実行
-        run.join(); // 終わるまで待つ
-        //
-        // Pnが0になっている
-        assertEquals(a.getPnDn(teban).pn,0);
+        for (int teban = 0 ; teban < 2 ; teban++) { // 先手が攻める0、後手が攻める1
+            LinkedList<BanmenKey> banmenList = new LinkedList<>();
+            BanmenFactoryMock factory = new BanmenFactoryMock();
+            //
+            // 位置をチェックする
+            BanmenNextMock a = getBaseText(null, factory, teban);
+            banmenList.add(a.getMyKey());
+            BanmenNextMock b = getBaseText(a, factory, 1 - teban);
+            @SuppressWarnings("unused")
+            BanmenNextMock c = getBaseText(b, factory, teban);
+            //
+            PnDnEngineRunnable run = new PnDnEngineRunnable(factory,banmenList);
+            run.run(); // スレッドを使わず直実行
+            //
+            // Pnが0になっている
+            assertEquals(a.getPnDn()[1 - teban].pn,0);
+        }
     }
     /**
      * 書籍No3のテスト
@@ -122,17 +119,17 @@ public class PnDnEngineRunnableTest {
      * @param teban 手番
      */
     public void no3to4Test(int teban) {
-        HashSet<BanmenNext> route = new HashSet<>();
-        BanmenFactory factory = new BanmenFactory();
+        HashSet<BanmenKey> route = new HashSet<>();
+        BanmenFactoryMock factory = new BanmenFactoryMock();
         //
         // 位置をチェックする
-        BanmenNextMock next = getBaseText(teban,1,true);
+        BanmenNextMock next = getBaseText(null, factory, teban,true);
         //
         // pndnを１回動かす(合法手を展開する)
-        next.executePnDn(factory, teban, 100, route);
+        next.executePnDn(factory, teban, 0, route);
         //
         // Pnが0になっている
-        assertEquals(next.getPnDn(1 - teban).pn,0);
+        assertEquals(next.getPnDn()[1 - teban].pn,0);
     }
 
     /**
@@ -141,74 +138,82 @@ public class PnDnEngineRunnableTest {
     @Test
     public void no5OverTest() {
         int teban = 0; // 先手が攻める0、後手が攻める1
-        LinkedList<BanmenNext> banmenList = new LinkedList<>();
-        BanmenFactory factory = new BanmenFactory();
+        LinkedList<BanmenKey> banmenList = new LinkedList<>();
+        BanmenFactoryMock factory = new BanmenFactoryMock();
         //
         // 位置をチェックする
-        BanmenNextMock a1 = getBaseText(teban,1, false , false);
-        banmenList.add(a1);
+        BanmenNextMock a1 = getBaseText(null, factory, teban, false , false);
+        banmenList.add(a1.getMyKey());
         //
-        BanmenNextMock b1 = getBaseText(1- teban,2, false , true);
-        BanmenNextMock b2 = getBaseText(1- teban,3, false , true);
-        BanmenNextMock b3 = getBaseText(1- teban,4, false , false);
-        a1.addMockChild(b1);
-        a1.addMockChild(b2);
-        a1.addMockChild(b3);
+        BanmenNextMock b1 = getBaseText(a1,factory, 1- teban, false , true);
+        BanmenNextMock b2 = getBaseText(a1,factory, 1- teban, false , true);
+        @SuppressWarnings("unused")
+        BanmenNextMock b3 = getBaseText(a1,factory, 1- teban, false , false);
         //
-        BanmenNextMock c1 = getBaseText(1- teban,5, false , true);
-        BanmenNextMock c2 = getBaseText(1- teban,6, false , true);
-        BanmenNextMock c3 = getBaseText(1- teban,7, true , false);
-        b1.addMockChild(c1);
-        b2.addMockChild(c2);
-        b2.addMockChild(c3);
+        BanmenNextMock c1 = getBaseText(b1,factory, 1- teban, false , true);
+        @SuppressWarnings("unused")
+        BanmenNextMock c2 = getBaseText(b2,factory, 1- teban, false , true);
+        BanmenNextMock c3 = getBaseText(b2,factory, 1- teban, true , false);
         //
-        BanmenNextMock d1 = getBaseText(1- teban,8, false , false);
-        BanmenNextMock d2 = getBaseText(1- teban,9, false , false);
-        BanmenNextMock d3 = getBaseText(1- teban,10, false , false);
-        c1.addMockChild(d1);
-        c3.addMockChild(d2);
-        c3.addMockChild(d3);
+        @SuppressWarnings("unused")
+        BanmenNextMock d1 = getBaseText(c1,factory, 1- teban, false , false);
+        @SuppressWarnings("unused")
+        BanmenNextMock d2 = getBaseText(c3,factory, 1- teban, false , false);
+        @SuppressWarnings("unused")
+        BanmenNextMock d3 = getBaseText(c3,factory, 1- teban, false , false);
         //
         PnDnEngineRunnable run = new PnDnEngineRunnable(factory,banmenList);
-        run.start(); // 実行
-        run.join(); // 終わるまで待つ
+        run.run(); // スレッドを使わず直実行
         //
         // Pnが0になっている
-        assertEquals(a1.getPnDn(teban).pn,0);
+        assertEquals(a1.getPnDn()[teban].pn,0);
     }
     
     /**
      * mockを取得する
+     * @param base 親のMock
+     * @param factory 工場
      * @param teban 手番
-     * @param number 評価用の番号
      * @return 盤面のMock
      */
-    public BanmenNextMock getBaseText(int teban, int number) {
-        return getBaseText(teban,number,false);
+    public BanmenNextMock getBaseText(BanmenNextMock base, BanmenFactoryMock factory, int teban) {
+        return getBaseText(base, factory, teban,false);
     }
     /**
      * mockを取得する
+     * @param base 親のMock
+     * @param factory 工場
      * @param teban 手番
-     * @param number 評価用の番号
      * @param isKingWin 入玉詰みならtrue
      * @return 盤面のMock
      */
-    public BanmenNextMock getBaseText(int teban, int number, boolean isKingWin) {
-        return getBaseText(teban,number,false, true);
+    public BanmenNextMock getBaseText(BanmenNextMock base, BanmenFactoryMock factory, int teban, boolean isKingWin) {
+        return getBaseText(base, factory, teban,false, true);
     }
-        
+    
+    /**
+     * mock用のkey値
+     */
+    private int number = 0;
+
     /**
      * mockを取得する
+     * @param base 親のMock
+     * @param factory 工場
      * @param teban 手番
-     * @param number 評価用の番号
      * @param isKingWin 入玉詰みならtrue
      * @param enemyOute 相手に王手が掛かっているならtrue
      * @return 盤面のMock
      */
-    public BanmenNextMock getBaseText(int teban, int number, boolean isKingWin, boolean enemyOute) {
+    public BanmenNextMock getBaseText(BanmenNextMock base, BanmenFactoryMock factory, int teban, boolean isKingWin, boolean enemyOute) {
+        number++;
         String keyString = String.format(Locale.JAPANESE,"%064x", number);
         BanmenKey key = new BanmenKey(keyString);
         BanmenNextMock next = new BanmenNextMock(key,teban, isKingWin, enemyOute); // キーから復元する
+        factory.createMock(next);
+        if (base != null) {
+            base.addMockChild(next);
+        }
         return next;
     }
 }

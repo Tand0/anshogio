@@ -7,7 +7,7 @@ import java.util.List;
 public class BanmenNextMock extends BanmenNextEval {
 
     /** MOck用のオブジェクト */
-    private List<ChildTeNext> mockChild = new ArrayList<>();
+    private List<BanmenKey> mockChild = new ArrayList<>();
     
     /** MOKC用の入玉勝ちチェック (trueなら入玉勝ち) */
     private boolean kingWin;
@@ -31,7 +31,7 @@ public class BanmenNextMock extends BanmenNextEval {
     }
     /** 子づくりする(Mockなのでfactoryは使わない。盤面から合法手を作らない) */
     @Override
-    public synchronized List<ChildTeNext> getChildGetGouhou(BanmenFactory factory, BanmenOnly only) {
+    public List<BanmenKey> getChild() {
         if (this.childFileld == null) {
             this.childFileld = this.mockChild;
         }
@@ -42,8 +42,7 @@ public class BanmenNextMock extends BanmenNextEval {
      * @param next 盤面
      */
     public void addMockChild(BanmenNext next) {
-        int key = next.getMyKey().hashCode();
-        mockChild.add(new ChildTeNext(key, next));
+        mockChild.add(next.getMyKey());
     }
 
     /**
@@ -57,7 +56,7 @@ public class BanmenNextMock extends BanmenNextEval {
     /** 敵に王手をしているならtrue
      */
     @Override
-    public boolean isEnemyOute() {
+    public boolean isMyOute() {
         return this.enemyOute;
     }
 
@@ -65,5 +64,10 @@ public class BanmenNextMock extends BanmenNextEval {
     @Override
     public BanmenOnly createBanmenOnly() {
         return null; // ダミーなので盤面を作らせない
+    }
+    
+    @Override
+    public String toString() {
+        return this.getMyKey().toString();
     }
 }

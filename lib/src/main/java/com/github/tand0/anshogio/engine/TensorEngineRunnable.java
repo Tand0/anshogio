@@ -8,19 +8,11 @@ import com.github.tand0.anshogio.eval.ANModel;
 import com.github.tand0.anshogio.util.BanmenFactory;
 import com.github.tand0.anshogio.util.BanmenKey;
 import com.github.tand0.anshogio.util.BanmenNext;
-import com.github.tand0.anshogio.util.ChildTeNext;
-
 /** TensorFlowによる評価エンジン */
-public class TensorEngineRunnable extends EngineRunnable {
+public class TensorEngineRunnable extends BaseEngineRunnable {
 
     /** TensorFlowアクセス用 */
 	private final ANModel aNModel;
-	
-	/** 工場 */
-	private final BanmenFactory factory;
-	
-    /** 盤面のリスト */
-    private final LinkedList<BanmenNext> banmenList;
 
 	/** コンストラクタ
 	 * 
@@ -28,34 +20,34 @@ public class TensorEngineRunnable extends EngineRunnable {
 	 * @param factory  工場
 	 * @param banmenList 盤面のリスト
 	 */
-	public TensorEngineRunnable(ANModel aNModel, BanmenFactory factory, LinkedList<BanmenNext> banmenList) {
-		super(TensorEngineRunnable.class.getSimpleName());
+	public TensorEngineRunnable(ANModel aNModel, BanmenFactory factory, LinkedList<BanmenKey> banmenList) {
+        super(TensorEngineRunnable.class.getSimpleName(),factory,banmenList);
 		this.aNModel = aNModel;
-		this.banmenList = banmenList;
-		this.factory = factory;
 	}
 	
 	/** 実処理を進める */
 	@Override
 	public void run() {
 	    //java.util.ConcurrentModificationException 対策で移し替えておく
-	    List<ChildTeNext> hashMap = new ArrayList<ChildTeNext>(banmenList.getLast().getChild(factory));
+	    BanmenNext next = this.getFactory().create(this.getBaseBanmenKey());
+	    List<BanmenKey> teKeyList = new ArrayList<>(next.getChild());
         //
         // モデルから評価値を取得する
-		for (ChildTeNext teNext : hashMap) {
+		for (BanmenKey teKey : teKeyList) {
 			if (! this.aNModel.isAlive()) {
 				break; // 死んでる
 			}
 			if (this.isEnd()) {
 				break; // 停止が呼ばれている
 			}
-			if (banmenList.contains(teNext.getNext()) && (teNext.getNext().getMyKey().getTeban() == 0)) {
+			if (this.getBanmenList().contains(teKey) && (teKey.getTeban() == 0)) {
 				continue; // 千日手を回避するため、"先手は"同じ局面にはしない
 			}
-			if (teNext.getNext().getEvel() != null) {
+			BanmenNext childNext = this.getFactory().create(teKey);
+			if (childNext.getEvel() != null) {
 				continue; // すでに評価されている
 			}
-			BanmenKey key = teNext.getNext().getMyKey();
+			BanmenKey key = childNext.getMyKey();
 			Float result = this.aNModel.getKey(key.toString());
 			if (result == null) {
 				break;
@@ -65,13 +57,8 @@ public class TensorEngineRunnable extends EngineRunnable {
             result = Math.max(-1, Math.min(1, result));
             //
             // 評価値を設定する
-			teNext.getNext().setEval(false, result);
+            childNext.setEval(false, result);
 			//
 		}
-	}
-
-	@Override
-	public int getTe() {
-		return banmenList.getLast().getEvelTe(factory,banmenList);
 	}
 }

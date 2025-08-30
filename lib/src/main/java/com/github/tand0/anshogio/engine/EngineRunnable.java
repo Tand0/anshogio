@@ -31,10 +31,7 @@ public abstract class EngineRunnable implements Runnable {
 	 * @return 終わっているならTrue
 	 */
 	public boolean isEnd() {
-	    if (stopFlag) {
-	        return true;
-	    }
-		return ! thread.isAlive();
+	    return stopFlag;
 	}
 
 	/** 処理を停止する */

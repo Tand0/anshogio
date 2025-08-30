@@ -22,7 +22,7 @@ class BanmenKeyTest {
 	@Test
 	void pointTest() {
 		BanmenOnly only = new BanmenOnly(); // デフォルト設定
-		String q = (new BanmenKey(only)).toString(); // 16進出力
+		String q = only.createBanmenKey().toString(); // 16進出力
 		assertEquals(q.length(),64);
 		//
 		BanmenKey key = new BanmenKey(q); // もじから復元
@@ -52,8 +52,8 @@ class BanmenKeyTest {
      */
     @Test
     void setBitTest() {
-        BanmenKey key1 = new BanmenKey((BanmenOnly)null);
-        BanmenKey key2 = new BanmenKey((BanmenOnly)null);
+        BanmenKey key1 = (new BanmenOnly()).createBanmenKey();
+        BanmenKey key2 = (new BanmenOnly()).createBanmenKey();
         assertEquals(key1,key2);
         //
         Pointer p = new Pointer();
@@ -78,9 +78,9 @@ class BanmenKeyTest {
 	void firstTest() {
 		logger.debug("test start!");
 		BanmenOnly oldBanmen = new BanmenOnly();
-		BanmenKey key1 = new BanmenKey(oldBanmen);
+		BanmenKey key1 = oldBanmen.createBanmenKey();
 		BanmenOnly newBanmen = key1.createBanmenOnly();
-		BanmenKey key2 = new BanmenKey(newBanmen);
+		BanmenKey key2 = newBanmen.createBanmenKey();
 		//
 		logger.debug(oldBanmen.toString());
 		logger.debug(newBanmen.toString());
@@ -99,7 +99,7 @@ class BanmenKeyTest {
 	@Test
 	void setDataTest() {
 		BanmenOnly oldBanmen = new BanmenOnly();
-		BanmenKey key = new BanmenKey(oldBanmen);
+		BanmenKey key = oldBanmen.createBanmenKey();
 		Pointer p = new Pointer();
 		//
 		clearKey(key,p);
@@ -190,7 +190,7 @@ class BanmenKeyTest {
 	@Test
 	void getDataTest() {
 		BanmenOnly oldBanmen = new BanmenOnly();
-		BanmenKey key = new BanmenKey(oldBanmen);
+		BanmenKey key = oldBanmen.createBanmenKey();
 		Pointer p = new Pointer();
 		//
 		clearKey(key,p);
@@ -277,7 +277,7 @@ class BanmenKeyTest {
 		//
 		for (int teban = 0; teban < 2 ; teban++) {	   
 	        BanmenOnly only = new BanmenOnly();
-	        BanmenKey key = new BanmenKey(only);
+	        BanmenKey key = only.createBanmenKey();
 	        mochiGomaNext(key);
 	        for (int i = 0; i < BanmenDefine.B_MAX; i++) {
 	            for (int j = 0; j < BanmenDefine.B_MAX; j++) {
@@ -288,7 +288,7 @@ class BanmenKeyTest {
 	                only.setKoma(BanmenDefine.pNull, i, j);
 	                only.setTegoma(koma,  teban, only.getTegoma(koma, teban) + 1);
 	                //
-	                key = new BanmenKey(only);
+	                key = only.createBanmenKey();
 	                mochiGomaNext(key);
 	                //
 	            }
@@ -308,7 +308,7 @@ class BanmenKeyTest {
         assertEquals(keyString,banmenKey.toString());
         //
         BanmenOnly banmenOnly = banmenKey.createBanmenOnly(); // キーから盤面を作る
-        BanmenKey banmenKey2 = new BanmenKey(banmenOnly); // 文字からキーを作る
+        BanmenKey banmenKey2 = banmenOnly.createBanmenKey(); // onlyからキーを作る
 		assertEquals(banmenKey.toString(),banmenKey2.toString());		
 	}
 }

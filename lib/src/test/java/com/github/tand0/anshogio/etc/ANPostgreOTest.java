@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.github.tand0.anshogio.engine.EngineRunnable;
 import com.github.tand0.anshogio.engine.PnDnEngineRunnable;
 import com.github.tand0.anshogio.util.BanmenFactory;
+import com.github.tand0.anshogio.util.BanmenKey;
 import com.github.tand0.anshogio.util.BanmenNext;
 
 /**
@@ -73,14 +74,14 @@ public class ANPostgreOTest {
 	@Test
 	public void tumeshogiTest() throws IOException, SQLException {
 		//
-		tumeEngine("test_01_tume.txt", true, 0);
-		tumeEngine("test_02_tume.txt", true, 0);
-		tumeEngine("test_03_tume.txt", true, 1);
+		tumeEngine("test_01_tume.txt", true , 0);
+		tumeEngine("test_02_tume.txt", true , 0);
+		tumeEngine("test_03_tume.txt", true , 1);
 		tumeEngine("test_04_tume.txt", true , 0);
 		tumeEngine("test_05_tume.txt", true , 0);
 		tumeEngine("test_06_tume.txt", true , 1);
 		tumeEngine("test_07_tume.txt", true , 1);
-		tumeEngine("test_08_tume.txt", true , 0);
+        tumeEngine("test_08_tume.txt", true , 0);
 		//
 	}
 	/**
@@ -93,27 +94,27 @@ public class ANPostgreOTest {
 	 * @throws SQLException 例外パターン
 	 */
     protected ANPostgreOMock tumeEngine(String fileNameString, boolean tume,int sente) throws IOException, SQLException {
-        BanmenFactory factory = new BanmenFactory();
         //
         // クラスローダを使ってクラスパスからの相対パスでファイルを指定
         String fileName =
                 ANPostgreOTest.class.getClassLoader().getResource(fileNameString).getPath();
         File file = new File(fileName);
         ANPostgreOMock mock = new ANPostgreOMock(null);
-        BanmenNext next = mock.runFileOne(factory, file);
+        BanmenFactory factory = new BanmenFactory();
+        BanmenNext next = mock.runFileOne( file);
+        next = factory.create(next.getMyKey()); // factoryのnextに差し替え
         assertNotNull(next);
-        LinkedList<BanmenNext> banmenList = new LinkedList<>();
-        banmenList.addLast(next);
+        LinkedList<BanmenKey> banmenList = new LinkedList<>();
+        banmenList.addLast(next.getMyKey());
         //
         if (tume) {
-            EngineRunnable engine = new PnDnEngineRunnable(factory,banmenList).start();
+            EngineRunnable engine = new PnDnEngineRunnable(factory,banmenList);
             //
-            // 終わるまで待ち合わせる
-            engine.join();
+            engine.run();// スレッドを使わず直接呼び出す
             //
             assertNotNull(next);
             // 先手か後手かのどちらかが詰んでいる
-            assertTrue((next.getPnDn(0).pn == 0) || (next.getPnDn(1).pn == 0));
+            assertTrue((next.getPnDn()[0].pn == 0) || (next.getPnDn()[1].pn == 0));
         }
         return mock;
     }

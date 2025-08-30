@@ -48,7 +48,6 @@ public class ANDbUpgradeO extends ANPostgreO {
 	@Override
 	public void run() {
 		logger.debug("run start!");
-		BanmenFactory factory = new BanmenFactory();
 		try {
 			//
 			connect();
@@ -83,7 +82,7 @@ public class ANDbUpgradeO extends ANPostgreO {
 				//
 				File file = new File(downloadDir);
 				file = new File(file,String.format(Locale.JAPANESE,"%04d/%02d/%02d", oldYear,oldMonth,oldDate));
-				runFile(factory, file);
+				runFile(file);
 				//
 				// 日付をアップデートする
 				updateDate();
@@ -103,18 +102,17 @@ public class ANDbUpgradeO extends ANPostgreO {
 	}
 	/** 指定されたデータの出力
 	 * 
-	 * @param factory 工場
 	 * @param dir フォルダ
 	 * @throws SQLException 例外
 	 * @throws IOException 例外
 	 */
-	public void runFile(BanmenFactory factory, File dir) throws SQLException, IOException {
+	public void runFile(File dir) throws SQLException, IOException {
 		if (sum <= 0) {
 			return; // ダウンロード数が完了した
 		}
 		if (dir.isDirectory()) {
 			for (File nextFile : dir.listFiles()) {
-				runFile(factory, nextFile);
+				runFile(nextFile);
 			}
 			return; //フォルダチェック語は終了
 		}
@@ -135,21 +133,20 @@ public class ANDbUpgradeO extends ANPostgreO {
 		}
 		//
 		// ファイル１個分の処理
-		runFileOne(factory,dir);
+		runFileOne(dir);
     	sum--;
 	}
 	/** ファイル１個分の処理 
 	 * 
-	 * @param factory 工場
 	 * @param file ファイル
 	 * @return 盤面情報
 	 * @throws SQLException 例外
 	 * @throws IOException 例外
 	 */
-	public BanmenNext runFileOne(BanmenFactory factory,File file) throws SQLException, IOException {
+	public BanmenNext runFileOne(File file) throws SQLException, IOException {
 		//
 		// ハッシュをすべてクリアする
-		factory.clearAllHash();
+	    BanmenFactory factory = new BanmenFactory();
 		//
 		BanmenNext only;
 		logger.debug(file.getAbsolutePath().toString());
@@ -193,8 +190,8 @@ public class ANDbUpgradeO extends ANPostgreO {
     			goteName = str.substring(2);
     		} else if (only.setForCSAProtocol(str)) {
     			if ((ch == '+') || (ch == '-')) {
-    			    BanmenKey key = new BanmenKey(only);
-    				BanmenNext next = factory.create(null, key);
+    			    BanmenKey key = only.createBanmenKey();
+    				BanmenNext next = factory.create(key);
     				nextList.addLast(next);
     			}
     		} else if (0 == str.indexOf("\'summary:")) {
@@ -232,8 +229,8 @@ public class ANDbUpgradeO extends ANPostgreO {
 				tesuu++;
 				//
     			int te = BanmenDefine.changeTeStringToInt(str);
-    			BanmenNext next = nextList.getLast().decisionTe(factory, te);
-    			only = next.getMyKey().createBanmenOnly(); // 最終盤面
+    	        BanmenKey key = nextList.getLast().getMyKey().createTeToKey(te);
+    	        BanmenNext next = factory.decisionTe(nextList.getLast(),key);
     			nextList.addLast(next); //打った手を保存
     		} else if (str.equals("%TIME_UP")) {
     			knownError = true;

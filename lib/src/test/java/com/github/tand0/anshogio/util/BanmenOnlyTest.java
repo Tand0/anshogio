@@ -50,7 +50,7 @@ public class BanmenOnlyTest {
     public void baseMyTest() {
         String sfen = "sfen lr3g1nl/3sg1kb1/p3sp1p1/2p1p1p1p/3S5/PBP2PP1P/1P2P2P1/L+p1RG1SK1/5G1NL b N2Pn 45";
         BanmenOnly sfenOnly = BanmenOnly.createSfen(sfen); // sfenで初期盤面を再現
-        BanmenKey key = new BanmenKey(sfenOnly); // キー値が得られるか？
+        BanmenKey key = sfenOnly.createBanmenKey(); // キー値が得られるか？
         logger.debug(key.toString());
         assertEquals(sfenOnly.getTeban(),0); 
         assertEquals(sfenOnly.getTegoma(BanmenDefine.pN, 0), 1);

@@ -51,7 +51,7 @@ public abstract class ANPostgreO implements Runnable {
     	this.setting = setting;
         //
         // 年情報の取得
-        if (this.getSetting().has(ANDownloadO.DOWNLLOAD_YEAR_START)) {
+        if ((this.getSetting() != null) && this.getSetting().has(ANDownloadO.DOWNLLOAD_YEAR_START)) {
             this.oldYear = getSetting().getInt(ANDownloadO.DOWNLLOAD_YEAR_START);
         } else {
             Calendar nowCalendar = Calendar.getInstance();

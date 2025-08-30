@@ -6,11 +6,11 @@ import static com.github.tand0.anshogio.util.BanmenDefine.ENEMY;
 import static com.github.tand0.anshogio.util.BanmenDefine.NARI;
 import static com.github.tand0.anshogio.util.BanmenDefine.changeTeToInt;
 import static com.github.tand0.anshogio.util.BanmenDefine.checkLow;
+import static com.github.tand0.anshogio.util.BanmenDefine.pB;
 import static com.github.tand0.anshogio.util.BanmenDefine.pNull;
 import static com.github.tand0.anshogio.util.BanmenDefine.pP;
 import static com.github.tand0.anshogio.util.BanmenDefine.pR;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -23,58 +23,25 @@ import com.github.tand0.anshogio.util.BanmenDefine.CheckLow;
 public abstract class BanmenNextBase implements BanmenNext {
 
 	/** 自分のキー */
-	private final BanmenKey key;
+	private final BanmenKey myKey;
 
 	
 	/** 合法手のハッシュ */
-	protected List<ChildTeNext> childFileld = null;
+	protected List<BanmenKey> childFileld = null;
 	
 	/** コンストラクタ
-	 * @param key キー
+	 * @param myKey キー
 	 */
-	protected BanmenNextBase(BanmenKey key) {
-		this.key = key;
+	protected BanmenNextBase(BanmenKey myKey) {
+		this.myKey = myKey;
 	}
 
 	/** 自分のキーを渡す */
 	@Override
 	public BanmenKey getMyKey() {
-		return this.key;
+		return this.myKey;
 	}
 
-	/**
-	 * テーブルから削除する
-	 * @param factory 工場
-	 */
-	@Override
-	public void createDown(BanmenFactory factory) {
-		//
-		// ここから削除処理
-		//
-		
-		//
-		// ファクトリーから先に削除する
-		factory.remove(getMyKey());
-		//
-		List<ChildTeNext> childNow = this.childFileld;
-		this.childFileld = null; // ループ対策で先に消す
-		if (childNow != null) {
-	        // 子供を念入りに殺しに行く
-	        for (ChildTeNext backup : childNow) {
-	            backup.getNext().createDown(factory); // 子孫も消す(オーナーは自分になる)
-	        }
-	        //
-		}
-	}
-	@Override
-	public void clearAllHash() {
-	    List<ChildTeNext> childNow = this.childFileld;
-        if (childNow != null) {
-            childNow.clear(); // テーブルを消す(ガベージコレクト対策)
-        }
-        this.childFileld = null; // テーブルの土台も消す(ループ対策で先に消す)
-	}
-	
 	@Override
 	public int compareTo(BanmenNext o) {
 		if (o == null) return -1;
@@ -104,24 +71,21 @@ public abstract class BanmenNextBase implements BanmenNext {
 		}
 		return false;
 	}
+	
 
 	@Override
 	public boolean isExpandChild() {
 		return this.childFileld != null;
 	}
 	
-	/**
-	 * 子づくりする
-	 * @param factory 工場
-	 * @param banmenOnly 盤面
-	 * @return 子供のリスト
-	 */
-	public synchronized List<ChildTeNext> getChildGetGouhou(BanmenFactory factory,BanmenOnly banmenOnly) {
+    @Override
+	public List<BanmenKey> getChild() {
+        BanmenOnly banmenOnly = createBanmenOnly();
 		if (this.childFileld != null) {
 			return this.childFileld;
 		}
 		//
-		final List<ChildTeNext> child = new LinkedList<ChildTeNext>();
+		final List<BanmenKey> child = new LinkedList<>();
 		//
 		// 自分の王の位置を到底する
 		int myOuX;
@@ -142,16 +106,17 @@ public abstract class BanmenNextBase implements BanmenNext {
 		//
         // 合法手の生成
 		IntStream.range(0, B_MAX).forEach(x ->IntStream.range(0, B_MAX).forEach(
-				y->getChildXY(factory,child, x,y,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly)));
+				y->getChildXY(child, x,y,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly)));
 		//
 		// 値の設定
 		this.childFileld = child;
 		//
 		return child;
 	}
+
+    
 	/**
 	 * 子づくりする（盤面上の移動元、および、王の位置は分かっている場合）
-	 * @param factory 工場
 	 * @param child 子供
 	 * @param x x位置
 	 * @param y y位置
@@ -162,8 +127,7 @@ public abstract class BanmenNextBase implements BanmenNext {
 	 * @param banmenOnly 盤面
 	 */
 	private void getChildXY(
-			BanmenFactory factory,
-			List<ChildTeNext> child,
+			List<BanmenKey> child,
 			int x, int y,
 			int myOuX,int myOuY,
 			int enemyOuX,int enemyOuY,
@@ -173,16 +137,15 @@ public abstract class BanmenNextBase implements BanmenNext {
 		//
 		if (koma == pNull) {
 			// 打つ
-		    getChildXYUchi(factory, child, x, y, myOuX, myOuY, enemyOuX, enemyOuY, teban, banmenOnly);
+		    getChildXYUchi(child, x, y, myOuX, myOuY, enemyOuX, enemyOuY, teban, banmenOnly);
 		} else if ((teban != 0)  != ((koma & ENEMY) != 0)) {
 			return;  // 自分のコマでなければ終了
 		} else {
 		    // 移動する
-		    getChildXYMove(factory, child, x, y, myOuX, myOuY, enemyOuX, enemyOuY, koma, teban, banmenOnly);;
+		    getChildXYMove(child, x, y, myOuX, myOuY, enemyOuX, enemyOuY, koma, teban, banmenOnly);;
 		}
 	}
 	/** 打ち込み処理
-     * @param factory 工場
      * @param child 子供
      * @param x x位置
      * @param y y位置
@@ -194,8 +157,7 @@ public abstract class BanmenNextBase implements BanmenNext {
      * @param banmenOnly 盤面
 	 */
 	private void getChildXYUchi(
-            BanmenFactory factory,
-            List<ChildTeNext> child,
+            List<BanmenKey> child,
             int x, int y,
             int myOuX,int myOuY,
             int enemyOuX,int enemyOuY,
@@ -212,11 +174,10 @@ public abstract class BanmenNextBase implements BanmenNext {
                     return;
                 }
             }
-            setNext(factory, child, tegomaHave, BEAT,BEAT,x,y,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
+            setNext(child, tegomaHave, BEAT,BEAT,x,y,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
         });
 	}
 	/** 移動処理
-     * @param factory 工場
      * @param child 子供
      * @param x x位置
      * @param y y位置
@@ -229,8 +190,7 @@ public abstract class BanmenNextBase implements BanmenNext {
      * @param banmenOnly 盤面
 	 */
     private void getChildXYMove(
-            BanmenFactory factory,
-            List<ChildTeNext> child,
+            List<BanmenKey> child,
             int x, int y,
             int myOuX,int myOuY,
             int enemyOuX,int enemyOuY,
@@ -254,24 +214,24 @@ public abstract class BanmenNextBase implements BanmenNext {
                 //
                 if (((koma & NARI)!=0) || low.isNarenai()) {
                     // 既に成っている or 成れません
-                    setNext(factory, child, koma, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
+                    setNext(child, koma, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
                 } else {
                     // 成ることのできるコマでまだ成っていない、または、成れない
                     //
                     if (low.getKyouseiNari(teban, y) || low.getKyouseiNari(teban, yy)) {
                         //NG 成ることが強制される位置
-                        setNext(factory, child, naryKey, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
+                        setNext(child, naryKey, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
                     } else if (low.isTekijin(teban,y) || low.isTekijin(teban, yy)) {
                         // 敵陣に入った or 敵陣から出た
                         // 成る
-                        setNext(factory, child, naryKey, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
+                        setNext( child, naryKey, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
                         // 成らずもできる
                         if (low.isNarazuOK()) {
-                            setNext(factory, child, koma, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
+                            setNext(child, koma, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
                         }
                     } else { //
                         // 成れません
-                        setNext(factory, child, koma, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
+                        setNext( child, koma, x, y, xx, yy,myOuX,myOuY,enemyOuX,enemyOuY,banmenOnly);
                     }
                 }
                 if ((!xYFlag.getFlag())
@@ -284,7 +244,6 @@ public abstract class BanmenNextBase implements BanmenNext {
 	
 	/**
 	 * 移動する（移動元と移動先が決まっているパターン)
-     * @param factory 工場
      * @param child 子供
      * @param oldX 移動元のx位置
      * @param oldY 移動元のy位置
@@ -298,8 +257,7 @@ public abstract class BanmenNextBase implements BanmenNext {
      * @param banmenOnly 盤面
 	 */
 	private void setNext(
-	        BanmenFactory factory,
-	        List<ChildTeNext> child,
+	        List<BanmenKey> child,
             byte koma,
 			int oldX, int oldY,
 			int newX, int newY,
@@ -324,7 +282,7 @@ public abstract class BanmenNextBase implements BanmenNext {
 		int te = changeTeToInt(koma,oldX,oldY,newX, newY);
 		//
 		// 新しい盤面を作る
-		BanmenOnly nextBanmen = new BanmenOnly(banmenOnly, te);
+		BanmenOnly newOnly = new BanmenOnly(banmenOnly, te);
 		//
 		if ((koma & 0b1111) == BanmenDefine.pK) {
 			// 移動するコマが王なら移動先が王の位置だ
@@ -332,38 +290,32 @@ public abstract class BanmenNextBase implements BanmenNext {
 			myOuY = newY;
 		}
 		//
-		if (nextBanmen.checkSelfMate(banmenOnly.getTeban(),myOuX,myOuY)) {
+		if (newOnly.checkSelfMate(banmenOnly.getTeban(),myOuX,myOuY)) {
 			return;	// 空き王手ならばNGなので、Factoryに入れずに終了
 		}
 		//
 		// 盤面を工場から取り出して使用フラグを１あげる
-		BanmenKey key = new BanmenKey(nextBanmen);
-		BanmenNext result = factory.create(this, key);
+		BanmenKey key = newOnly.createBanmenKey();
 		//
-		// 手を追加する
-		ChildTeNext target = new ChildTeNext(te, result);
-		child.addLast(target);
-		//
-		// 相手に王手をかけているかチェック
-		if (nextBanmen.checkSelfMate(1- banmenOnly.getTeban(),enemyOuX,enemyOuY)) {
-			// 相手に王手をかけているかチェック
-			result.setEnemyOute();
-		}
+		// factoryには入れずresultを作る
+        BanmenNext result = new BanmenNextEval(key);
+
 		// 打ち歩詰めチェック
-		if ((oldX == BEAT) && ((koma & 0xF) == pP) && result.isEnemyOute()) {
+		if ((oldX == BEAT) && ((koma & 0xF) == pP) && result.isMyOute()) {
 			// もしも、打ちっていて、それが歩で、王手チェックが入っている場合
 			//
-			if (result.getChild(factory).size() == 0) {
+			if (result.getChild().size() == 0) {
 				// 次の手がない場合
-				//
-				child.remove(target); // 手を削除する（すでに子供として登録しているので必要）
-			    this.createDown(factory); // 検索テーブルから取り除く
 				return; // 打ち歩詰めチェック
 			}
 		}
+        //
+        // 手を追加する
+        child.addLast(key);
+        //
 	}
     /** 王手なら true */
-    private boolean oute = false;
+    private Boolean oute = null;
 
     /** 王手ならばtrue
      */
@@ -372,83 +324,165 @@ public abstract class BanmenNextBase implements BanmenNext {
         this.oute = true;
     }
 
-    /** 敵に王手をしているならtrue
+    /** 自分が王手か？
      */
     @Override
-    public boolean isEnemyOute() {
+    public boolean isMyOute() {
+        if (this.oute == null) {
+            // key値作成時にkeyに埋め込まないといけないね。これ。。。
+            //
+            // 相手に王手をかけているかチェック
+            BanmenOnly banmenOnly = this.getMyKey().createBanmenOnly();
+            int teban = banmenOnly.getTeban();
+            int enemyOuX;
+            int enemyOuY;
+            if (teban == 0) { // 先手
+                enemyOuX = banmenOnly.getSenteOuX();
+                enemyOuY = banmenOnly.getSenteOuY();
+            } else {
+                enemyOuX = banmenOnly.getGoteOuX();
+                enemyOuY = banmenOnly.getGoteOuY();
+            }
+            //
+            // 相手に王手をかけているかチェック
+            if (banmenOnly.checkSelfMate(teban, enemyOuX, enemyOuY)) {
+                this.oute = true;
+            } else {
+                this.oute = false;
+            }
+        }
         return this.oute;
     }
-
-    /** 子供に手を追加する */
-	@Override
-	public BanmenNext decisionTe(BanmenFactory factory, int te) {
-		return decisionTe(factory,te,true);
-	}
 	
-    /** 手を決定する(ほかの手は消す) */
-	@Override
-	public BanmenNext addTe(BanmenFactory factory, int te) {
-		return decisionTe(factory,te,false);
-	}
+    
+    
+    
+    /** 入玉勝ちならtrue, 入玉勝ちでなければfalse, 未チェックならnu;; */
+    public Boolean kingWin = null;
+    
+    /**
+     * 入玉勝ちチェック
+     * @return 入玉勝ちの場合 true
+     */
+    @Override
+    public boolean isKingWin() {
+        if (this.kingWin != null) {
+            return this.kingWin;
+        }
+        return isKingWin(this.createBanmenOnly());
+    }
+    
+    /**
+     * 入玉勝ちチェック
+     * @param banmen 盤面
+     * @return 入玉勝ちの場合 true
+     */
+    public boolean isKingWin(BanmenOnly banmen) {
+        if (kingWin == null) {
+            // kingWin チェックをしていないのでこれを実行する
+            int myOuX;
+            int myOuY;
+            if (this.getMyKey().getTeban()==0) { // 先手
+                myOuX = banmen.getSenteOuX();
+                myOuY = banmen.getSenteOuY();
+            } else {
+                myOuX = banmen.getGoteOuX();
+                myOuY = banmen.getGoteOuY();
+            }
+            kingWin = isKingWin(myOuX,myOuY, banmen);
+        }
+        return kingWin;
+    }
 
-	/**
-	 * ツリーの手を追加または決定する
-	 * @param factory 工場
-	 * @param te 指し手
-	 * @param deleteOtherChild 追加時に兄弟がいたら全消し
-	 * @return 盤面
-	 */
-	private BanmenNext decisionTe(BanmenFactory factory, int te,boolean deleteOtherChild) {
-	    List<ChildTeNext> child = this.childFileld;
-		if (child == null) {
-		    child = new LinkedList<ChildTeNext>();
-			this.childFileld = child;
-		}
-		ChildTeNext entry = null;
-		if (deleteOtherChild) {
-			// 一子相伝ゆえにほかの子は……全消しします
-            // 一回退避しないと ConcurrentModificationException が出る
-		    ArrayList<ChildTeNext> backupList = new ArrayList<>(child);
-		    for (ChildTeNext teNext : backupList) {
-		        if (teNext.getTe() == te) {
-		            entry = teNext;
-		            continue; // 自分は除く
-		        }
-		        teNext.getNext().createDown(factory); // ownerは自分です
-		    }
-		    // 全消し
-			child.clear();
-		}
-	    if (entry == null) {
-	        // 存在しない場合は作ります
-	        BanmenOnly nextBanmen = new BanmenOnly(this.getMyKey().createBanmenOnly(), te);
-	        BanmenKey key = new BanmenKey(nextBanmen);
-	        entry = new ChildTeNext(te, factory.create(this, key));
-	    }
-		// ほかの子がいなくなったところで、自身を追加
-		child.addLast(entry);
+    /**
+     * 入玉勝ちチェック
+     * @param myOuX 自分の王x
+     * @param myOuY 自分の王y
+     * @param banmenOnly 盤面
+     * @return 入玉勝ちならtrue
+     */
+    protected boolean isKingWin(int myOuX,int myOuY,BanmenOnly banmenOnly) {
+        int teban = this.getMyKey().getTeban(); // 先手-1,後手1に変換
+        int range0;
+        if ((teban == 0) && (myOuY <= 2)) {
+            range0 = 0;
+        } else if ((teban != 0) && (6 <= myOuY)) {
+            range0 = 6;
+        } else {
+            return false; // 入玉していない
+        }
+        if (banmenOnly.checkSelfMate(teban,myOuX,myOuY)) {
+            return false;// 大手を掛けられていない
+        }
+        
+        //
+        // 盤面上の敵陣のコマを数える
+        int sum = 0;
+        int value = 0;
+        for (int x = 0 ; x < BanmenDefine.B_MAX ; x++) {
+            for (int y = range0 ; y <= (range0 +2) ; y++) {
+                byte koma = banmenOnly.getKoma(x, y);
+                if (koma == BanmenDefine.pNull) {
+                    continue;
+                }
+                if (((koma & BanmenDefine.ENEMY)/BanmenDefine.ENEMY) == teban) {
+                    if ((koma & 0b111) != BanmenDefine.pK) {
+                        sum++;
+                        if (((koma & 0b111) == BanmenDefine.pB)
+                                && ((koma & 0b111) == BanmenDefine.pR)){
+                            value = value + 5; // 大コマは５点
+                        } else {
+                            value = value + 1; // 小コマは１点
+                        }
+                    }
+                }
+            }
+        }
+        if (sum < 10) {
+            return false; // 王を除く自コマが10枚より少ない
+        }
+        
+        // 手持ちの小コマの数を数える
+        for (byte i = 0 ; i < BanmenDefine.pB ; i++) {
+            value = value + banmenOnly.getTegoma(i, teban);
+        }
+        // 手持ちの大コマの数を数える
+        for (byte i = pB ; i <= BanmenDefine.pR ; i++) {
+            value = value + banmenOnly.getTegoma(i, teban) * 5;
+        }
+        // 先手は28枚、後手は27枚以上ある
+        kingWin = (27 + (1-teban)) <= value;
+        return kingWin;
+    }
+    
 
-		return entry.getNext();
-	}
-	
+    /**
+     * keyから盤面を作る
+     * @return 盤面
+     */
+    public BanmenOnly createBanmenOnly() {
+        return this.getMyKey().createBanmenOnly();
+    }
+
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		if (key != null) {
+		if (myKey != null) {
 		    b.append("key:");
-			b.append(key.toString());
+			b.append(myKey.toString());
 		    b.append("\n");
 	        b.append("banmen:\n");
-	        b.append(key.createBanmenOnly().toString());
+	        b.append(myKey.createBanmenOnly().toString());
 		}
 		//
-		List<ChildTeNext> child = this.childFileld;
+		List<BanmenKey> child = this.childFileld;
 		if (child != null) {
-			b.append("te: ");
-			for (ChildTeNext data : child) {
-				String teString = BanmenDefine.changeTeIntToString(data.getTe());
+            b.append("te=");
+			for (BanmenKey data : child) {
+			    int te = this.getMyKey().createKeyToTe(data);
+			    String teString = BanmenDefine.changeTeIntToString(te);
 				b.append(teString);
-				b.append(" ");
+                b.append(" ");
 			}
 			b.append("\n");
 		}

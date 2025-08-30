@@ -162,14 +162,14 @@ class BanmenNextTest {
 		}
         b.endForCSAProtocol();// 王がいなかったら適当に置く
 		logger.debug(b.toString());
-		BanmenKey key = new BanmenKey(b);
-		BanmenNext after = factory.create(null, key);
+		BanmenKey key = b.createBanmenKey();
+		BanmenNext after = factory.create(key);
 		//
 		//
-		List<ChildTeNext> childMap = after.getChild(factory);
+		List<BanmenKey> keyList = after.getChild();
 		logger.debug(after.toString());
-		for (ChildTeNext teNext : childMap) {
-            int te = teNext.getTe();
+		for (BanmenKey newKey : keyList) {
+            int te = key.createKeyToTe(newKey);
             boolean flag = false;
             for (String teString : teStrings) {
             	int target = BanmenDefine.changeTeStringToInt(teString);
@@ -183,102 +183,11 @@ class BanmenNextTest {
                 fail("NG key=" + getKomaToString(koma) + " x=" + (x+1) + " y=" + (y+1) + " te=" + teString);            	
             }
 		}
-        if (teStrings.length != childMap.size()) {
+        if (teStrings.length != keyList.size()) {
             fail("NG key=" + getKomaToString(koma) + " x=" + (x+1) + " y=" + (y+1)
-            		+ " size=" + childMap.size() + " sum=" + teStrings.length);
+            		+ " size=" + keyList.size() + " sum=" + teStrings.length);
         }
 	}
-	
-	/**
-	 * 7手詰み確認
-	 */
-	@Test
-	void tumiTest() {
-        BanmenFactory factory = new BanmenFactory();
-
-        // 初期情報を作成する
-	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
-		BanmenNext next = factory.create(null,topKey);
-       //
-		logger.debug(next.toString());
-		next = next.decisionTe(factory,changeTeStringToInt("+2726FU"));
-		logger.debug(next.toString());
-		next = next.decisionTe(factory,changeTeStringToInt("-5142OU"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("+2625FU"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("-4232OU"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("+2524FU"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("-8242HI"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("+2423TO"));
-		logger.debug(next.toString());
-        //
-		List<ChildTeNext> child = next.getChild(factory);
-        assertEquals(child.size(),0); // もう手はない
-        //
-		// 初期情報を作成する
-        factory.clearAllHash();
-		next = factory.create(null,topKey);
-       //
-		logger.debug(next.toString());
-		next = next.decisionTe(factory,changeTeStringToInt("+5968OU"));
-		logger.debug(next.toString());
-		next = next.decisionTe(factory,changeTeStringToInt("-8384FU"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("+6878OU"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("-8485FU"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("+2868HI"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("-8586FU"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("+9796FU"));
-		logger.debug(next.toString());
-        next = next.decisionTe(factory,changeTeStringToInt("-8687TO"));
-		logger.debug(next.toString());
-        //
-		child = next.getChild(factory);
-        assertEquals(child.size(),0); // もう手はない
-        
-		logger.debug("end");
-	}
-
-
-	/** メインのテスト。
-	 * 盤面からいくつか動かして正しい動作をするか確認する
-	 */
-	@Test
-	void mainTest() {
-        BanmenFactory factory = new BanmenFactory();
-
-        // 初期情報を作成する
-	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
-		BanmenNext banmenNext = factory.create(null,topKey);
-		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
-		logger.debug(banmen.toString());
-		//
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+7776FU"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-1112KY"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2726FU"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		List<ChildTeNext> child = banmenNext.getChild(factory);
-		for (ChildTeNext teNext : child) {
-			String sKey = changeTeIntToString(teNext.getTe());
-            assertNotEquals(sKey,"-2112KA");
-            assertNotEquals(sKey,"-2132KA");
-            assertNotEquals(sKey,"-2132UM");
-            assertNotEquals(sKey,"-2211UM");
-        }
-		logger.debug("end");
-	}
-	
 	
 	/** 初手で何を指せるかの確認 */
 	@Test
@@ -288,272 +197,13 @@ class BanmenNextTest {
         for (int i = 0 ; i < 100 ; i++) {
 			// 繰り返して問題ないか確認する
 			//
-
-			factory.clearAllHash();
-		    BanmenKey topKey = new BanmenKey(new BanmenOnly());
-			BanmenNext next = factory.create(null,topKey);
+		    BanmenKey topKey = (new BanmenOnly()).createBanmenKey();
+			BanmenNext next = factory.create(topKey);
 			//
-			List<ChildTeNext> teNextList = next.getChild(factory);
-			for (ChildTeNext teNext : teNextList) {
-				logger.debug(BanmenDefine.changeTeIntToString(teNext.getTe()));
-			}
-			assertEquals(teNextList.size(), 30); // 30局面
+			List<BanmenKey> teKyeList = next.getChild();
+			assertEquals(teKyeList.size(), 30); // 30局面
 		}
 	}
-	
-	/** 成り関係のテストをする */
-	@Test
-	void hinariTest() {
-        BanmenFactory factory = new BanmenFactory();
-
-        // 初期情報を作成する
-	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
-		BanmenNext banmenNext = factory.create(null,topKey);
-		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
-		logger.debug(banmen.toString());
-		//
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2818HI"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-8292HI"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1716FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9394FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1615FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9495FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1514FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9596FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1413TO"));
-        //
-        List<ChildTeNext> child;
-		child = banmenNext.getChild(factory);
-		for (ChildTeNext teNextList : child) {
-			String sKey = changeTeIntToString(teNextList.getTe());
-            assertNotEquals(sKey,"-0099FU");
-            assertNotEquals(sKey,"+0011FU");
-        }
-        //
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9697TO"));
-		child = banmenNext.getChild(factory);
-		for (ChildTeNext teNextList : child) {
-			String sKey = changeTeIntToString(teNextList.getTe());
-            assertNotEquals(sKey,"-0099FU");
-            assertNotEquals(sKey,"+0011FU");
-        }
-        //
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+0095FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-0015FU"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-        //
-		child = banmenNext.getChild(factory);
-		for (ChildTeNext teNextList : child) {
-			String sKey = changeTeIntToString(teNextList.getTe());
-            assertNotEquals(sKey,"+1814RY");
-            assertNotEquals(sKey,"+1815RY");
-            assertNotEquals(sKey,"+1816RY");
-            assertNotEquals(sKey,"+1817RY");
-            assertNotEquals(sKey,"-9293RY");
-            assertNotEquals(sKey,"-9294RY");
-            assertNotEquals(sKey,"-9295RY");
-            assertNotEquals(sKey,"-9296RY");
-        }
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1312TO"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		child = banmenNext.getChild(factory);
-		for (ChildTeNext teNextList : child) {
-			String sKey = changeTeIntToString(teNextList.getTe());
-            assertNotEquals(sKey,"+1814RY");
-            assertNotEquals(sKey,"+1815RY");
-            assertNotEquals(sKey,"+1816RY");
-            assertNotEquals(sKey,"+1817RY");
-            assertNotEquals(sKey,"-9293RY");
-            assertNotEquals(sKey,"-9294RY");
-            assertNotEquals(sKey,"-9295RY");
-            assertNotEquals(sKey,"-9296RY");
-        }
-		logger.debug("end");
-	}
-	
-	
-	/** 利きなしテスト */
-	@Test
-	void testKiKiNaShi() {
-        BanmenFactory factory = new BanmenFactory();
-
-        // 初期情報を作成する
-	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
-		BanmenNext banmenNext = factory.create(null,topKey);
-		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
-		logger.debug(banmen.toString());
-		//
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1716FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9394FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1615FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9495FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1514FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9596FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1413TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9697TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1312TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9798TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1211TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9899TO"));
-        //
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1121TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9989TO"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		List<ChildTeNext> child;
-		child = banmenNext.getChild(factory);
-		for (ChildTeNext teNextList : child) {
-			String sKey = changeTeIntToString(teNextList.getTe());
-            assertNotEquals(sKey,"+0011FU");
-            assertNotEquals(sKey,"+0011KY");
-            assertNotEquals(sKey,"+0011KE");
-            assertNotEquals(sKey,"+0012KE");
-            assertNotEquals(sKey,"-0099FU");
-            assertNotEquals(sKey,"-0099KY");
-            assertNotEquals(sKey,"-0099KE");
-            assertNotEquals(sKey,"-0098KE");
-        }
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2131TO"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		child = banmenNext.getChild(factory);
-		for (ChildTeNext teNextList : child) {
-			String sKey = changeTeIntToString(teNextList.getTe());
-            assertNotEquals(sKey,"+0011FU");
-            assertNotEquals(sKey,"+0011KY");
-            assertNotEquals(sKey,"+0011KE");
-            assertNotEquals(sKey,"+0012KE");
-            assertNotEquals(sKey,"-0099FU");
-            assertNotEquals(sKey,"-0099KY");
-            assertNotEquals(sKey,"-0099KE");
-            assertNotEquals(sKey,"-0098KE");
-        }
-		logger.debug("end");
-		
-		
-		
-	}
-	
-	/** 利きなしテスト、その2 */
-	@Test
-	void testKiKiNaShi2() {
-        BanmenFactory factory = new BanmenFactory();
-
-        // 初期情報を作成する
-	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
-		BanmenNext banmenNext = factory.create(null,topKey);
-		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
-		logger.debug(banmen.toString());
-		//
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1716FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9394FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1615FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9495FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1514FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9596FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1413TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9697TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1312TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9798TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1211TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9899TO"));
-        //
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+1121TO"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-9989TO"));
-        //
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		//
-		List<ChildTeNext> child;
-		child = banmenNext.getChild(factory);
-		for (ChildTeNext teNextList : child) {
-			String sKey = changeTeIntToString(teNextList.getTe());
-            assertNotEquals(sKey,"+9991KY");
-            assertNotEquals(sKey,"+1911KY");
-        }
-        //
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+0092FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-0018FU"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+0094KE"));
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-0016KE"));
-        //
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		child = banmenNext.getChild(factory);
-		for (ChildTeNext teNextList : child) {
-			String sKey = changeTeIntToString(teNextList.getTe());
-            assertNotEquals(sKey,"+9291FU");
-            assertNotEquals(sKey,"+1819FU");
-            assertNotEquals(sKey,"+9482KE");
-            assertNotEquals(sKey,"+1628KE");
-        }
-	}
-	
-	/** 手コマのテスト */
-	@Test
-	void tegomaTest() {
-        BanmenFactory factory = new BanmenFactory();
-
-        // 初期情報を作成する
-	    BanmenKey topKey = new BanmenKey(new BanmenOnly());
-		BanmenNext banmenNext = factory.create(null,topKey);
-		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
-		logger.debug(banmen.toString());
-		//
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+7776FU"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-        banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3334FU"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-        //
-		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pB, 0));
-		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pB, 0));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+8822UM"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pB, 0));
-		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pB, 1));
-        //
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3435FU"));
-		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pG, 0));
-		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pS, 0));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2231UM"));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pG, 0));
-		assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pS, 0));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3536FU"));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+3121UM"));
-		//
-        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 1));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3637TO"));
-		assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 1));
-		//
-        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 0));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+2143UM"));
-        assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 0));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		//
-		assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pR, 1));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-3728TO"));
-		assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pR, 1));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		//
-        //
-        assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 0));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+0042FU"));
-        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 0));
-        //
-        assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 1));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-0037FU"));
-        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pP, 1));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-        //
-        assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pS, 0));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("+0021GI"));
-        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pS, 0));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-        //
-        assertEquals(1 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pR, 1));
-		banmenNext = banmenNext.decisionTe(factory,changeTeStringToInt("-0055HI"));
-        assertEquals(0 , banmenNext.getMyKey().createBanmenOnly().getTegoma(pR, 1));
-		logger.debug(banmenNext.getMyKey().createBanmenOnly().toString());
-		//
-	}
-	
 	
 	/** 文字の手から手に変更することのテスト */
 	@Test
@@ -588,21 +238,20 @@ class BanmenNextTest {
 
         logger.debug("testCreateNextList start");
 		// 初期情報を作成する
-        BanmenKey topKey = new BanmenKey(new BanmenOnly());
-		BanmenNext banmenNext = factory.create(null,topKey);
+        BanmenKey topKey = (new BanmenOnly()).createBanmenKey();
+		BanmenNext banmenNext = factory.create(topKey);
 		BanmenOnly banmen = banmenNext.getMyKey().createBanmenOnly();
 		logger.debug(banmen.toString());
 		//
-		List<ChildTeNext> child;
-		child = banmenNext.getChild(factory);
+		List<BanmenKey> child;
+		child = banmenNext.getChild();
 		assertEquals(child.size(),30); // 初期盤面の合法手
         //
-		BanmenNext nextEntry = banmenNext.decisionTe(factory,changeTeStringToInt("+7776FU"));
-		logger.debug(nextEntry.toString());
-		child = nextEntry.getChild(factory);
-		for (ChildTeNext x : child) {
-			logger.debug("  " + BanmenDefine.changeTeIntToString(x.getTe()));
-		}
+		int te = changeTeStringToInt("+7776FU");
+		BanmenOnly teBanmen = new BanmenOnly(banmen,te);
+		BanmenNext next = factory.decisionTe(banmenNext, teBanmen.createBanmenKey());
+		logger.debug(next.toString());
+		child = next.getChild();
 		assertEquals(child.size(),30); // 初期盤面の合法手
 		//
         logger.debug("testCreateNextList end");
@@ -611,9 +260,6 @@ class BanmenNextTest {
 	/** 次の手を指せるか */
 	@Test
 	void keyTest() {
-	    BanmenFactory factory = new BanmenFactory();
-
-		factory.clearAllHash();//一回消す
         String[] ansList = {
                 "+7776FU",
                 "-3334FU",
@@ -685,15 +331,15 @@ class BanmenNextTest {
 	public void sasu(String [] ansList) {
         BanmenFactory factory = new BanmenFactory();
 
-        BanmenKey topKey = new BanmenKey(new BanmenOnly());
-		BanmenNext banmenTopNext = factory.create(null,topKey);
+        BanmenKey topKey = (new BanmenOnly()).createBanmenKey();
+		BanmenNext banmenTopNext = factory.create(topKey);
 		for (String ans : ansList) {
 			logger.debug("sasu " + ans);
 			BanmenOnly banmenTopOnly = banmenTopNext.getMyKey().createBanmenOnly();
 			int te = BanmenDefine.changeTeStringToInt(ans);
 			BanmenOnly banmenTeOnly = new BanmenOnly(banmenTopOnly, te);
-			BanmenKey key = new BanmenKey(banmenTeOnly);
-			BanmenNext banmenTeNext = factory.create(null, key); // ここで生成ミスってないか調べる
+			BanmenKey key = banmenTeOnly.createBanmenKey();
+			BanmenNext banmenTeNext = factory.create(key); // ここで生成ミスってないか調べる
 			//
 			// 次の手とのキー同士の比較は当然異なるはず
 			assertNotEquals(banmenTopNext.getMyKey(), banmenTeNext.getMyKey());
@@ -713,7 +359,7 @@ class BanmenNextTest {
 			assertEquals(banmenTeOnly,banmenTeOnly2);
 			//
 			// 同じ盤面からキーを作れば、同じキーが得られるはずだ
-			BanmenKey banmenTeKey2 = new BanmenKey(banmenTeOnly2);
+			BanmenKey banmenTeKey2 = banmenTeOnly2.createBanmenKey();
 			assertEquals(banmenTeKey,banmenTeKey2);
 			//
 			// 次の手にする

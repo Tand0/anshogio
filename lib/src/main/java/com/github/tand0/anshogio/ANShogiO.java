@@ -38,7 +38,6 @@ import com.github.tand0.anshogio.util.BanmenFactory;
 import com.github.tand0.anshogio.util.BanmenKey;
 import com.github.tand0.anshogio.util.BanmenNext;
 import com.github.tand0.anshogio.util.BanmenOnly;
-import com.github.tand0.anshogio.util.ChildTeNext;
 import com.sun.net.httpserver.HttpServer;
 
 
@@ -93,7 +92,7 @@ public class ANShogiO {
     private ANModel aNModel = null;
     
     /** 現在の盤面 */
-    private final LinkedList<BanmenNext> banmenList = new LinkedList<>();
+    private final LinkedList<BanmenKey> banmenList = new LinkedList<>();
 
     /** 現在の盤面 */
     private final BanmenFactory factory = new BanmenFactory();
@@ -200,8 +199,8 @@ public class ANShogiO {
         banmenList.clear();
         //
         // 初期値を入れる
-        BanmenKey key = new BanmenKey(new BanmenOnly());
-        banmenList.addLast(factory.create(null, key));
+        BanmenKey key = (new BanmenOnly()).createBanmenKey();
+        banmenList.addLast(factory.create(key).getMyKey());
         //
         // 初期値を変更する
         setStatus(ANStatus.START);
@@ -441,6 +440,15 @@ public class ANShogiO {
         logBuff.append("\n");
         int te = BanmenDefine.changeTeStringToInt(teString);
         //
+        // 打った手を決定
+        BanmenOnly only = new BanmenOnly(banmenList.getLast().createBanmenOnly(),te);
+        logger.debug(only.toString());
+        //
+        BanmenKey key = only.createBanmenKey();
+        BanmenNext now = factory.create(banmenList.getLast());
+        factory.decisionTe(now,key);
+        banmenList.addLast(key);
+        //
         // 過去の手としてエンジン用のスレッドが動いてたら止める
         if (engineWaitThread != null) {
             engineWaitThread.interrupt();
@@ -459,16 +467,10 @@ public class ANShogiO {
         //
         // 本来なら過去情報の検索情報を残すために消したくないが、
         // OutOfMemoryに苦しんでいるので、工場の盤面を全部削除する
-        factory.clearAllHash();
-        logger.debug("totalMemory1 = {}", Runtime.getRuntime().totalMemory());
+        logger.debug("befor gc / totalMemory={}", Runtime.getRuntime().totalMemory());
         System.gc();
-        logger.debug("totalMemory2 = {}", Runtime.getRuntime().totalMemory());
-        
-        //
-        // 打った手を決定
-        BanmenNext newBannmen = banmenList.getLast().decisionTe(factory, te);
-        banmenList.addLast(newBannmen);
-        logger.debug(newBannmen.toString());
+        logger.debug("after gc / totalMemory={}", Runtime.getRuntime().totalMemory());
+
         //
         // 対戦の開始
         fight(startBanmenTime);
@@ -513,16 +515,16 @@ public class ANShogiO {
         }
         //
         // もしも自身が先手で手番が先手でないか、自身が後手で手番が後手でないなら、自分でないので終了
-        if ((banmenList.getLast().getMyKey().getTeban() == 0) != (myTurn == 0)) {
+        if ((banmenList.getLast().getTeban() == 0) != (myTurn == 0)) {
             return;
         }
         // もしも自身が先手で手番が先手か、自身が後手で手番が後手なら手を指す
         //
         // 合法手を探す
-        List<ChildTeNext> child = banmenList.getLast().getChild(factory);
+        BanmenKey key = banmenList.getLast();
         //
         // エンジンを手ごとにインスタンス化する
-        posgreEngineRunnable = new PosgreEngineRunnable(aNPostgreO, banmenList, child);
+        posgreEngineRunnable = new PosgreEngineRunnable(aNPostgreO, factory, banmenList);
         tensorEngineRunnable = new TensorEngineRunnable(aNModel, factory, banmenList);
         pnDnEngineRunnable = new PnDnEngineRunnable(factory, banmenList);
         //
@@ -536,12 +538,14 @@ public class ANShogiO {
         tensorEngineLc.start();
         pnDnEngineLc.start();
         //
-        if (banmenList.getLast().isKingWin()) {
+        BanmenNext next = factory.create(key);
+        if (next.isKingWin()) {
             casMain.sendTe(-1); // 入玉勝ち
             return;
         }
         //
         // 負けたときは終了する
+        List<BanmenKey> child = next.getChild();
         if (child.size() == 0) {
             casMain.sendTe(0);// 指す手がない
             return;
@@ -702,7 +706,7 @@ public class ANShogiO {
             obj.put("myTurn", myTurn);
             //
             if (! banmenList.isEmpty()) { // 最終盤面がある
-                BanmenOnly banmen = banmenList.getLast().getMyKey().createBanmenOnly();
+                BanmenOnly banmen = banmenList.getLast().createBanmenOnly();
                 if (banmen != null) {
                     obj.put("banmen", banmen.getDisplayStatus());
                 }

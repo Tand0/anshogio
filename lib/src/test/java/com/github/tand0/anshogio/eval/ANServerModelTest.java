@@ -53,7 +53,7 @@ public class ANServerModelTest {
         //
         //
         // 初期情報を作成する
-        BanmenKey key = new BanmenKey(new BanmenOnly());
+        BanmenKey key = (new BanmenOnly()).createBanmenKey();
         //
         // モデルはちゃんと動きますか？
         ANModel aNModel = new ANServerModel(mock.getSetting());

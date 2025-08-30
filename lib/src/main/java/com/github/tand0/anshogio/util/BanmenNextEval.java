@@ -1,19 +1,23 @@
 package com.github.tand0.anshogio.util;
 
 
-import static com.github.tand0.anshogio.util.BanmenDefine.*;
-
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 盤面情報の実態。
  * こちらは評価値まわりを分離している
  */
 public class BanmenNextEval extends BanmenNextBase {
+    /** ロガーの位置 */
+    private final static Logger logger = LoggerFactory.getLogger(BanmenNextEval.class);
+    
     /** PnDn値 */
-    private final PnDn[] pndn = {new PnDn(1,1),new PnDn(1,1)};
+    private PnDn[] pndn = null;
 
     /** コンストラクタ
      * @param key キー
@@ -24,130 +28,6 @@ public class BanmenNextEval extends BanmenNextBase {
     
     /** 入玉勝ちならtrue, 入玉勝ちでなければfalse, 未チェックならnu;; */
     public Boolean kingWin = null;
-    
-    /**
-     * 入玉勝ちチェック
-     * @return 入玉勝ちの場合 true
-     */
-    @Override
-    public boolean isKingWin() {
-        return isKingWin(this.createBanmenOnly());
-    }
-    
-    /**
-     * 入玉勝ちチェック
-     * @param banmen 盤面
-     * @return 入玉勝ちの場合 true
-     */
-    public boolean isKingWin(BanmenOnly banmen) {
-        if (kingWin == null) {
-            // kingWin チェックをしていないのでこれを実行する
-            int myOuX;
-            int myOuY;
-            if (this.getMyKey().getTeban()==0) { // 先手
-                myOuX = banmen.getSenteOuX();
-                myOuY = banmen.getSenteOuY();
-            } else {
-                myOuX = banmen.getGoteOuX();
-                myOuY = banmen.getGoteOuY();
-            }
-            kingWin = isKingWin(myOuX,myOuY, banmen);
-        }
-        return kingWin;
-    }
-
-    /**
-     * keyから盤面を作る
-     * @return 盤面
-     */
-    public BanmenOnly createBanmenOnly() {
-        return this.getMyKey().createBanmenOnly();
-    }
-
-    @Override
-    public List<ChildTeNext> getChild(BanmenFactory factory) {
-        BanmenOnly banmenOnly = createBanmenOnly();
-        List<ChildTeNext> childMap = this.getChildGetGouhou(factory,banmenOnly);
-        int teban = this.getMyKey().getTeban();
-        if (this.isKingWin(banmenOnly)) { // もしも入玉勝ちなら
-            pndn[teban  ].pn = 0;
-            pndn[teban  ].dn = Integer.MAX_VALUE;
-            pndn[1-teban].pn = Integer.MAX_VALUE;
-            pndn[1-teban].dn = 0;
-        } else if (childMap.size() == 0) { // 詰まされている
-            pndn[teban  ].pn = Integer.MAX_VALUE;
-            pndn[teban  ].dn = 0;
-            pndn[1-teban].pn = 0;
-            pndn[1-teban].dn = Integer.MAX_VALUE;
-        } else {
-            pndn[teban  ].pn = 1; //min 初回なので子供は全て1/1のはず
-            pndn[teban  ].dn = childMap.size(); // sum 
-            pndn[1-teban].pn = childMap.size(); // sum
-            pndn[1-teban].dn = 1; // min
-        }
-        return childMap;
-    }
-
-    /**
-     * 入玉勝ちチェック
-     * @param myOuX 自分の王x
-     * @param myOuY 自分の王y
-     * @param banmenOnly 盤面
-     * @return 入玉勝ちならtrue
-     */
-    protected boolean isKingWin(int myOuX,int myOuY,BanmenOnly banmenOnly) {
-        int teban = this.getMyKey().getTeban(); // 先手-1,後手1に変換
-        int range0;
-        if ((teban == 0) && (myOuY <= 2)) {
-            range0 = 0;
-        } else if ((teban != 0) && (6 <= myOuY)) {
-            range0 = 6;
-        } else {
-            return false; // 入玉していない
-        }
-        if (banmenOnly.checkSelfMate(teban,myOuX,myOuY)) {
-            return false;// 大手を掛けられていない
-        }
-        
-        //
-        // 盤面上の敵陣のコマを数える
-        int sum = 0;
-        int value = 0;
-        for (int x = 0 ; x < BanmenDefine.B_MAX ; x++) {
-            for (int y = range0 ; y <= (range0 +2) ; y++) {
-                byte koma = banmenOnly.getKoma(x, y);
-                if (koma == BanmenDefine.pNull) {
-                    continue;
-                }
-                if (((koma & BanmenDefine.ENEMY)/BanmenDefine.ENEMY) == teban) {
-                    if ((koma & 0b111) != BanmenDefine.pK) {
-                        sum++;
-                        if (((koma & 0b111) == BanmenDefine.pB)
-                                && ((koma & 0b111) == BanmenDefine.pR)){
-                            value = value + 5; // 大コマは５点
-                        } else {
-                            value = value + 1; // 小コマは１点
-                        }
-                    }
-                }
-            }
-        }
-        if (sum < 10) {
-            return false; // 王を除く自コマが10枚より少ない
-        }
-        
-        // 手持ちの小コマの数を数える
-        for (byte i = 0 ; i < BanmenDefine.pB ; i++) {
-            value = value + banmenOnly.getTegoma(i, teban);
-        }
-        // 手持ちの大コマの数を数える
-        for (byte i = pB ; i <= BanmenDefine.pR ; i++) {
-            value = value + banmenOnly.getTegoma(i, teban) * 5;
-        }
-        // 先手は28枚、後手は27枚以上ある
-        return (27 + (1-teban)) <= value;
-    }
-    
     
     /** 評価値 */
     private Float eval = null;
@@ -179,14 +59,16 @@ public class BanmenNextEval extends BanmenNextBase {
     /** 評価値を返す */
     @Override
     public Float getEvel() {
-        int myTeban = this.getMyKey().getTeban();
-        if ((pndn[myTeban] != null) && (pndn[myTeban].pn == 0)) {
-            // 自身のが詰んでいる場合 (1.1 or -1.1にする
-            return (float)(1.1f - (myTeban *2.2f));
-        }
-        if ((pndn[1 - myTeban] != null) && (pndn[1 - myTeban].pn == 0)) {
-            // 自分が詰まされている場合(-1.1 or 1.1にする)
-            return (float)((myTeban *2.2f) - 1.1f);
+        if (pndn != null) {
+            int myTeban = this.getMyKey().getTeban();
+            if ((pndn[myTeban] != null) && (pndn[myTeban].pn == 0)) {
+                // 自身のが詰んでいる場合 (1.1 or -1.1にする
+                return (float)(1.1f - (myTeban *2.2f));
+            }
+            if ((pndn[1 - myTeban] != null) && (pndn[1 - myTeban].pn == 0)) {
+                // 自分が詰まされている場合(-1.1 or 1.1にする)
+                return (float)((myTeban *2.2f) - 1.1f);
+            }
         }
         //
         // 評価値を返す
@@ -194,70 +76,94 @@ public class BanmenNextEval extends BanmenNextBase {
     }
 
     @Override
-    public int getEvelTe(BanmenFactory factory,LinkedList<BanmenNext> banmenList) {
-        int te = -2;
+    public int getEvelTe(BanmenFactory factory,LinkedList<BanmenKey> banmenList) {
+        BanmenKey te = null;
         //
         int teban = this.getMyKey().getTeban();
         float value = (teban == 0) ? Float.MIN_VALUE : Float.MAX_VALUE;
         boolean forceFlagTarget = false;
-        for (ChildTeNext teNext : this.getChild(factory)) {
-            if (banmenList.contains(teNext.getNext())) {
+        for (BanmenKey teKey : this.getChild()) {
+            if (banmenList.contains(teKey)) {
                 // 千日手を回避するため、同じ局面にはしない
                 continue;
             }
-            Float winLossValue = teNext.getNext().getEvel();
+            BanmenNext next = factory.create(teKey);
+            Float winLossValue = next.getEvel();
             if (winLossValue == null) {
-                if (te < 0) {
-                    te = teNext.getTe();
+                if (te == null) {
+                    te = teKey;
+                }
+                continue;
+            }
+            boolean childForceFlag = next.getForceFlag();
+            if (forceFlagTarget && (!childForceFlag)) {
+                // forceFlagTarget が true で、
+                // child の forceFlag が falseの場合は
+                // 無視する(postgreの指し手を優先する)
+                continue;
+            }
+            if ((!forceFlagTarget) && childForceFlag) {
+                // forceFlagTarget が false (つまり、childのforceFlagが一度もtrueになったことがない)で
+                // でかつ、childForceFlag が true の場合は
+                // forceFlagTarget を true にする
+                forceFlagTarget = true;
+                // 初期値を与えて繰り返す
+                te = teKey;
+                continue;
+                // childForceFlagがfalseの場合は続行
+            }
+            //
+            // forceFlagTargetがfalseの場合
+            // つまり、childのforceFlagが一度もtrueになったことがない場合、か、
+            // childのforceFlagがtrueの場合に来る
+            if (teban == 0) { // 先手の場合、一番高手を選ぶ
+                if (value < winLossValue) {
+                    value = winLossValue;
+                    te = teKey;
                 }
             } else {
-                boolean childForceFlag = teNext.getNext().getForceFlag();
-                if (forceFlagTarget && (!childForceFlag)) {
-                    // forceFlagTarget が true で、
-                    // child の forceFlag が falseの場合は
-                    // 無視する(postgreの指し手を優先する)
-                    continue;
-                }
-                if ((!forceFlagTarget) && childForceFlag) {
-                    // forceFlagTarget が false (つまり、childのforceFlagが一度もtrueになったことがない)で
-                    // でかつ、childForceFlag が true の場合は
-                    // forceFlagTarget を trule にする
-                    forceFlagTarget = true;
-                    // 初期値を与えて繰り返す
-                    te = teNext.getTe();
-                    continue;
-                    // childForceFlagがfalseの場合は続行
-                }
-                //
-                // forceFlagTargetがfalseの場合
-                // つまり、childのforceFlagが一度もtrueになったことがない場合、か、
-                // childのforceFlagがtrueの場合に来る
-                if (teban == 0) { // 先手の場合、一番高手を選ぶ
-                    if (value < winLossValue) {
-                        value = winLossValue;
-                        te = teNext.getTe();
-                    }
-                } else {
-                    if (winLossValue < value) {
-                        value = winLossValue;
-                        te = teNext.getTe();
-                    }
+                if (winLossValue < value) {
+                    value = winLossValue;
+                    te = teKey;
                 }
             }
         }
-        return te;
+        if (te == null) {
+            return -2;
+        }
+        logger.debug("te={}",te);
+        return this.getMyKey().createKeyToTe(te);
     }
 
     /** pndn値を返す
      */
     @Override
-    public PnDn getPnDn(int teban) {
-        if (pndn == null) {
-            return null;
+    public PnDn[] getPnDn() {
+        return this.pndn;
+    }
+    /** pndn値を返す
+     * 
+     * @return PnDn値
+     */
+    @Override
+    public PnDn[] createPnDn() {
+        int teban = this.getMyKey().getTeban();
+        if (this.pndn == null) {
+            this.pndn = new PnDn[2];
+            if (this.isKingWin()) { // もしも入玉勝ちなら
+                this.pndn[teban  ] = new PnDn(0, Integer.MAX_VALUE);
+                this.pndn[1-teban] = new PnDn(Integer.MAX_VALUE, 0);
+            } else {
+                this.pndn[0] = new PnDn(1,1);
+                this.pndn[1] = new PnDn(1,1);                
+            }
         }
-        return pndn[teban];
+        return this.getPnDn();
     }
     
+    /** 最大でチェックする階層深度 */
+    private static final int MAX_CHECK = 20;
+
     /** 詰めろをチェックする
      * @param factory 工場
      * @param seme 0:先手が攻める, 1:後手が攻める
@@ -266,150 +172,183 @@ public class BanmenNextEval extends BanmenNextBase {
      * @return 最後まで検索するか、メモリ不足の場合 true、それ以外の時はfalse
      */
     @Override
-    public boolean executePnDn(BanmenFactory factory,int seme, int level, HashSet<BanmenNext> route) {
+    public boolean executePnDn(BanmenFactory factory,int seme, int level, HashSet<BanmenKey> route) {
         // 使用ヒープサイズがxx%を超えたら計算できないことにする
-        if (factory.checkMemory()) {
-            return true;
-        }
-        if (level == 0) {
+        if (MAX_CHECK <= level) {
             return true; // 最も深いレベルまで来たので終了
-        }
-        if ((pndn[0].pn == 0) || (pndn[1].pn == 0)) {
-            return false; // すでに詰み or 詰まされ状態でなければ、チェック不要
         }
         // 展開されているか、どうかをチェックする
         boolean expand = this.isExpandChild();
         //
         // 子供を取得しに一手 pndnを更新
-        List<ChildTeNext> childSet = this.getChild(factory);
-        //
-        // childを取ることで中身が展開されて自身のpndn値が更新されることがある場合対策
-        if ((pndn[0].pn == 0) || (pndn[1].pn == 0) || (!expand)) {
-            return false; // すでに詰み or 詰まされ状態 or 展開されていなければ次ループへ
+        List<BanmenKey> keyList = this.getChild();
+        this.createPnDn(); // pndnがなければcreate
+        int size = this.getChild().size();
+        if (size == 0) { // 詰まされている
+            int teban = this.getMyKey().getTeban();
+            this.pndn[teban  ].pn = Integer.MAX_VALUE;
+            this.pndn[teban  ].dn = 0;
+            this.pndn[1-teban].pn = 0;
+            this.pndn[1-teban].dn = Integer.MAX_VALUE;
+            //logger.debug("level={} pn={} dn={}",level,this.pndn[seme].pn,this.pndn[seme].dn);
+            return false;
         }
+        //
+        if (!expand) {
+            return false; // 一度戻る
+        }
+        if ((this.pndn[0].pn == 0) || (this.pndn[1].pn == 0)) {
+            return false; // すでに詰み or 詰まされ状態でなければ、チェック不要
+        }
+        //logger.debug("level={} pn={} dn={}",level,this.pndn[seme].pn,this.pndn[seme].dn);
+
+        //
         BanmenNext target;
         if (seme == this.getMyKey().getTeban()) {
-            target = executePnDnSeme(seme,childSet, route);
+            target = executePnDnSeme(factory, seme, level, keyList, route);
         } else {
-            target = executePnDnUke(seme,childSet, route);
+            target = executePnDnUke(factory, seme, level, keyList, route);
         }
         if (target == null) {
             return false; // 次の階層の枝がない
         }
         // 詰めろエンジンを動かす前に、過去のtargetのPnDnを覚えておく
-        PnDn old = target.getPnDn(seme).copy();
+        PnDn[] old = new PnDn[2];
+        old[0] = target.getPnDn()[0].copy();
+        old[1] = target.getPnDn()[1].copy();
         //
-        route.add(target);// ルートに追加
-        boolean limit = target.executePnDn(factory,seme, level - 1, route);
-        route.remove(target);// ルートから削除
+        route.add(target.getMyKey());// ルートに追加
+        boolean limit = target.executePnDn(factory,seme, level + 1, route);
+        route.remove(target.getMyKey());// ルートから削除
         if (seme == this.getMyKey().getTeban()) {
-            updateMyPnDnSeme(seme,target,old);
-            updateMyPnDnUke(seme,target,old);       
+            updateMyPnDnSeme(this.getPnDn()[seme],old[seme],target.getPnDn()[seme]);
         } else {
-            updateMyPnDnUke(seme,target,old);       
-            updateMyPnDnSeme(1- seme,target,old);
+            updateMyPnDnUke(this.getPnDn()[seme],old[seme],target.getPnDn()[seme]);     
         }
         return limit;
     }
     
     /**
      * 攻めのPnDnを実行する
+     * @param factory 工場
      * @param seme 先手攻めなら0、後手攻めなら1
-     * @param teNextList 子供
+     * @param level 探索階層
+     * @param keyList 子供
      * @param route 過去の盤面(千日手防止用)
      * @return 盤面
      */
-    protected BanmenNext executePnDnSeme(int seme,List<ChildTeNext> teNextList, HashSet<BanmenNext> route) {
+    protected BanmenNext executePnDnSeme(BanmenFactory factory,int seme,int level, List<BanmenKey> keyList, HashSet<BanmenKey> route) {
         BanmenNext target = null;
-        pndn[seme].pn = Integer.MAX_VALUE;
-        pndn[seme].dn = 0;
-        for (ChildTeNext teNext : teNextList) {
-            if (route.contains(teNext.getNext())
-                    || (! teNext.getNext().isEnemyOute())
-                    || (teNext.getNext().getPnDn(seme).dn == 0)) {
+        this.pndn[seme].pn = Integer.MAX_VALUE;
+        this.pndn[seme].dn = 0;
+        for (BanmenKey key : keyList) {
+            BanmenNext next = factory.create(key);
+            PnDn childPnDn = next.createPnDn()[seme];
+            if (route.contains(key)
+                    || (! next.isMyOute())
+                    || (next.getPnDn()[seme].dn == 0)) {
                 continue; // ルート重複か、敵に王手が掛かっていないか 不詰め確定なら無視する
             }
-            if (teNext.getNext().getPnDn(seme).pn == 0) {
-                break; // 一つでも詰み手順があるならその手を指すのでもう探索不要
+            if (next.getPnDn()[seme].pn == 0) {
+                // 一つでも詰み手順があるならその手を指すのでもう探索不要
+                //
+                // 詰みである
+                this.pndn[seme].pn = next.getPnDn()[seme].pn;
+                this.pndn[seme].dn = next.getPnDn()[seme].dn;
+                break;
             }
-            PnDn childPnDn = teNext.getNext().getPnDn(seme);
             //
             // 次の階層の枝(target)を更新する
             if (target == null) {
-                target = teNext.getNext();
+                target = next;
             } else {
-                if ((childPnDn.pn < pndn[seme].pn)
-                        || ((childPnDn.pn == pndn[seme].pn) 
-                                && (childPnDn.dn < pndn[seme].dn))) {
+                if ((childPnDn.pn < this.pndn[seme].pn)
+                        || ((childPnDn.pn == this.pndn[seme].pn) 
+                                && (childPnDn.dn < this.pndn[seme].dn))) {
                     // 新しいpnの方が小さいか、pnが同じでdnが少なければ
-                    target = teNext.getNext(); // 次の階層の枝をpn最小値にする
+                    target = next; // 次の階層の枝をpn最小値にする
                 }
             }
-            pndn[seme].minPn(childPnDn);
-            pndn[seme].sumDn(childPnDn);
+            this.pndn[seme].minPn(childPnDn);
+            this.pndn[seme].sumDn(childPnDn);
         }
+        if (this.pndn[seme].pn != 0) {
+            this.pndn[seme].pn += (level*350);
+        }
+        //logger.debug("seme level={} pn={} dn={}",level,this.pndn[seme].pn,this.pndn[seme].dn);
         return target;
     }
     /**
      * 受けのPnDnを実行する
+     * @param factory 工場
      * @param seme 先手攻めなら0、後手攻めなら1
-     * @param teNextList 子供
+     * @param level 探索階層
+     * @param keyList 子供
      * @param route 過去の盤面(千日手防止用)
      * @return 盤面
      */
-    protected BanmenNext executePnDnUke(int seme,List<ChildTeNext> teNextList, HashSet<BanmenNext> route) {
+    protected BanmenNext executePnDnUke(BanmenFactory factory, int seme,int level,List<BanmenKey> keyList, HashSet<BanmenKey> route) {
         BanmenNext target = null;
-        pndn[seme].pn = 0;
-        pndn[seme].dn = Integer.MAX_VALUE;
-        for (ChildTeNext teNext : teNextList) {
-            if (route.contains(teNext.getNext())
-                    || (teNext.getNext().getPnDn(seme).pn == 0)) {
+        this.pndn[seme].pn = 0;
+        this.pndn[seme].dn = Integer.MAX_VALUE;
+        for (BanmenKey teKey : keyList) {
+            BanmenNext next = factory.create(teKey);
+            PnDn childPnDn = next.createPnDn()[seme];
+            if (route.contains(next.getMyKey())
+                    || (next.getPnDn()[seme].pn == 0)) {
                 continue; // 重複や詰む手は無視する
-            } else if (teNext.getNext().getPnDn(seme).dn == 0) {
-                break; // 一つでも不詰み手順があるならその手を指すのでもう探索不要
+            } else if (next.getPnDn()[seme].dn == 0) {
+                // 一つでも不詰み手順があるならその手を指すのでもう探索不要
+                //
+                // 自局面は不詰みである
+                this.pndn[seme].pn = next.getPnDn()[seme].pn;
+                this.pndn[seme].dn = next.getPnDn()[seme].dn;
+                break;
             }
-            PnDn childPnDn = teNext.getNext().getPnDn(seme);
             //
             // 次の階層の枝(target)を更新する
             if (target == null) {
-                target = teNext.getNext();
+                target = next;
             } else {
-                if ((childPnDn.dn <= pndn[seme].dn)
-                        || ((childPnDn.dn == pndn[seme].dn) 
-                            && (childPnDn.pn < pndn[seme].pn))) {
+                if ((childPnDn.dn <= this.pndn[seme].dn)
+                        || ((childPnDn.dn == this.pndn[seme].dn) 
+                            && (childPnDn.pn < this.pndn[seme].pn))) {
                     // 新しいdnの方が小さいか、dnが同じでdnが少なければ
-                    target = teNext.getNext(); // 次の階層の枝をdn最小値にする
+                    target = next; // 次の階層の枝をdn最小値にする
                 }            
             }
-            pndn[seme].sumPn(childPnDn);
-            pndn[seme].minDn(childPnDn);
+            this.pndn[seme].sumPn(childPnDn);
+            this.pndn[seme].minDn(childPnDn);
         }
+        if (this.pndn[seme].dn != 0) {
+            this.pndn[seme].dn += (level*350);
+        }
+        //logger.debug("uke- level={} pn={} dn={}",level,this.pndn[seme].pn,this.pndn[seme].dn);
         return target;
     }
     /**
      * 自分のPnDnを更新する(攻め)
-     * @param seme  先手攻めなら0、後手攻めなら1
-     * @param target 盤面
-     * @param old 更新前のPnDn
+     * @param myPnDn 自分のpndn
+     * @param oldPnDn 次の指し手の以前のPnDn
+     * @param newPnDn 次の指し手の更新語のPnDn
      */
-    protected void updateMyPnDnSeme(int seme,BanmenNext target,PnDn old) {
+    protected void updateMyPnDnSeme(PnDn myPnDn ,PnDn oldPnDn,PnDn newPnDn) {
         // 更新後の詰み先の情報で更新する
-        PnDn targetPnDn = target.getPnDn(seme);
-        pndn[seme].minPn(targetPnDn);
-        pndn[seme].diffDn(old, targetPnDn);
+        //logger.debug("seme now={}/{} old={}/{} new={}/{}",myPnDn.pn,myPnDn.dn,oldPnDn.pn,oldPnDn.dn,newPnDn.pn,newPnDn.dn);
+        myPnDn.minPn(newPnDn);
+        myPnDn.diffDn(oldPnDn, newPnDn);
     }
     /**
      * 自分のPnDnを更新する(受け)
-     * @param seme  先手攻めなら0、後手攻めなら1
-     * @param target 盤面
-     * @param old 更新前のPnDn
+     * @param myPnDn 自分のpndn
+     * @param oldPnDn 次の指し手の以前のPnDn
+     * @param newPnDn 次の指し手の更新語のPnDn
      */
-    protected void updateMyPnDnUke(int seme,BanmenNext target,PnDn old) {
+    protected void updateMyPnDnUke(PnDn myPnDn ,PnDn oldPnDn,PnDn newPnDn) {
         // 更新後の詰み先の情報で更新する
-        PnDn targetPnDn = target.getPnDn(seme);
-        pndn[seme].diffPn(old, targetPnDn);
-        pndn[seme].minDn(targetPnDn);
+        //logger.debug("uke- now={}/{} old={}/{} new={}/{}",myPnDn.pn,myPnDn.dn,oldPnDn.pn,oldPnDn.dn,newPnDn.pn,newPnDn.dn);
+        myPnDn.diffPn(oldPnDn, newPnDn);
+        myPnDn.minDn(newPnDn);
     }
-    
 
 }

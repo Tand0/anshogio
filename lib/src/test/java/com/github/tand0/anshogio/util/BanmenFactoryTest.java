@@ -21,18 +21,23 @@ class BanmenFactoryTest {
 	    logger.debug("start");
 	    // 初期場外
 	    BanmenFactory factory = new BanmenFactory();
-	    BanmenKey key = new BanmenKey(new BanmenOnly(null,0));
-	    BanmenNext banmenNext = factory.create(null, key);
+	    BanmenKey key = (new BanmenOnly()).createBanmenKey();
+	    BanmenNext banmenNext = factory.create(key);
         assertEquals(factory.size(),1); // 初期盤面が登録されている
         //
-	    int size = banmenNext.getChild(factory).size();
+	    int size = banmenNext.getChild().size();
 	    assertEquals(size,30);
-	    assertEquals(factory.size(),31); // 合法手が足されている
+        assertEquals(factory.size(),1); // この時点では作られない
+	    for (BanmenKey child : banmenNext.getChild()) {
+	        factory.create(child); // 子供を全部登録
+	    }
+        assertEquals(factory.size(),31); // この時点で作られる
 	    //
 	    // 指す手を決定
 	    String teString = "+7776FU";
 	    int te = BanmenDefine.changeTeStringToInt(teString);
-	    banmenNext.decisionTe(factory, te);
+        BanmenKey teKey = banmenNext.getMyKey().createTeToKey(te);
+	    factory.decisionTe(banmenNext, teKey);
 	    //
         assertEquals(factory.size(),2); // 手は２つになっている
 	}

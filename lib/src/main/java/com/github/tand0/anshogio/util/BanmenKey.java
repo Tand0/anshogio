@@ -82,7 +82,7 @@ public class BanmenKey implements Comparable<BanmenKey> {
      * 
      * @param only 盤面
      */
-    public BanmenKey(BanmenOnly only) {
+    protected BanmenKey(BanmenOnly only) {
         if (only == null) {
             only = new BanmenOnly();
         }
@@ -347,8 +347,8 @@ public class BanmenKey implements Comparable<BanmenKey> {
     }
 
     /**
-     * 盤面しかないときにキー値から作る
-     * @return 盤面情報
+     * key値から盤面を作る
+     * @return 盤面
      */
     public BanmenOnly createBanmenOnly() {
         BanmenOnly banmen = new BanmenOnly();
@@ -524,6 +524,28 @@ public class BanmenKey implements Comparable<BanmenKey> {
         }
         //
         return banmen;
+    }
+    
+    /**
+     * 次のkey値から手を得る
+     * @param newKey 次の局面
+     * @return 打ち手
+     */
+    public int createKeyToTe(BanmenKey newKey) {
+        BanmenOnly newOnly = newKey.createBanmenOnly();
+        BanmenOnly myOnly = this.createBanmenOnly();
+        return myOnly.createTe(newOnly);
+    }
+    
+    /**
+     * 打ち手からkey値を得る
+     * @param te 打ち手
+     * @return key値
+     */
+    public BanmenKey createTeToKey(int te) {
+        BanmenOnly myOnly = this.createBanmenOnly();
+        BanmenOnly nextOnly = new BanmenOnly(myOnly,te);
+        return new BanmenKey(nextOnly);
     }
 
     /** ビット設定に1を立てる

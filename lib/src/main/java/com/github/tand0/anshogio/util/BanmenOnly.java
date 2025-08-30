@@ -15,8 +15,8 @@ import org.json.JSONObject;
  * +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
  * +-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |t| --- | ----P---- | --koma9-- | --koma8-- | --koma7-- | --koma6-- | --koma5-- | --koma4-- | --koma3-- | --koma2-- | --koma1-- |0
- * +-+ --- +-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
+ * |t| XYZ | ----P---- | --koma9-- | --koma8-- | --koma7-- | --koma6-- | --koma5-- | --koma4-- | --koma3-- | --koma2-- | --koma1-- |0
+ * +-+-----+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
  * |sen ouX| ----p---- | --koma9-- | --koma8-- | --koma7-- | --koma6-- | --koma5-- | --koma4-- | --koma3-- | --koma2-- | --koma1-- |1
  * +-------+-----+-----+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
  * |sen ouY| -l- | -L- | --koma9-- | --koma8-- | --koma7-- | --koma6-- | --koma5-- | --koma4-- | --koma3-- | --koma2-- | --koma1-- |2
@@ -46,6 +46,16 @@ import org.json.JSONObject;
  * |   | ---koma-- | ---newx-- | ---newy-- | ---oldx-- | ---oldy-- |
  * +---+-----------+-----------+-----------+-----------+-----------+
  * if oldY = 9 then from tegoma.
+ *
+ *
+ * XYZ
+ *   +-+-+-+
+ *   |X Y Z|
+ *   +-----+
+ * X= sente ou is tumi
+ * Y= gote  ou is tumi
+ * Z= ???
+ *
  * </pre>
  * @author おれ
  *
@@ -214,7 +224,8 @@ public class BanmenOnly {
         }
         int pos = 6 * x;
         vanmen[y] = (vanmen[y] & (~(0x3FL << pos))) | (((long) koma) << pos);
-        //      
+        //
+        // 移動元が王ならば王のフラグを更新する
         if (koma == BanmenDefine.pK) { // 先手王
             vanmen[1] = 0x0FFFFFFFFFFFFFFFL & vanmen[1];
             vanmen[1] = (((long)x) << 60) | vanmen[1];
@@ -675,5 +686,57 @@ public class BanmenOnly {
             oldY = BEAT;
         }
         return changeTeToInt(koma, oldX, oldY, newX, newY);
+    }
+    
+    /**
+     * 手を取得する
+     * @param newOnly 次の指し手の盤面
+     * @return 指して
+     */
+    public int createTe(BanmenOnly newOnly) {
+        int teban = newOnly.getTeban();
+        int oldX = BEAT;
+        int oldY = BEAT;
+        byte oldKoma = BanmenDefine.pNull;
+        int newX = BEAT;
+        int newY = BEAT;
+        for (int x = 0 ; (x < BanmenDefine.B_MAX) && ((oldX == BEAT) || (newX == BEAT)) ; x++) {
+            for (int y = 0 ; (y < BanmenDefine.B_MAX) && ((oldX == BEAT) || (newX == BEAT)) ; y++) {
+                byte oldBanmen = this.getKoma(x, y);
+                byte newBanmen = newOnly.getKoma(x, y);
+                if (oldBanmen != newBanmen) {
+                    if (newBanmen != BanmenDefine.pNull) {
+                        oldKoma = newBanmen; // 移動先のコマ
+                        newX = x;
+                        newY = y;
+                    } else { // コマが空白に変わった＝移動元
+                        oldX = x;
+                        oldY = y;
+                    }
+                }
+            }
+        }
+        // 持ちコマの処理（空白に変わったマスがないのであれば持ちコマから出している）
+        if (oldX == BEAT) {
+            for (byte koma = BanmenDefine.pP ; koma < BanmenDefine.pR ; koma++) {
+                if (this.getTegoma(koma,teban) != this.getTegoma(koma,teban)) {
+                    oldKoma = koma;
+                    break;
+                }
+            }
+        }
+        if (newX == BEAT) {
+            // 移動先が見つからない
+            throw new java.lang.UnsupportedOperationException();
+        }
+        return changeTeToInt(oldKoma, oldX, oldY, newX, newY);
+    }
+    
+    /** key値の取得
+     * 
+     * @return key値
+     */
+    public BanmenKey createBanmenKey() {
+        return new BanmenKey(this);
     }
 }

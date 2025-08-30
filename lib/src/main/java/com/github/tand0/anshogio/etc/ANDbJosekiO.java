@@ -109,7 +109,7 @@ public class ANDbJosekiO extends ANPostgreO {
                     continue; // コメント
                 } else if (0 <= string.indexOf("sfen")) {
                     only = BanmenOnly.createSfen(string);
-                    BanmenKey key = new BanmenKey(only);
+                    BanmenKey key = only.createBanmenKey();
                     int teban = key.getTeban(); // 先手0、後手1
                     // 評価値を見るとき、手を打った後の盤面を見るので、先手番0なら後手1の勝率を上げる。
                     // 例：初期局面は先手0番、７七歩を打った時は後手1番⇒後手1で7七歩の時winを高くする
