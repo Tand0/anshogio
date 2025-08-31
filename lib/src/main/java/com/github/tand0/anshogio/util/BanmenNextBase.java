@@ -301,7 +301,7 @@ public abstract class BanmenNextBase implements BanmenNext {
         BanmenNext result = new BanmenNextEval(key);
 
 		// 打ち歩詰めチェック
-		if ((oldX == BEAT) && ((koma & 0xF) == pP) && result.isMyOute()) {
+		if ((oldX == BEAT) && ((koma & 0xF) == pP) && key.isMyOute()) {
 			// もしも、打ちっていて、それが歩で、王手チェックが入っている場合
 			//
 			if (result.getChild().size() == 0) {
@@ -314,48 +314,6 @@ public abstract class BanmenNextBase implements BanmenNext {
         child.addLast(key);
         //
 	}
-    /** 王手なら true */
-    private Boolean oute = null;
-
-    /** 王手ならばtrue
-     */
-    @Override
-    public void setEnemyOute() {
-        this.oute = true;
-    }
-
-    /** 自分が王手か？
-     */
-    @Override
-    public boolean isMyOute() {
-        if (this.oute == null) {
-            // key値作成時にkeyに埋め込まないといけないね。これ。。。
-            //
-            // 相手に王手をかけているかチェック
-            BanmenOnly banmenOnly = this.getMyKey().createBanmenOnly();
-            int teban = banmenOnly.getTeban();
-            int enemyOuX;
-            int enemyOuY;
-            if (teban == 0) { // 先手
-                enemyOuX = banmenOnly.getSenteOuX();
-                enemyOuY = banmenOnly.getSenteOuY();
-            } else {
-                enemyOuX = banmenOnly.getGoteOuX();
-                enemyOuY = banmenOnly.getGoteOuY();
-            }
-            //
-            // 相手に王手をかけているかチェック
-            if (banmenOnly.checkSelfMate(teban, enemyOuX, enemyOuY)) {
-                this.oute = true;
-            } else {
-                this.oute = false;
-            }
-        }
-        return this.oute;
-    }
-	
-    
-    
     
     /** 入玉勝ちならtrue, 入玉勝ちでなければfalse, 未チェックならnu;; */
     public Boolean kingWin = null;

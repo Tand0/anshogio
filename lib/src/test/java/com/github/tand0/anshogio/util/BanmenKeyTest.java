@@ -71,30 +71,7 @@ class BanmenKeyTest {
             assertEquals(key1,key2);
         }
     }
-	/**
-	 * 単純にキーから盤面読みだしてあっているかを確認する
-	 */
-	@Test
-	void firstTest() {
-		logger.debug("test start!");
-		BanmenOnly oldBanmen = new BanmenOnly();
-		BanmenKey key1 = oldBanmen.createBanmenKey();
-		BanmenOnly newBanmen = key1.createBanmenOnly();
-		BanmenKey key2 = newBanmen.createBanmenKey();
-		//
-		logger.debug(oldBanmen.toString());
-		logger.debug(newBanmen.toString());
-		logger.debug(key1.toString());
-		logger.debug(key2.toString());
-		logger.debug("test old!");
-		logger.debug(oldBanmen.toString16());
-		logger.debug("test new!");
-		logger.debug(newBanmen.toString16());
-		//
-		assertEquals(oldBanmen, newBanmen);
-		assertEquals(key1, key2);
-	}
-	
+
 	/** set のチェック */
 	@Test
 	void setDataTest() {
@@ -257,7 +234,30 @@ class BanmenKeyTest {
 	}
 	
 	
-	
+	/**
+     * 単純にキーから盤面読みだしてあっているかを確認する
+     */
+    @Test
+    void firstTest() {
+        logger.debug("test start!");
+        BanmenOnly oldBanmen = new BanmenOnly();
+        BanmenKey key1 = oldBanmen.createBanmenKey();
+        BanmenOnly newBanmen = key1.createBanmenOnly();
+        BanmenKey key2 = newBanmen.createBanmenKey();
+        //
+        logger.debug(oldBanmen.toString());
+        logger.debug(newBanmen.toString());
+        logger.debug(key1.toString());
+        logger.debug(key2.toString());
+        logger.debug("test old!");
+        logger.debug(oldBanmen.toString16());
+        logger.debug("test new!");
+        logger.debug(newBanmen.toString16());
+        //
+        assertEquals(oldBanmen, newBanmen);
+        assertEquals(key1, key2);
+    }
+    
 	/**
 	 * clear key
 	 * @param key key value

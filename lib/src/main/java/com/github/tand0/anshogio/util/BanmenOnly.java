@@ -319,7 +319,7 @@ public class BanmenOnly {
     public String toString() {
         StringBuilder buffer = new StringBuilder();
         int teban = this.getTeban();
-        buffer.append("teban=").append(teban).append("\n");
+        buffer.append("teban=").append(teban).append(" oute=").append(this.isMyOute()).append("\n");
         for (int y = 0; y < vanmen.length; y++) {
             buffer.append('P');
             buffer.append((y+1));
@@ -738,5 +738,31 @@ public class BanmenOnly {
      */
     public BanmenKey createBanmenKey() {
         return new BanmenKey(this);
+    }
+    
+    /** 自分が王手か？
+     * @return 自分が王手ならtrue
+     */
+    public boolean isMyOute() {
+        // 相手に王手をかけているかチェック
+        int teban = this.getTeban();
+        int enemyOuX;
+        int enemyOuY;
+        if (teban == 0) { // 先手
+            enemyOuX = this.getSenteOuX();
+            enemyOuY = this.getSenteOuY();
+        } else {
+            enemyOuX = this.getGoteOuX();
+            enemyOuY = this.getGoteOuY();
+        }
+        //
+        // 相手に王手をかけているかチェック
+        boolean oute;
+        if (this.checkSelfMate(teban, enemyOuX, enemyOuY)) {
+            oute = true;
+        } else {
+            oute = false;
+        }
+        return oute;
     }
 }

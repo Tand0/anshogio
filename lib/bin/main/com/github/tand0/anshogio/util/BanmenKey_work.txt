@@ -1,0 +1,731 @@
+package com.github.tand0.anshogio.util;
+
+
+/** 盤面をハフマンで圧縮したkeyを作る */
+public class BanmenKey implements Comparable<BanmenKey> {
+    /** キー値 */
+    protected final long[] key = new long[4];
+
+    @Override
+    public String toString() {
+        if (key == null) {
+            return "";
+        }
+        StringBuilder b = new StringBuilder();
+        //
+        for (long x : key) {
+            b.append(String.format("%016x", x));
+        }
+        return  b.toString();
+    }
+    
+    /**
+     * コンストラクタ
+     * @param moji 64文字のkey情報
+     */
+    public BanmenKey(String moji) {
+        if (moji.length() != 64) {
+            throw new java.lang.UnsupportedOperationException();
+        }
+        // indexごとに分割してループ
+        for (int i = 0 ; i < 4 ; i++) {
+            // 負の数bitで変な動作になるのを恐れて２つに分けました
+            String cut1 = moji.substring(i*16, i*16+8);
+            long cut116 = Long.parseLong(cut1,16);
+            String cut2 = moji.substring(i*16+8, i*16+16);
+            long cut216 = Long.parseLong(cut2,16);
+            key[i] =(cut116 << 32) | cut216;
+        }
+    }
+
+    /** 先手後手どちらが持っているかのチェックビット位置
+     * 後手の場合1、先手なら0になる
+     */
+    public static final int[] SENTE_BIT_POS = {
+            0,             // 空
+            0,             // 歩
+            18,            // 香
+            18 + 4,        // 桂
+            18 +(4*2),     // 銀
+            18 +(4*3) + 4, // 金
+            18 +(4*3),     // 飛
+            18 +(4*3) + 2, // 角
+    };
+    
+    /** 成りかどうかのチェックビット位置
+     * 手ごまか、成りの場合は1、成らずなら0になる
+     */
+    public static final int NARI_BIT_BASE = 18 + (4*4) + 4;
+    
+    /**盤面上の処理
+     * コマ 数 Hafuman   持成 必要
+     * 先後 1 ------ -   - -  1 teban(0=先手,1=後手)
+     * 王   2 ------ -  - - 13 pK
+     * 空  41 0xxx 1  - - 41 pNull
+     * 歩  18 10xx 2  1 1 72 pP
+     * 香   4 1100 3  1 1 24 pL
+     * 桂   4 1101 3  1 1 24 pN
+     * 銀 　 4 1110 3  1 1 24 pS
+     * 金 　 4 1111 3  1 - 20 pG
+     * 合計 205
+     * 
+     * 持ちコマの処理
+     * 歩  18 0xx  2  1 1 72 pP
+     * 香   4 100  3  1 1 24 pL
+     * 桂   4 101  3  1 1 24 pN
+     * 銀   4 110  3  1 1 24 pS
+     * 金   4 111  3  1 - 20 pG
+     * 
+     * @param only 盤面
+     */
+    protected BanmenKey(BanmenOnly only) {
+        if (only == null) {
+            only = new BanmenOnly();
+        }
+        final Pointer p = new Pointer();
+        //
+        setData(p,  1, only.getTeban()); // 手番  
+        setData(p,  1, only.isMyOute() ? 1 : 0); // 1bitずらす
+        setData(p, 13, 0L); // 王の位置
+        setData(p, 13, 0L); // 飛車の位置
+        setData(p, 13, 0L); // 角の位置
+        setData(p, NARI_BIT_BASE, 0L); // どとらのコマか？bitを飛ばす
+        setData(p, NARI_BIT_BASE - 4, 0L); // 成りコマbitを飛ばす(金は成らない)
+        //
+        // 盤面上の処理をする
+        // 持ちコマの処理
+        for (int y = 0 ;  y < BanmenDefine.B_MAX ; y++) {
+            if (p.okSum()) {
+                break; // すべてのコマが揃ったらループ不要
+            }
+            for (int x = 0 ;  x < BanmenDefine.B_MAX ; x++) {
+                if (p.okSum()) {
+                    break; // すべてのコマが揃ったらループ不要
+                }
+                // 一つでも超過があったらそれはおかしいので終了
+                p.checkSum();
+                //
+                int koma = (int)only.getKoma(x, y);
+                int komaOnly = 0xF & koma;
+                int komaEnemy = (koma & BanmenDefine.ENEMY) == 0 ? 0 : 1;
+                int komaNari  = (koma & BanmenDefine.NARI) == 0 ? 0 : 1;
+                //
+                // 王飛車角の位置特定
+                switch (komaOnly) {
+                case BanmenDefine.pK:
+                    int location = (x * 9) + y;
+                    location = komaEnemy == 0 ? location * 82 : location;
+                    setRB(p, (byte)komaOnly, location);
+                    p.pKSum++;
+                    p.checkSum();
+                    continue;
+                case BanmenDefine.pR:
+                    setRB(p, (byte)komaOnly, (x * 9) + y);
+                    setKomaEnemyBit(komaOnly,komaEnemy,p.pRSum);
+                    setKomaNariBit( komaOnly,komaNari ,p.pRSum);
+                    p.pRSum++;
+                    p.checkSum();
+                    continue;
+                case BanmenDefine.pB:
+                    setRB(p, (byte)komaOnly, (x * 9) + y);
+                    setKomaEnemyBit(komaOnly,komaEnemy,p.pBSum);
+                    setKomaNariBit( komaOnly,komaNari ,p.pBSum);
+                    p.pBSum++;
+                    p.checkSum();
+                    continue;
+                default:
+                    break;
+                }
+                //
+                if (komaOnly == BanmenDefine.pNull) {
+                    setData(p,1,0);
+                    continue;
+                }
+                setData(p, 1, 1);
+                switch (komaOnly) {
+                case BanmenDefine.pP:
+                    setData(p, 1, 0b0);
+                    setKomaEnemyBit(komaOnly,komaEnemy,p.pPSum);
+                    setKomaNariBit( komaOnly,komaNari ,p.pPSum);
+                    p.pPSum++;
+                    p.checkSum();
+                    break;
+                case BanmenDefine.pL:
+                    setData(p, 3, 0b100);
+                    setKomaEnemyBit(komaOnly,komaEnemy,p.pLSum);
+                    setKomaNariBit( komaOnly,komaNari ,p.pLSum);
+                    p.pLSum++;
+                    p.checkSum();
+                    break;
+                case BanmenDefine.pN:
+                    setData(p, 3, 0b101);
+                    setKomaEnemyBit(komaOnly,komaEnemy,p.pNSum);
+                    setKomaNariBit( komaOnly,komaNari ,p.pNSum);
+                    p.pNSum++;
+                    p.checkSum();
+                    break;
+                case BanmenDefine.pS:
+                    setData(p, 3, 0b110);
+                    setKomaEnemyBit(komaOnly,komaEnemy,p.pSSum);
+                    setKomaNariBit( komaOnly,komaNari ,p.pSSum);
+                    p.pSSum++;
+                    p.checkSum();
+                    break;
+                case BanmenDefine.pG:
+                    setData(p, 3, 0b111);
+                    setKomaEnemyBit(komaOnly,komaEnemy,p.pGSum);
+                    //金は成れません
+                    p.pGSum++;
+                    p.checkSum();
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+        for (int teban = 0 ; teban < 2 ; teban++) { // 手番処理
+            if (p.okSum()) {
+                break; // すべてのコマが揃ったらループ不要
+            }
+            long sum = only.getTegoma(BanmenDefine.pP, teban);
+            for (int i = 0; i < sum ; i++) {
+                setData(p, 1, 0b0);
+                setKomaEnemyBit(BanmenDefine.pP, teban, p.pPSum);
+                p.pPSum++;
+            }
+            sum = only.getTegoma(BanmenDefine.pL, teban);
+            for (int i = 0; i < sum ; i++) {
+                setData(p, 3, 0b100);
+                setKomaEnemyBit(BanmenDefine.pL, teban, p.pLSum);
+                p.pLSum++;
+            }
+            sum = only.getTegoma(BanmenDefine.pN, teban);
+            for (int i = 0; i < sum ; i++) {
+                setData(p, 3, 0b101);
+                setKomaEnemyBit(BanmenDefine.pN, teban, p.pNSum);
+                p.pNSum++;
+            }
+            sum = only.getTegoma(BanmenDefine.pS, teban);
+            for (int i = 0; i < sum ; i++) {
+                setData(p, 3, 0b110);
+                setKomaEnemyBit(BanmenDefine.pS, teban, p.pSSum);
+                p.pSSum++;
+            }
+            sum = only.getTegoma(BanmenDefine.pG, teban);
+            for (int i = 0; i < sum ; i++) {
+                setData(p, 3, 0b111);
+                setKomaEnemyBit(BanmenDefine.pG, teban, p.pGSum);
+                p.pGSum++;
+            }
+            sum = only.getTegoma(BanmenDefine.pR, teban);
+            for (int i = 0; i < sum ; i++) {
+                setRB(p, BanmenDefine.pR, 81);
+                setKomaEnemyBit(BanmenDefine.pR, teban, p.pRSum);
+                p.pRSum++;
+            }
+            sum = only.getTegoma(BanmenDefine.pB, teban);
+            for (int i = 0; i < sum ; i++) {
+                setRB(p, BanmenDefine.pB, 81);
+                setKomaEnemyBit(BanmenDefine.pB, teban, p.pBSum);
+                p.pBSum++;
+            }
+        }
+    }
+    /**
+     * 飛車角コマの設定
+     * @param p ポインタ
+     * @param koma コマ
+     * @param xy 位置
+     */
+    public void setRB(Pointer p, byte koma, int xy) {
+        // 移動値のバックアップ
+        int pos;
+        long result;
+        /*
+        final long mask = 0b1111111111111; // 0b1x13
+        if (koma == BanmenDefine.pK) {
+            pos = 2;
+            result = (key[0] >>> (64 - pos - 13)) & mask;
+            result = result + xy;                
+        } else if (koma == BanmenDefine.pR) {
+            pos = 2 + 13;
+            result = (key[0] >>> (64 - pos - 13)) & mask;
+            result = (result * 82) + xy;
+        } else {
+            pos = 2 + 13 + 13;
+            result = (key[0] >>> (64 - pos - 13)) & mask;
+            result = (result * 82) + xy;
+        }
+        result = result & mask;
+        key[0] = key[0] & (~(mask >>> pos));
+        key[0] = key[0] | (result<< (64 - pos - 13));
+        //
+        */
+    }
+    /**
+     * 飛車角コマの設定
+     * @param p ポインタ
+     * @param banmen 盤面情報
+     */
+    public void getRB(Pointer p, BanmenOnly banmen) {
+        long sum = getData(p, 13);
+        long ou0 = sum / 82;
+        long ou1 = sum % 82;
+        banmen.setKoma(BanmenDefine.pK, (int)ou0/9, (int)ou0%9);
+        p.pKSum++;
+        banmen.setKoma(BanmenDefine.pk, (int)ou1/9, (int)ou1%9);
+        p.pKSum++;
+        //
+        sum = getData(p, 13);
+        ou0 = sum / 82;
+        ou1 = sum % 82;
+        getRB(banmen,BanmenDefine.pR,p.pRSum,ou0);
+        p.pRSum++;
+        //
+        getRB(banmen,BanmenDefine.pR,p.pRSum,ou1);
+        p.pRSum++;
+        //
+        sum = getData(p, 13);
+        ou0 = sum / 82;
+        ou1 = sum % 82;
+        getRB(banmen,BanmenDefine.pB,p.pBSum,ou0);
+        p.pBSum++;
+        getRB(banmen,BanmenDefine.pB,p.pBSum,ou1);
+        p.pBSum++;
+    }
+    /**
+     * 飛車角コマの設定
+     * @param banmen 盤面
+     * @param koma コマ
+     * @param sum 合計
+     * @param ou0 位置
+     */
+    public void getRB(BanmenOnly banmen, byte koma, int sum, long ou0) {
+        int enemy = getKomaEnemyBit(koma,sum);
+        if (ou0 != 81) {
+            koma = (byte)(koma | enemy | getKomaNariBit(koma,sum));
+            banmen.setKoma(koma, (int)ou0/9, (int)ou0%9);
+        } else { // 成りだった場合
+            enemy = (enemy == 0) ? 0 : 1;
+            banmen.setTegoma(koma, enemy,banmen.getTegoma(koma, enemy) + 1);
+        }
+    }
+    /**
+     * 後手bitを立てる
+     * @param komaOnly コマの種類
+     * @param komaEnemy 先手0, 後手1 
+     * @param sum コマの種類の中で何枚目のコマか？
+     */
+    public void setKomaEnemyBit(int komaOnly, int komaEnemy, int sum) {
+        if (komaEnemy != 0) setBit(1 + 1 + (13*3) + SENTE_BIT_POS[komaOnly] + sum);
+
+    }
+    /**
+     * 後手bitを立てる
+     * @param komaOnly コマの種類
+     * @param komaNari 先手0, 後手1 
+     * @param sum コマの種類の中で何枚目のコマか？
+     */
+    public void setKomaNariBit(int komaOnly, int komaNari, int sum) {
+        if (komaNari  != 0) setBit(1 + 1 + (13*3) + SENTE_BIT_POS[komaOnly] + sum + NARI_BIT_BASE);
+    }
+    /**
+     * 後手bitが立っているか取得する
+     * @param komaOnly コマの種類
+     * @param sum コマの種類の中で何枚目のコマか？
+     * @return 先手0,後手0x20
+     */
+    public byte getKomaEnemyBit(int komaOnly, int sum) {
+        return (getBit(1 + 1 + (13*3) + SENTE_BIT_POS[komaOnly] + sum) != 0) ? BanmenDefine.ENEMY : 0;
+    }
+    /**
+     * 成りbitが立っているか取得する
+     * @param komaOnly コマの種類
+     * @param sum コマの種類の中で何枚目のコマか？
+     * @return 先手0,後手0x10
+     */
+    public byte getKomaNariBit(int komaOnly, int sum) {
+        return (getBit(1 + 1 + (13*3) + SENTE_BIT_POS[komaOnly] + sum + NARI_BIT_BASE) != 0) ? BanmenDefine.NARI : 0;
+    }
+
+
+    @Override
+    public int compareTo(BanmenKey o) {
+        if (key[0] != o.key[0]) {
+            return (int) (key[0] - o.key[0]);
+        } else if (key[1] != o.key[1]) {
+            return (int) (key[1] - o.key[1]);
+        } else if (key[2] != o.key[2]) {
+            return (int) (key[2] - o.key[2]);
+        }
+        return (int) (key[3] - o.key[3]);
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof BanmenKey) {
+            BanmenKey target = (BanmenKey)o;
+            return (key[0] == target.key[0]) &&
+                    (key[1] == target.key[1]) &&
+                    (key[2] == target.key[2]) &&
+                    (key[3] == target.key[3]);
+        }
+        return false;
+    }
+    /**
+     * hash値を得る
+     * @return hash
+     */
+    public long[] hashCodeLongArray() {
+        return key;
+    }
+    /**
+     * hash値を得る
+     * @return hash
+     */
+    public long hashCodeLong() {
+        return key[0] ^ key[1] ^ key[2] ^ key[3];
+    }
+    @Override
+    public int hashCode() {
+        long x = hashCodeLong();
+        return (int)((0xFFFFFFFFL & x) ^ (x >>> 32));
+    }
+    /**
+     * hash値を得る
+     * @return hash
+     */
+    public int hashCodeInt() {
+        return hashCode();
+    }
+    /**
+     * hash値を得る
+     * @return hash
+     */
+    public short hashCodeShort() {
+        int x = hashCode();
+        return (short) ((0xFFFF & x) ^ (x >>> 16));
+    }
+    /**
+     * hash値を得る
+     * @return hash
+     */
+    public byte hashCodeByte() {
+        short x = hashCodeShort();
+        return (byte) ((0xFF & x) ^ (x >>> 8));
+    }
+
+    /**
+     * key値から盤面を作る
+     * @return 盤面
+     */
+    public BanmenOnly createBanmenOnly() {
+        BanmenOnly banmen = new BanmenOnly();
+        for (int y = 0 ; y < BanmenDefine.B_MAX ; y++) {
+            for (int x = 0 ; x < BanmenDefine.B_MAX ; x++) {
+                // 盤面から消す
+                banmen.setKoma(BanmenDefine.pNull, x, y);
+            }
+        }
+        //
+        Pointer p = new Pointer();
+        //
+        // 手番を設定する
+        banmen.setTeban((int)getData(p,1));
+        //
+        getData(p, 1); // 王手フラグは飛ばして良い
+        //
+        // 飛車と角の位置を決定
+        getRB(p,banmen);
+        //
+        getData(p, NARI_BIT_BASE);     // どとらのコマか？bitを飛ばす
+        getData(p, NARI_BIT_BASE - 4); // 成りコマbitを飛ばす(金は成らない)
+        //
+        // ハフマン処理ここから
+        for (int y = 0 ;  y < BanmenDefine.B_MAX ; y++) {
+            if (p.okSum()) {
+                break; // すべてのコマが揃ったらループ不要
+            }
+            for (int x = 0 ;  x < BanmenDefine.B_MAX ; x++) {
+                if (p.okSum()) {
+                    break; // すべてのコマが揃ったらループ不要
+                }
+                //
+                // 超過チェック
+                p.checkSum();
+                //
+                if (banmen.getKoma(x,y) != BanmenDefine.pNull) {
+                    continue; // すでにコマが置かれている
+                }
+                //
+                // 空かどうかチェックする
+                long check = getData(p,1);
+                if (check == 0) {
+                    continue; // 空だ
+                }
+                //
+                // 中身のデータ
+                check = getData(p,1);
+                byte koma;
+                long enemy;
+                long nari = 0;
+                if (check == 0) { // 00xxx
+                    // 歩である
+                    koma = BanmenDefine.pP;
+                    enemy = getKomaEnemyBit(koma,p.pPSum);
+                    nari = getKomaNariBit(koma,p.pPSum);
+                    p.pPSum++;
+                } else { // 1xxxx
+                    check = getData(p,2);
+                    if (check == 0b00) {
+                        koma = BanmenDefine.pL;
+                        enemy = getKomaEnemyBit(koma,p.pLSum);
+                        nari = getKomaNariBit(koma,p.pLSum);
+                        p.pLSum++;
+                    } else if (check == 0b1) {
+                        koma = BanmenDefine.pN;
+                        enemy = getKomaEnemyBit(koma,p.pNSum);
+                        nari = getKomaNariBit(koma,p.pNSum);
+                        p.pNSum++;
+                    } else if (check == 0b10) {
+                        koma = BanmenDefine.pS;
+                        enemy = getKomaEnemyBit(koma,p.pSSum);
+                        nari = getKomaNariBit(koma,p.pSSum);
+                        p.pSSum++;
+                    } else { // 0b11
+                        koma = BanmenDefine.pG;
+                        enemy = getKomaEnemyBit(koma,p.pGSum);
+                        p.pGSum++;
+                        // 金に成りはない
+                    }
+                }
+                koma = (byte) (enemy | nari | koma);
+                banmen.setKoma(koma, x, y);
+            }
+        }
+        //
+        // 持ちコマチェック
+        while (! p.okSum()) {
+            //
+            // 超過チェック
+            p.checkSum();
+            //
+            byte koma;
+            int enemy;
+            long check = getData(p,1);;
+            if (check == 0b0) { //0b0
+                koma = BanmenDefine.pP;
+                enemy = getKomaEnemyBit(koma,p.pPSum);
+                p.pPSum++;// 歩である
+                p.checkSum();
+            } else { // 0b1
+                check = getData(p,2);
+                if (check == 0b00) {
+                    koma = BanmenDefine.pL;
+                    enemy = getKomaEnemyBit(koma,p.pLSum);
+                    p.pLSum++;
+                    p.checkSum();
+                } else if (check == 0b01) {
+                    koma = BanmenDefine.pN;                     
+                    enemy = getKomaEnemyBit(koma,p.pNSum);
+                    p.pNSum++;
+                    p.checkSum();
+                } else if (check == 0b10) {
+                    koma = BanmenDefine.pS;                     
+                    enemy = getKomaEnemyBit(koma,p.pSSum);
+                    p.pSSum++;
+                    p.checkSum();
+                } else { //0b11
+                    koma = BanmenDefine.pG;
+                    enemy = getKomaEnemyBit(koma,p.pGSum);
+                    p.pGSum++;
+                    p.checkSum();
+                }
+            }
+            // enemyはBanmenDefine.ENEMYが入っているので、先手0,後手1にする
+            enemy = (enemy == 0) ? 0 : 1;
+            banmen.setTegoma(koma, enemy,banmen.getTegoma(koma, enemy) + 1);
+        }
+        //
+        return banmen;
+    }
+    
+    /**
+     * 次のkey値から手を得る
+     * @param newKey 次の局面
+     * @return 打ち手
+     */
+    public int createKeyToTe(BanmenKey newKey) {
+        BanmenOnly newOnly = newKey.createBanmenOnly();
+        BanmenOnly myOnly = this.createBanmenOnly();
+        return myOnly.createTe(newOnly);
+    }
+    
+    /**
+     * 打ち手からkey値を得る
+     * @param te 打ち手
+     * @return key値
+     */
+    public BanmenKey createTeToKey(int te) {
+        BanmenOnly myOnly = this.createBanmenOnly();
+        BanmenOnly nextOnly = new BanmenOnly(myOnly,te);
+        return new BanmenKey(nextOnly);
+    }
+
+    /** ビット設定に1を立てる
+     * @param len ビット位置
+     */
+    protected void setBit(int len) {
+        if (256 <= len) {
+            throw new java.lang.UnsupportedOperationException("setData Exception(1)!");            
+        }
+        key[len / 64] = key[len / 64] | (1L << (63 - (len % 64)));
+    }
+    /**
+     * ビット情報を得る
+     * @param len ビットの位置
+     * @return ビット
+     */
+    protected long getBit(int len) {
+        if (256 <= len) {
+            throw new java.lang.UnsupportedOperationException("setData Exception(1)!");            
+        }
+        long p = key[len / 64] & (1L << (63 - (len % 64)));
+        return p == 0 ? 0 :1;
+    }
+
+    
+    /**
+     * データを一つ書き込む
+     * @param p ポインタ
+     * @param len ビットの長さ
+     * @param data データ
+     */
+    protected void setData(Pointer p,int len, long data) {
+        int max = p.pos + len;
+        if (max <= 64) {
+            long newData = data << (64 - max);
+            if (4 <= p.index) {
+                throw new java.lang.UnsupportedOperationException("setData Exception(1)! index=" + p.index + " pos=" + p.pos);
+            }
+            key[p.index] = key[p.index] | newData;
+            p.pos = max;
+            return;
+        }
+        long newData = data >>> (max - 64);
+        key[p.index] = key[p.index] | newData;
+        p.index++;
+        p.pos = 0;
+        len = max - 64;
+        if (len != 0) {
+            if (4 <= p.index) {
+                throw new java.lang.UnsupportedOperationException("setData Exception(2)! index=" + p.index + " pos=" + p.pos);
+            }
+            newData = data << (64 - max);
+            key[p.index] = key[p.index] | newData;          
+        }
+        p.pos = len;
+    }
+    
+    /**
+     * データを一つ取得する
+     * @param p ポインタ
+     * @param len 長さ
+     * @return データ
+     */
+    protected long getData(Pointer p,int len) {
+        long result = 0;
+        if (4 <= p.index) {
+            throw new java.lang.UnsupportedOperationException("getData Exception(1)! index=" + p.index + " pos=" + p.pos);
+        }
+        int max = p.pos + len;
+        if (max < 64) {
+            result = key[p.index];
+            result = result << p.pos;
+            result = result >>> (64 - len);
+            //
+            p.pos = max;
+            return result;
+        }
+        int nextLen = max - 64;
+        result = key[p.index] << p.pos; //pos分だけ左シフトして
+        result = result >>> p.pos; //pos分だけ右シフトすればposより前が0になる
+        result = result << nextLen; // 次の長さ分だけ左シフトして次のindex分のデータが詰めるようにする
+        int tIndex = p.index + 1;
+        if ((4 <= tIndex) && (nextLen != 0)) {
+            throw new java.lang.UnsupportedOperationException("getData Exception(2)! index" + tIndex + " pos=" + nextLen);
+        }
+        if (nextLen != 0) {
+            result = result | (key[tIndex] >>> (64 - nextLen));
+        }
+        p.index = tIndex;
+        p.pos = nextLen;
+        return result;
+    }
+    
+    /**
+     * データを一つ取得する(ポインタをずらさない)
+     * @param p ポインタ
+     * @param len 長さ
+     * @return データ
+     */
+    protected long peakData(Pointer p,int len) {
+        long result = 0;
+        if (4 <= p.index) {
+            return 0;
+        }
+        int max = p.pos + len;
+        if (max < 64) {
+            result = key[p.index];
+            result = result << p.pos;
+            result = result >>> (64 - len);
+            //
+            //p.pos = max; // peekなので処理しない
+            return result;
+        }
+        int nextLen = max - 64;
+        result = key[p.index] << p.pos; //pos分だけ左シフトして
+        result = result >>> p.pos; //pos分だけ右シフトすればposより前が0になる
+        result = result << nextLen; // 次の長さ分だけ左シフトして次のindex分のデータが詰めるようにする
+        int tIndex = p.index + 1;
+        if ((4 <= tIndex) && (nextLen != 0)) {
+            return 0;
+        }
+        if (nextLen != 0) {
+            result = result | (key[tIndex] >>> (64 - nextLen));
+        }
+        // p.index = tIndex; // peekなので処理しない
+        // p.pos = nextLen; // peekなので処理しない
+        return result;
+    }
+    
+    /**
+     * 手番を取得する 手番を得る
+     * @return 手番
+     */
+    public int getTeban() {
+        return (int) (key[0] >>> 63);
+    }
+    /**
+     * 手番を設定する
+     * @param teban 手番
+     */
+    protected void setTeban(int teban) {
+        key[0] = (key[0] & ((~ 0L) >>> 1)) | ((teban & 1L) << 63);
+    }
+    /**
+     * 自分が王手か設定する
+     * @param myOute 自分が王手ならtrue
+     */
+    protected void setMyOute(boolean myOute) {
+        long base = (((myOute ? 1 : 0) & 1L) << 62);
+        long baseReverse = ~ base;//指定ビットの反転
+        key[0] = (key[0] & baseReverse) | base;
+    }
+
+    /** 自分が王手か？
+     * @return 自分が王手ならtrue
+     */
+    public boolean isMyOute() {
+        return ((int) ((key[0] >>> 62) & 0x1)) != 0;
+    }
+}

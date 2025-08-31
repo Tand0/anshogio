@@ -246,7 +246,7 @@ public class BanmenNextEval extends BanmenNextBase {
             BanmenNext next = factory.create(key);
             PnDn childPnDn = next.createPnDn()[seme];
             if (route.contains(key)
-                    || (! next.isMyOute())
+                    || (! key.isMyOute())
                     || (next.getPnDn()[seme].dn == 0)) {
                 continue; // ルート重複か、敵に王手が掛かっていないか 不詰め確定なら無視する
             }

@@ -108,12 +108,4 @@ public interface BanmenNext extends Comparable<BanmenNext> {
 	 */
 	public boolean executePnDn(BanmenFactory factory,int seme, int level, HashSet<BanmenKey> route);
 
-	/** 王手にする */
-	public void setEnemyOute();
-
-    /**
-     * 王手情報
-     * @return 敵に王手をしているならtrue
-     */
-    public boolean isMyOute();
 }

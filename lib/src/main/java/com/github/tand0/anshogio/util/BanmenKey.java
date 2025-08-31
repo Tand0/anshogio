@@ -92,7 +92,7 @@ public class BanmenKey implements Comparable<BanmenKey> {
         int ou0 = 0;
         int ou1 = 0;
         //
-        // 王飛車角の位置特定
+        // 王の位置特定
         for (int x = 0 ;  x < BanmenDefine.B_MAX ; x++) {
             for (int y = 0 ;  y < BanmenDefine.B_MAX ; y++) {
                 byte koma = only.getKoma(x, y);
@@ -104,9 +104,9 @@ public class BanmenKey implements Comparable<BanmenKey> {
             }
         }
         //
-        setData(p, 1, only.getTeban()); // 手番  
-        setData(p, 7, ou0); // 王の位置
-        setData(p, 7, ou1); // 王の位置
+        setData(p, 1, only.getTeban()); // 手番
+        setData(p, 1, only.isMyOute() ? 1 : 0);
+        setData(p, 13, (ou0 * 82) + ou1); // 王の位置
         //
         setData(p, NARI_BIT_BASE, 0L); // どとらのコマか？bitを飛ばす
         setData(p, NARI_BIT_BASE - 4, 0L); // 成りコマbitを飛ばす(金は成らない)
@@ -367,11 +367,10 @@ public class BanmenKey implements Comparable<BanmenKey> {
         // 王角飛車の設定の取得
         //
         // 値を投入する
-        //long sum = getData(p, 13);
-        //long ou1 = sum % (9*9);
-        //long ou0 = sum / (9*9);
-        long ou0 = getData(p, 7);
-        long ou1 = getData(p, 7);
+        getData(p, 1); // 王手フラグを飛ばす
+        long sum = getData(p, 13);
+        long ou1 = sum % (9*9 + 1);
+        long ou0 = sum / (9*9 + 1);
         banmen.setKoma(BanmenDefine.pK, (int)ou0/9, (int)ou0%9);
         banmen.setKoma(BanmenDefine.pk, (int)ou1/9, (int)ou1%9);
         //
@@ -688,5 +687,21 @@ public class BanmenKey implements Comparable<BanmenKey> {
      */
     protected void setTeban(int teban) {
         key[0] = (key[0] & ((~ 0L) >>> 1)) | ((teban & 1L) << 63);
+    }
+    
+    /**
+     * 自分が王手か設定する
+     * @param myOute 自分が王手ならtrue
+     */
+    protected void setMyOute(boolean myOute) {
+        long base = (((myOute ? 1 : 0) & 1L) << 62);
+        long baseReverse = ~ base;//指定ビットの反転
+        key[0] = (key[0] & baseReverse) | base;
+    }
+    /** 自分が王手か？
+     * @return 自分が王手ならtrue
+     */
+    public boolean isMyOute() {
+        return ((int) ((key[0] >>> 62) & 0x1)) != 0;
     }
 }
