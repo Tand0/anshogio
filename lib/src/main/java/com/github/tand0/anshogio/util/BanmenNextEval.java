@@ -83,16 +83,17 @@ public class BanmenNextEval extends BanmenNextBase {
         float value = (teban == 0) ? Float.MIN_VALUE : Float.MAX_VALUE;
         boolean forceFlagTarget = false;
         for (BanmenKey teKey : this.getChild()) {
-            if (banmenList.contains(teKey)) {
-                // 千日手を回避するため、同じ局面にはしない
+            if (te == null) {
+                te = teKey; // デフォルトを入れる
+            }
+            if ((this.getMyKey().getTeban() == 0)  && banmenList.contains(teKey)) {
+                // 千日手を回避するため、"先手の時は"同じ局面にはしない
                 continue;
             }
             BanmenNext next = factory.create(teKey);
             Float winLossValue = next.getEvel();
             if (winLossValue == null) {
-                if (te == null) {
-                    te = teKey;
-                }
+                logger.error("winLossValue == null");
                 continue;
             }
             boolean childForceFlag = next.getForceFlag();

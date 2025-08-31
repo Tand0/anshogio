@@ -197,6 +197,7 @@ public class ANShogiO {
         //
         // ２回目呼ばれたときのために前の局面をすべて消す
         banmenList.clear();
+        factory.decisionTe(null,null);
         //
         // 初期値を入れる
         BanmenKey key = (new BanmenOnly()).createBanmenKey();
@@ -465,11 +466,11 @@ public class ANShogiO {
         if (tensorEngineRunnable != null) tensorEngineRunnable = null;
         if (pnDnEngineRunnable   != null) pnDnEngineRunnable = null;
         //
-        // 本来なら過去情報の検索情報を残すために消したくないが、
-        // OutOfMemoryに苦しんでいるので、工場の盤面を全部削除する
-        logger.debug("befor gc / totalMemory={}", Runtime.getRuntime().totalMemory());
+        String gcString = String.format("%,d", Runtime.getRuntime().totalMemory());
+        logger.debug("befor gc / totalMemory={}", gcString);
         System.gc();
-        logger.debug("after gc / totalMemory={}", Runtime.getRuntime().totalMemory());
+        gcString = String.format("%,d", Runtime.getRuntime().totalMemory());
+        logger.debug("after gc / totalMemory={}", gcString);
 
         //
         // 対戦の開始
@@ -593,6 +594,9 @@ public class ANShogiO {
                 //
                 // 制限時間内の理想の手を入手
                 int tesuji = tensorEngineLc.getTe();
+                if (tesuji < 0) {
+                    logger.debug("tesuji error te={}", tesuji);
+                }
                 // 手をサーバへ送信する
                 ANShogiO.this.sendTe(tesuji);
                 //

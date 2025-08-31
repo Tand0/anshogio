@@ -93,7 +93,7 @@ public class BanmenFactory {
      * @return 結果
      */
     private BanmenNext decisionTeAsync(BanmenNext base, BanmenKey key) {
-        if (key == null) { // 全消し
+        if ((base == null) || (key == null)) { // 全消し
             hashSet.clear();
             return null;
         }

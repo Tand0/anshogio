@@ -120,7 +120,7 @@ public class PnDnEngineRunnable extends BaseEngineRunnable {
         PnDn basePnDn = next.getPnDn()[seme];
         for (BanmenKey childKey : next.getChild()) {
             BanmenNext childNext = this.getFactory().create(childKey);
-            PnDn childPndn = childNext.getPnDn()[seme];
+            PnDn childPndn = childNext.createPnDn()[seme]; // 生成
             if (flag) {
                 flag = false; // 初期はこうなる。初期フラグを落とす
                 basePnDn.pn = childPndn.pn;
